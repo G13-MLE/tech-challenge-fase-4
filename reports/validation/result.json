@@ -1,0 +1,144 @@
+{
+  "status": "failed",
+  "file": "data/corrupted/bad_batch.parquet",
+  "n_rows": 201,
+  "n_violations": 17,
+  "violations": [
+    {
+      "schema_context": "Column",
+      "column": "LIMIT_BAL",
+      "check": "greater_than(0)",
+      "check_number": 0,
+      "failure_case": -100.0,
+      "index": 5
+    },
+    {
+      "schema_context": "Column",
+      "column": "LIMIT_BAL",
+      "check": "greater_than(0)",
+      "check_number": 0,
+      "failure_case": -100.0,
+      "index": 6
+    },
+    {
+      "schema_context": "Column",
+      "column": "LIMIT_BAL",
+      "check": "greater_than(0)",
+      "check_number": 0,
+      "failure_case": -100.0,
+      "index": 7
+    },
+    {
+      "schema_context": "Column",
+      "column": "LIMIT_BAL",
+      "check": "greater_than(0)",
+      "check_number": 0,
+      "failure_case": -100.0,
+      "index": 8
+    },
+    {
+      "schema_context": "Column",
+      "column": "LIMIT_BAL",
+      "check": "greater_than(0)",
+      "check_number": 0,
+      "failure_case": -100.0,
+      "index": 9
+    },
+    {
+      "schema_context": "Column",
+      "column": "EDUCATION",
+      "check": "isin([1, 2, 3, 4])",
+      "check_number": 0,
+      "failure_case": 99.0,
+      "index": 10
+    },
+    {
+      "schema_context": "Column",
+      "column": "EDUCATION",
+      "check": "isin([1, 2, 3, 4])",
+      "check_number": 0,
+      "failure_case": 99.0,
+      "index": 11
+    },
+    {
+      "schema_context": "Column",
+      "column": "EDUCATION",
+      "check": "isin([1, 2, 3, 4])",
+      "check_number": 0,
+      "failure_case": 99.0,
+      "index": 12
+    },
+    {
+      "schema_context": "Column",
+      "column": "EDUCATION",
+      "check": "isin([1, 2, 3, 4])",
+      "check_number": 0,
+      "failure_case": 99.0,
+      "index": 13
+    },
+    {
+      "schema_context": "Column",
+      "column": "EDUCATION",
+      "check": "isin([1, 2, 3, 4])",
+      "check_number": 0,
+      "failure_case": 99.0,
+      "index": 14
+    },
+    {
+      "schema_context": "Column",
+      "column": "AGE",
+      "check": "in_range(18, 100)",
+      "check_number": 0,
+      "failure_case": 15.0,
+      "index": 0
+    },
+    {
+      "schema_context": "Column",
+      "column": "AGE",
+      "check": "in_range(18, 100)",
+      "check_number": 0,
+      "failure_case": 15.0,
+      "index": 1
+    },
+    {
+      "schema_context": "Column",
+      "column": "AGE",
+      "check": "in_range(18, 100)",
+      "check_number": 0,
+      "failure_case": 15.0,
+      "index": 2
+    },
+    {
+      "schema_context": "Column",
+      "column": "AGE",
+      "check": "in_range(18, 100)",
+      "check_number": 0,
+      "failure_case": 15.0,
+      "index": 3
+    },
+    {
+      "schema_context": "Column",
+      "column": "AGE",
+      "check": "in_range(18, 100)",
+      "check_number": 0,
+      "failure_case": 15.0,
+      "index": 4
+    },
+    {
+      "schema_context": "Column",
+      "column": "AGE",
+      "check": "in_range(18, 100)",
+      "check_number": 0,
+      "failure_case": 15.0,
+      "index": 200
+    },
+    {
+      "schema_context": "Column",
+      "column": "PAY_AMT1",
+      "check": "greater_than_or_equal_to(0)",
+      "check_number": 0,
+      "failure_case": -50.0,
+      "index": 15
+    }
+  ]
+}

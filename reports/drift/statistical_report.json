@@ -1,0 +1,70 @@
+{
+  "n_features": 8,
+  "n_drifted": 3,
+  "features": {
+    "LIMIT_BAL": {
+      "psi": 1.2078743973685702,
+      "ks": {
+        "statistic": 0.15560000000000007,
+        "pvalue": 3.294736424788177e-53
+      },
+      "severity": "severe"
+    },
+    "SEX": {
+      "psi": 0.0,
+      "ks": {
+        "statistic": 0.0,
+        "pvalue": 1.0
+      },
+      "severity": "stable"
+    },
+    "EDUCATION": {
+      "psi": 0.0,
+      "ks": {
+        "statistic": 0.0,
+        "pvalue": 1.0
+      },
+      "severity": "stable"
+    },
+    "MARRIAGE": {
+      "psi": 0.0,
+      "ks": {
+        "statistic": 0.0,
+        "pvalue": 1.0
+      },
+      "severity": "stable"
+    },
+    "AGE": {
+      "psi": 1.0991265913483568,
+      "ks": {
+        "statistic": 0.16359999999999997,
+        "pvalue": 8.42310065849609e-59
+      },
+      "severity": "severe"
+    },
+    "PAY_0": {
+      "psi": 0.9868196407219315,
+      "ks": {
+        "statistic": 0.19119999999999998,
+        "pvalue": 2.7211569480807905e-80
+      },
+      "severity": "severe"
+    },
+    "BILL_AMT1": {
+      "psi": 0.0,
+      "ks": {
+        "statistic": 0.0,
+        "pvalue": 1.0
+      },
+      "severity": "stable"
+    },
+    "PAY_AMT1": {
+      "psi": 0.0,
+      "ks": {
+        "statistic": 0.0,
+        "pvalue": 1.0
+      },
+      "severity": "stable"
+    }
+  }
+}

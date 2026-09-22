@@ -1,0 +1,75 @@
+# =============================================================================
+# Pipeline DVC: ingestao -> validacao -> treino -> drift -> monitoramento
+# =============================================================================
+
+stages:
+  ingestao:
+    cmd: uv run python -m src.data.ingest
+    deps:
+      - data/raw/reference.csv
+      - src/data/ingest.py
+      - src/data/split.py
+      - src/core/dataset.py
+      - src/core/params.py
+      - configs/params.yaml
+    outs:
+      - data/reference/reference.parquet
+
+  validacao:
+    cmd: uv run python -m src.contracts.validate
+    deps:
+      - data/reference/reference.parquet
+      - src/contracts/schema.py
+      - src/contracts/validate.py
+      - src/core/dataset.py
+      - configs/params.yaml
+    metrics:
+      - reports/validation/result.json:
+          cache: false
+
+  treino:
+    cmd: uv run python -m src.model.train
+    deps:
+      - data/reference/reference.parquet
+      - src/model/train.py
+      - src/model/evaluate.py
+      - src/core/dataset.py
+      - src/core/params.py
+      - configs/params.yaml
+    outs:
+      - models/model.joblib
+    metrics:
+      - reports/train_metrics.json:
+          cache: false
+
+  drift:
+    cmd: uv run python -m src.drift.run
+    deps:
+      - data/reference/reference.parquet
+      - models/model.joblib
+      - src/drift/simulate.py
+      - src/drift/stats.py
+      - src/drift/detect.py
+      - src/drift/concept.py
+      - src/model/predict.py
+      - src/core/dataset.py
+      - src/core/params.py
+      - configs/params.yaml
+    outs:
+      - reports/drift/drift_report.html:
+          cache: false
+    metrics:
+      - reports/drift/statistical_report.json:
+          cache: false
+
+  monitoramento:
+    cmd: uv run python -m src.observability.run
+    deps:
+      - reports/drift/statistical_report.json
+      - reports/train_metrics.json
+      - src/observability
+      - src/core/dataset.py
+      - configs/params.yaml
+    outs:
+      - reports/monitoring/run_summary.json:
+          cache: false

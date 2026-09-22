@@ -1,0 +1,53 @@
+# =============================================================================
+# Parâmetros do pipeline — credit scoring / drift
+# =============================================================================
+
+data:
+  # Coluna alvo binária (0 = adimplente, 1 = inadimplente)
+  target_column: default_next_month
+  # Coluna de identificação (PII — dropada ou pseudonimizada na ingestão)
+  id_column: ID
+  # Proporção do dataset de referência usada para treino
+  reference_train_size: 0.8
+  seed: 42
+
+train:
+  seed: 42
+  test_size: 0.2
+  # Classificador principal ("xgboost" ou "logistic_regression")
+  classifier: xgboost
+  # Peso das classes ("balanced" ou null) — lida com desbalanceamento de crédito
+  class_weight: balanced
+  # Hiperparâmetros da regressão logística (baseline interpretável)
+  logistic_regression_C: 0.5
+  logistic_regression_max_iter: 2000
+  # Hiperparâmetros do XGBoost
+  xgboost_n_estimators: 300
+  xgboost_max_depth: 4
+  xgboost_learning_rate: 0.05
+  xgboost_subsample: 0.8
+  xgboost_colsample_bytree: 0.8
+  cv_folds: 5
+
+drift:
+  seed: 42
+  # Número de snapshots mensais de produção simulados
+  n_snapshots: 6
+  # Intensidade global do drift (0 = sem drift, 1 = forte)
+  intensity: 0.5
+  # Features deslocadas e direção do deslocamento econômico
+  shifted_features:
+    LIMIT_BAL: increase
+    AGE: increase
+    PAY_0: increase
+  # Drift de conceito: fração de mudança em P(y|X)
+  concept_drift_strength: 0.3
+
+drift_thresholds:
+  # PSI é a métrica de decisão primária (effect size)
+  psi_stable: 0.1
+  psi_moderate: 0.25
+  # Queda de ROC-AUC que dispara alerta de degradação
+  auc_drop_alert: 0.05
+  # p-valor do teste de Kolmogorov-Smirnov
+  ks_pvalue_alert: 0.05

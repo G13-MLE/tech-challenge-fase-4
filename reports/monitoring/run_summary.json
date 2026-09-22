@@ -1,0 +1,39 @@
+{
+  "health": {
+    "drift_alerts_total": 3,
+    "model_roc_auc_by_month": [
+      0.6997091213697808,
+      0.6501503394638212,
+      0.6229097355401512,
+      0.5858448363363817,
+      0.5639412856992196,
+      0.5456216762619082
+    ],
+    "model_auc_baseline": 0.6997091213697808,
+    "model_auc_last": 0.5456216762619082,
+    "model_auc_drop": 0.15408744510787264
+  },
+  "alerts": [
+    {
+      "type": "data_drift",
+      "feature": "LIMIT_BAL",
+      "psi": 1.2078743973685702
+    },
+    {
+      "type": "data_drift",
+      "feature": "AGE",
+      "psi": 1.0991265913483568
+    },
+    {
+      "type": "data_drift",
+      "feature": "PAY_0",
+      "psi": 0.9868196407219315
+    },
+    {
+      "type": "model_degradation",
+      "feature": "model",
+      "auc_drop": 0.15408744510787264
+    }
+  ],
+  "n_alerts": 4
+}
