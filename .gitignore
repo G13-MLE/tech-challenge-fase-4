@@ -29,8 +29,8 @@ env/
 .kaggle/
 
 # Dados (regeneráveis / gerenciados pelo DVC) — manter o .gitkeep
-data/
-!data/**/.gitkeep
+/data/
+/!data/**/.gitkeep
 *.dvc
 
 # Modelos (binários regeneráveis)
