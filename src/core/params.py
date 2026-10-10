@@ -62,18 +62,23 @@ class QualityParams(BaseModel):
     Attributes:
         near_dup_threshold: Limiar de similaridade Jaccard (MinHash/LSH) para
             considerar duas linhas como near-duplicates.
+        decisions: Decisão explícita (opt-in) por coluna — ``keep``,
+            ``remove`` ou ``transform``. Vazio mantém a política
+            flag-and-keep (FR-004), sem mutação silenciosa.
     """
 
     near_dup_threshold: float = Field(gt=0, le=1, default=0.9)
+    decisions: dict[str, Literal["keep", "remove", "transform"]] = Field(default_factory=dict)
 
 
 class TrainParams(BaseModel):
     """Parâmetros do estágio de treinamento.
 
     Attributes:
-        seed: Seed fixa para reprodutibilidade.
-        test_size: Proporção do conjunto de teste.
+        seed: Seed fixa para reprodutibilidade (também usada pelo estimador).
         classifier: Tipo de classificador ('xgboost' ou 'logistic_regression').
+            A proporção treino/validação vem de ``data.reference_train_size``
+            (via ``split_reference``).
         class_weight: Estratégia de peso das classes ('balanced' ou None).
         logistic_regression_C: Inverso da regularização da regressão logística.
         logistic_regression_max_iter: Máximo de iterações da regressão logística.
@@ -85,7 +90,6 @@ class TrainParams(BaseModel):
     """
 
     seed: int = Field(ge=0, default=42)
-    test_size: float = Field(gt=0, lt=1, default=0.2)
     classifier: Literal["xgboost", "logistic_regression"] = "xgboost"
     class_weight: str | None = "balanced"
     logistic_regression_C: float = Field(gt=0, default=0.5)  # noqa: N815

@@ -5,10 +5,11 @@
     "required_windows": 2,
     "max_psi": 2.2207695901256,
     "breached_feature_share": 0.5,
-    "champion_auc": 0.7668700202455592
+    "champion_auc": 0.7613084866851156,
+    "challenger_auc": 0.629590019220014
   },
   "guardrails": {
-    "auc_ok": true,
+    "auc_ok": false,
     "fairness_ok": false,
     "disparate_impact_min": 0.8,
     "equal_opportunity_max": 0.1,

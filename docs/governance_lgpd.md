@@ -71,3 +71,18 @@ com sinal preditivo realista e **sem qualquer pessoa real**. Isso permite rodar 
 | Viés discriminatório | fairness por subgrupo + guardrails de promoção |
 | Decisão automatizada opaca | MLflow Registry + versionamento + direito de revisão |
 | Exposição de segredos | `SecretStr` + `.env` ignorado + CI sem segredos |
+
+## 7. Privacy by Design (7 princípios)
+
+O projeto adota os **7 princípios fundacionais de Privacy by Design** (Cavoukian), implementados como
+controles concretos no pipeline — não apenas declarações de intenção:
+
+| # | Princípio | Controle no pipeline |
+| - | --------- | -------------------- |
+| 1 | **Proativo, não reativo; preventivo, não remediativo** | Data contracts (`src/contracts/schema.py`) e validação que **bloqueia** lotes inválidos (exit ≠ 0) antes de qualquer decisão; guardrails de drift (PSI/SLO) antecipam a degradação. |
+| 2 | **Privacidade como padrão** | Apenas features com valor preditivo são retidas; `ID` (identificador direto) é **removido na ingestão** por padrão; nenhum dado pessoal por linha é serializado em `reports/`/`logs/`. |
+| 3 | **Privacidade embutida no design** | Minimização e classificação de PII (`docs/data_dictionary.md`) fazem parte da arquitetura de dados; o split referência/produção e a dedup ocorrem antes do treino. |
+| 4 | **Funcionalidade total (positive-sum)** | O pipeline entrega valor analítico (credit scoring + drift) **e** privacidade simultaneamente: fairness/fairness-by-subgroup e monitoramento não exigem expor PII. |
+| 5 | **Segurança ponta-a-ponta (ciclo de vida)** | `SecretStr` para credenciais (nunca comitadas), `.env` ignorado, CI sem segredos, artefatos versionados (DVC/MLflow) e retenção documentada (seção 3). |
+| 6 | **Visibilidade e transparência** | Logs JSON auditáveis (`logs/pipeline.ndjson` com `run_id`/`trace_id`), `reports/**` versionados e **revisão de decisões automatizadas** (LGPD art. 20) via MLflow Registry. |
+| 7 | **Respeito pela privacidade do titular (user-centric)** | Direitos do titular preservados (revisão/contestação), dados sintéticos na dev/CI (sem pessoas reais) e mitigação de viés por subgrupo (`reports/fairness/`). |

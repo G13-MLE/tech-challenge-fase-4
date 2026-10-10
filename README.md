@@ -111,7 +111,9 @@ Tratamento de **PII** (`ID` direto → removido; `SEX`/`AGE`/`EDUCATION`/`MARRIA
 **base legal** (LGPD art. 7º, X / art. 11) para decisão de crédito, **retenção** por ciclo de vida e
 **mitigação de vieses** (disparate impact ≥ 0.8 e equal opportunity ≤ 0.10). O titular tem direito à
 **revisão de decisões automatizadas** (art. 20), viabilizado pelo versionamento no MLflow. Dados
-sintéticos são usados como salvaguarda em dev/CI.
+sintéticos são usados como salvaguarda em dev/CI. O plano segue os **7 princípios de Privacy by
+Design** (proativo, padrão, embutido no design, positive-sum, segurança ponta-a-ponta, transparência
+e respeito ao titular), mapeados a controles concretos.
 
 Detalhes: [`docs/governance_lgpd.md`](docs/governance_lgpd.md) e [`docs/data_dictionary.md`](docs/data_dictionary.md).
 
@@ -154,15 +156,21 @@ Roteiro completo em [`docs/video_script.md`](docs/video_script.md).
 
 ## Critérios de Avaliação
 
-- [x] **1. Validação/Contratos** — contrato rígido bloqueia lotes inválidos (exit 1) e mede qualidade
-      (dimensões, dedup antes do split, missingness, outliers, profiling).
-- [x] **2. Drift** — snapshots determinísticos com Data + Concept Drift; detecção **PSI-first** + KS/χ²
-      com FDR, multivariado (MMD²/Energy) e relatório Evidently.
-- [x] **3. Observabilidade** — logs correlacionados, SLO/Error Budget, alertas anti-fadiga, MLflow
-      Registry, dashboard e `/metrics`.
-- [x] **4. Governança** — LGPD/PII, análise causal, fairness com guardrails e Model Card/DPIA.
-- [x] **5. Reprodutibilidade** — DVC pipeline (estágios PT), `dvc repro` idempotente, CI com gates de
-      contrato e drift; evidências versionadas em `reports/`.
+Os cinco critérios oficiais do desafio (com os pesos da constituição do projeto):
+
+- [x] **1. Validação de Dados (25%)** — contrato rígido bloqueia lotes inválidos (exit 1) e mede
+      qualidade (dimensões, dedup antes do split, missingness, outliers, profiling).
+- [x] **2. Detecção de Drift (25%)** — snapshots determinísticos com Data + Concept Drift; detecção
+      **PSI-first** + KS/χ² com FDR, multivariado (MMD²/Energy) e relatório Evidently.
+- [x] **3. Observabilidade e Logs (20%)** — logs correlacionados, SLO/Error Budget, alertas
+      anti-fadiga, MLflow Registry, dashboard e `/metrics`.
+- [x] **4. Governança / LGPD (15%)** — LGPD/PII, Privacy by Design, análise causal, fairness com
+      guardrails e Model Card/DPIA.
+- [ ] **5. Vídeo STAR (15%)** — vídeo ≤ 5 min (Situation, Task, Action, Result) roteirizado em
+      [`docs/video_script.md`](docs/video_script.md); link público pendente ([Vídeo STAR](#vídeo-star)).
+
+> Reproducibilidade (transversal): DVC pipeline com estágios em português, `dvc repro` idempotente,
+> CI com gates de contrato e drift e evidências versionadas em `reports/`.
 
 ## Licença
 

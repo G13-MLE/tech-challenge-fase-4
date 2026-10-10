@@ -188,11 +188,18 @@ def prior_label_drift(
     }
 
 
-def evaluate_snapshots(snapshots: list[pd.DataFrame]) -> list[dict]:
+def evaluate_snapshots(
+    snapshots: list[pd.DataFrame], baseline_auc: float | None = None
+) -> list[dict]:
     """Avalia o modelo em cada snapshot de produção ao longo do tempo.
 
     Args:
         snapshots: Lista de DataFrames de produção em ordem temporal.
+        baseline_auc: ROC-AUC de referência do modelo campeão no conjunto
+            de teste do dataset de referência (``reports/train_metrics.json``).
+            Usado como ``reference_auc`` para medir a degradação real de
+            ``P(y|X)`` (Concept Drift). Se None, recorre ao AUC do primeiro
+            snapshot (compatibilidade), o que subestima a degradação.
 
     Returns:
         Lista de métricas por snapshot (inclui mês, Brier, calibração,
@@ -201,7 +208,7 @@ def evaluate_snapshots(snapshots: list[pd.DataFrame]) -> list[dict]:
     bundle = load_model()
     target = TARGET_COLUMN
     results: list[dict] = []
-    reference_auc: float | None = None
+    reference_auc: float | None = baseline_auc
     for index, snapshot in enumerate(snapshots, start=1):
         probabilities = predict_proba(snapshot, bundle)
         metrics = evaluate_frame(snapshot, probabilities, target)

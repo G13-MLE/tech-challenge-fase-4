@@ -185,6 +185,11 @@ def compute_chi2(expected: pd.Series, actual: pd.Series) -> dict[str, float | st
         pvalue = float(fisher_exact(observed)[1])
         method = "fisher_exact"
     elif expected_min < _LOW_EXPECTED_COUNT:
+        logger.warning(
+            "χ² com contagem esperada mínima < %.1f (min=%.2f); usando p-valor Monte Carlo.",
+            _LOW_EXPECTED_COUNT,
+            expected_min,
+        )
         pvalue = _monte_carlo_chi2_pvalue(expected, actual, float(statistic))
         method = "monte_carlo"
     dof = min(observed.shape) - 1
@@ -240,10 +245,16 @@ def bonferroni(pvalues: list[float], alpha: float = 0.05) -> list[bool]:
 
 
 def _severity(psi: float, stable: float, moderate: float) -> str:
-    """Classifica o PSI nas bandas stable/moderate/severe."""
+    """Classifica o PSI nas bandas stable/moderate/severe.
+
+    Bandas do desafio: ``stable < 0.1``, ``moderate 0.1–0.25`` e
+    ``severe > 0.25``. O limite ``moderate`` é inclusivo para permanecer
+    consistente com ``is_breach`` (``max_psi > moderate``), evitando que
+    um valor exatamente no limiar seja rotulado ``severe`` sem ser breach.
+    """
     if psi < stable:
         return "stable"
-    if psi < moderate:
+    if psi <= moderate:
         return "moderate"
     return "severe"
 

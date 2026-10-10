@@ -18,10 +18,12 @@ dataset:
 quality:
   # Limiar de similaridade Jaccard (MinHash/LSH) para near-duplicates
   near_dup_threshold: 0.9
+  # Decisão por coluna (opt-in): keep | remove | transform.
+  # Vazio ⇒ política flag-and-keep (nenhuma mutação silenciosa).
+  decisions: {}
 
 train:
   seed: 42
-  test_size: 0.2
   # Classificador principal ("xgboost" ou "logistic_regression")
   classifier: xgboost
   # Peso das classes ("balanced" ou null) — lida com desbalanceamento de crédito

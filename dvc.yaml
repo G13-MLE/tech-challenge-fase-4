@@ -18,12 +18,15 @@ stages:
     metrics:
       - reports/validation/dedup.json:
           cache: false
+      - reports/validation/harmonization.json:
+          cache: false
 
   validacao:
     cmd: uv run python -m src.contracts.validate && uv run python -m src.contracts.profile
     deps:
       - data/reference/reference.parquet
       - reports/validation/dedup.json
+      - reports/validation/harmonization.json
       - src/contracts/schema.py
       - src/contracts/validate.py
       - src/contracts/quality.py
@@ -59,6 +62,8 @@ stages:
     deps:
       - data/reference/reference.parquet
       - models/model.joblib
+      - reports/train_metrics.json
+      - src/drift/run.py
       - src/drift/simulate.py
       - src/drift/stats.py
       - src/drift/multivariate.py
@@ -77,6 +82,8 @@ stages:
       - reports/drift/statistical_report.json:
           cache: false
       - reports/drift/performance.json:
+          cache: false
+      - reports/drift/drift_test_result.json:
           cache: false
 
   monitoramento:

@@ -12,12 +12,16 @@ import pandera.errors as pa_errors
 import pandera.pandas as pa
 
 from src.contracts.schema import CREDIT_CONTRACT
+from src.core.params import load_params
 from src.data.missingness import diagnose_missingness
 from src.data.outliers import detect_outliers
 
-__all__ = ["compute_quality", "DEFAULT_DECISION"]
+__all__ = ["compute_quality", "compute_timeliness", "DEFAULT_DECISION"]
 
 DEFAULT_DECISION = "keep"
+
+# Colunas que expressam "atualidade" do dado (freshness) quando presentes.
+_TIMELINESS_COLUMNS = ("EVENT_TIMESTAMP", "timestamp", "snapshot_date", "date")
 
 
 def _completeness(frame: pd.DataFrame) -> float:
@@ -66,6 +70,35 @@ def _consistency(frame: pd.DataFrame) -> float:
     return float(conforming / total)
 
 
+def compute_timeliness(frame: pd.DataFrame) -> dict[str, object]:
+    """Avalia a atualidade (freshness) do lote, se houver coluna temporal.
+
+    O dataset de crédito canônico não possui coluna de timestamp, então a
+    temporalidade é estruturalmente **não aplicável** — o frescor é
+    garantido no nível do pipeline (DVC + snapshots mensais). Quando uma
+    coluna temporal reconhecida existir, reporta seu intervalo.
+
+    Args:
+        frame: DataFrame do lote.
+
+    Returns:
+        Dicionário ``{status, reason}`` ou ``{status, column, min, max}``.
+    """
+    for column in _TIMELINESS_COLUMNS:
+        if column in frame.columns:
+            series = pd.to_datetime(frame[column], errors="coerce")
+            return {
+                "status": "measured",
+                "column": column,
+                "min": str(series.min()),
+                "max": str(series.max()),
+            }
+    return {
+        "status": "not_applicable",
+        "reason": "lote sem coluna temporal; frescor garantido por DVC/snapshots mensais",
+    }
+
+
 def _validity(frame: pd.DataFrame) -> tuple[float, int]:
     """Fração de linhas válidas e o número de linhas inválidas.
 
@@ -104,10 +137,14 @@ def compute_quality(frame: pd.DataFrame) -> dict:
     validity, n_invalid = _validity(frame)
     n_rows = int(len(frame))
     n_duplicates = int(len(frame) - len(frame.drop_duplicates())) if n_rows else 0
+    overrides = load_params().quality.decisions
+    decisions = {
+        str(column): overrides.get(str(column), DEFAULT_DECISION) for column in frame.columns
+    }
     return {
         "completeness": round(_completeness(frame), 6),
         "uniqueness": round(_uniqueness(frame), 6),
-        "timeliness": "not_applicable",
+        "timeliness": compute_timeliness(frame),
         "consistency": round(_consistency(frame), 6),
         "validity": round(validity, 6),
         "n_rows": n_rows,
@@ -116,5 +153,5 @@ def compute_quality(frame: pd.DataFrame) -> dict:
         "n_invalid_rows": n_invalid,
         "missingness": diagnose_missingness(frame),
         "outliers": detect_outliers(frame),
-        "decisions": {str(column): DEFAULT_DECISION for column in frame.columns},
+        "decisions": decisions,
     }

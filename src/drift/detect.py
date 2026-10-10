@@ -165,12 +165,17 @@ def build_test_suite_result(reference, production, statistical_report: dict | No
     """
     result: dict = {"is_breach": False, "max_psi": None, "drifted_features": []}
     try:
-        result.update(_evidently_test_results(reference, production))
+        suite = _evidently_test_results(reference, production)
+        result.update(suite)
+        # Preserva o veredito próprio do Evidently Test Suite sob uma chave
+        # distinta, para não ser mascarado pelo veredito PSI (FR-014).
+        result["suite_passed"] = bool(suite.get("passed", True))
+        result["suite_n_failed"] = int(suite.get("n_failed", 0))
     except Exception as exc:  # noqa: BLE001 - gate não deve quebrar o pipeline
         logger.warning("Evidently Test Suite indisponível (%s); usando PSI.", exc)
         result.setdefault("tests", [])
-        result["passed"] = True
-        result["n_failed"] = 0
+        result["suite_passed"] = True
+        result["suite_n_failed"] = 0
     if statistical_report is not None:
         features = statistical_report.get("features", {})
         drifted = [name for name, entry in features.items() if entry.get("severity") == "severe"]
@@ -179,6 +184,8 @@ def build_test_suite_result(reference, production, statistical_report: dict | No
         result["drifted_features"] = drifted
         # PSI é a métrica primária de decisão do desafio.
         result["passed"] = not result["is_breach"]
+    else:
+        result["passed"] = bool(result.get("suite_passed", True))
     atomic_write_text(DRIFT_TEST_RESULT_PATH, json.dumps(result, indent=2))
     logger.info("Gate de drift: passed=%s, breach=%s.", result["passed"], result["is_breach"])
     return result
