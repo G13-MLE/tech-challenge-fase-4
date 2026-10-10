@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: credit-drift
+    orgId: 1
+    folder: "Credit Drift"
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards

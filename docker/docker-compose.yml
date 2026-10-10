@@ -52,7 +52,30 @@ services:
       - ../logs:/app/logs:ro
       - ../dashboard:/app/dashboard:ro
 
-  # ── Monitoring profile (Prometheus + Grafana, opcional) ──────────────
+  # ── Monitoring profile (Prometheus + Grafana + exporter, opcional) ────
+  exporter:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    image: credit-monitor
+    profiles:
+      - monitoring
+    ports:
+      - "${PROMETHEUS_EXPORTER_PORT:-8000}:8000"
+    env_file:
+      - ../.env
+    volumes:
+      - ../reports:/app/reports:ro
+      - ../logs:/app/logs:ro
+      - ../configs:/app/configs:ro
+    command: ["python", "-m", "src.observability.exporter"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/metrics')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
   prometheus:
     image: prom/prometheus:latest
     profiles:
@@ -63,6 +86,9 @@ services:
       - ../configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     command:
       - --config.file=/etc/prometheus/prometheus.yml
+    depends_on:
+      exporter:
+        condition: service_started
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
       interval: 30s
@@ -78,6 +104,9 @@ services:
     environment:
       GF_SECURITY_ADMIN_PASSWORD: "${GRAFANA_ADMIN_PASSWORD:-admin}"
       GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - ../docker/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../docker/grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       prometheus:
         condition: service_healthy

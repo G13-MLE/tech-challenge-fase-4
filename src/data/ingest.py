@@ -13,6 +13,7 @@ from src.core.dataset import (
     save_parquet,
 )
 from src.core.params import load_params
+from src.observability.logging import TaskTimer
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +42,8 @@ def ingest() -> None:
 
 def main() -> None:
     """Ponto de entrada do estágio de ingestão."""
-    ingest()
+    with TaskTimer("ingestao"):
+        ingest()
 
 
 if __name__ == "__main__":

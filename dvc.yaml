@@ -49,27 +49,44 @@ stages:
       - models/model.joblib
       - src/drift/simulate.py
       - src/drift/stats.py
+      - src/drift/multivariate.py
       - src/drift/detect.py
       - src/drift/concept.py
       - src/model/predict.py
+      - src/model/evaluate.py
       - src/core/dataset.py
       - src/core/params.py
       - configs/params.yaml
     outs:
+      - data/production
       - reports/drift/drift_report.html:
           cache: false
     metrics:
       - reports/drift/statistical_report.json:
           cache: false
+      - reports/drift/performance.json:
+          cache: false
 
   monitoramento:
     cmd: uv run python -m src.observability.run
     deps:
+      - data/reference/reference.parquet
+      - data/production
+      - models/model.joblib
       - reports/drift/statistical_report.json
+      - reports/drift/performance.json
       - reports/train_metrics.json
+      - reports/validation/result.json
       - src/observability
+      - src/model/predict.py
       - src/core/dataset.py
       - configs/params.yaml
     outs:
       - reports/monitoring/run_summary.json:
+          cache: false
+      - reports/fairness
+    metrics:
+      - reports/monitoring/slo_report.json:
+          cache: false
+      - reports/monitoring/retrain_decision.json:
           cache: false

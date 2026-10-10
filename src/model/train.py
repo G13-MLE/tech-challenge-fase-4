@@ -1,8 +1,9 @@
 """Treino do classificador de risco de crédito.
 
 Etapa 1. Treina um classificador (XGBoost ou LogisticRegression, conforme
-`configs/params.yaml`) sobre o dataset de referência, persiste o artefato
-em `models/model.joblib` e registra as métricas de teste.
+``configs/params.yaml``) sobre o dataset de referência, persiste o artefato
+em ``models/model.joblib`` (estimador + lista de features) e registra as
+métricas de teste, incluindo Brier score e calibração.
 """
 
 import json
@@ -10,7 +11,7 @@ import logging
 
 import joblib
 import pandas as pd
-from sklearn.metrics import precision_score, recall_score, roc_auc_score
+from sklearn.metrics import brier_score_loss, precision_score, recall_score, roc_auc_score
 from sklearn.model_selection import train_test_split
 
 from src.core.dataset import (
@@ -21,39 +22,13 @@ from src.core.dataset import (
     load_parquet,
 )
 from src.core.params import load_params
+from src.model.evaluate import calibration_bins
+from src.model.factory import build_estimator
+from src.observability.logging import TaskTimer
 
 logger = logging.getLogger(__name__)
 
 __all__ = ["build_estimator", "train", "main"]
-
-
-def build_estimator() -> object:
-    """Constrói o estimador configurado em `configs/params.yaml`.
-
-    Returns:
-        Estimador scikit-learn compatível (XGBoost ou LogisticRegression).
-    """
-    params = load_params().train
-    if params.classifier == "xgboost":
-        from xgboost import XGBClassifier
-
-        return XGBClassifier(
-            n_estimators=params.xgboost_n_estimators,
-            max_depth=params.xgboost_max_depth,
-            learning_rate=params.xgboost_learning_rate,
-            subsample=params.xgboost_subsample,
-            colsample_bytree=params.xgboost_colsample_bytree,
-            random_state=params.seed,
-            eval_metric="logloss",
-        )
-    from sklearn.linear_model import LogisticRegression
-
-    return LogisticRegression(
-        C=params.logistic_regression_C,
-        max_iter=params.logistic_regression_max_iter,
-        class_weight=params.class_weight,
-        random_state=params.seed,
-    )
 
 
 def train(frame: pd.DataFrame | None = None) -> dict[str, float]:
@@ -87,11 +62,14 @@ def train(frame: pd.DataFrame | None = None) -> dict[str, float]:
         "roc_auc": float(roc_auc_score(y_test, probabilities)),
         "precision": float(precision_score(y_test, predictions, zero_division=0)),
         "recall": float(recall_score(y_test, predictions, zero_division=0)),
+        "brier": float(brier_score_loss(y_test, probabilities)),
         "n_train": int(len(x_train)),
         "n_test": int(len(x_test)),
+        "classifier": params.classifier,
     }
     MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
     joblib.dump({"model": model, "features": list(features.columns)}, MODEL_PATH)
+    metrics["calibration"] = calibration_bins(y_test.to_numpy(), probabilities)
     atomic_write_text(TRAIN_METRICS_PATH, json.dumps(metrics, indent=2))
     logger.info("Treino concluído. ROC-AUC: %.4f.", metrics["roc_auc"])
     return metrics
@@ -99,7 +77,9 @@ def train(frame: pd.DataFrame | None = None) -> dict[str, float]:
 
 def main() -> None:
     """Ponto de entrada do estágio de treino."""
-    train()
+
+    with TaskTimer("treino"):
+        train()
 
 
 if __name__ == "__main__":

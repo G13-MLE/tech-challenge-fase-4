@@ -86,7 +86,7 @@ lint:
 # ---------------------------------------------------------------------------
 pipeline:
 	@echo "Reexecutando pipeline DVC completo (saída live)..."
-	uv run dvc repro -v
+	PIPELINE_RUN_ID=$$(uv run python -c "from src.observability.logging import new_run_id; print(new_run_id())") uv run dvc repro -v
 
 ingestao:
 	uv run dvc repro ingestao -v

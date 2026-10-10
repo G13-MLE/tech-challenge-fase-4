@@ -1,0 +1,317 @@
+{
+  "months": [
+    {
+      "month": 1,
+      "by_group": {
+        "SEX": {
+          "groups": {
+            "1": {
+              "approval_rate": 0.9178190438561833,
+              "tpr": 0.14451827242524917,
+              "count": 2531
+            },
+            "2": {
+              "approval_rate": 0.9254759011745646,
+              "tpr": 0.12365591397849462,
+              "count": 2469
+            }
+          },
+          "demographic_parity_diff": 0.007656857318381283,
+          "equal_opportunity_diff": 0.020862358446754548,
+          "disparate_impact_ratio": 0.9917265729894602,
+          "passes": true
+        },
+        "AGE_BIN": {
+          "groups": {
+            "<30": {
+              "approval_rate": 0.9424778761061947,
+              "tpr": 0.12254901960784313,
+              "count": 904
+            },
+            "30-44": {
+              "approval_rate": 0.9183841714756801,
+              "tpr": 0.14682539682539683,
+              "count": 1213
+            },
+            "45-59": {
+              "approval_rate": 0.8980099502487562,
+              "tpr": 0.1509433962264151,
+              "count": 1206
+            },
+            "60+": {
+              "approval_rate": 0.9296362552176506,
+              "tpr": 0.12300683371298406,
+              "count": 1677
+            }
+          },
+          "demographic_parity_diff": 0.04446792585743853,
+          "equal_opportunity_diff": 0.028394376618571956,
+          "disparate_impact_ratio": 0.9528180692780229,
+          "passes": true
+        }
+      },
+      "passes": true
+    },
+    {
+      "month": 2,
+      "by_group": {
+        "SEX": {
+          "groups": {
+            "1": {
+              "approval_rate": 0.9020150138285262,
+              "tpr": 0.17052980132450332,
+              "count": 2531
+            },
+            "2": {
+              "approval_rate": 0.9165654110976104,
+              "tpr": 0.14513274336283186,
+              "count": 2469
+            }
+          },
+          "demographic_parity_diff": 0.014550397269084137,
+          "equal_opportunity_diff": 0.025397057961671465,
+          "disparate_impact_ratio": 0.9841250857899387,
+          "passes": true
+        },
+        "AGE_BIN": {
+          "groups": {
+            "<30": {
+              "approval_rate": 0.9371794871794872,
+              "tpr": 0.12804878048780488,
+              "count": 780
+            },
+            "30-44": {
+              "approval_rate": 0.9085619285120532,
+              "tpr": 0.1568627450980392,
+              "count": 1203
+            },
+            "45-59": {
+              "approval_rate": 0.8812709030100334,
+              "tpr": 0.2014388489208633,
+              "count": 1196
+            },
+            "60+": {
+              "approval_rate": 0.9159802306425041,
+              "tpr": 0.1440677966101695,
+              "count": 1821
+            }
+          },
+          "demographic_parity_diff": 0.05590858416945377,
+          "equal_opportunity_diff": 0.07339006843305843,
+          "disparate_impact_ratio": 0.9403437815975733,
+          "passes": true
+        }
+      },
+      "passes": true
+    },
+    {
+      "month": 3,
+      "by_group": {
+        "SEX": {
+          "groups": {
+            "1": {
+              "approval_rate": 0.8964836033188464,
+              "tpr": 0.17966101694915254,
+              "count": 2531
+            },
+            "2": {
+              "approval_rate": 0.905224787363305,
+              "tpr": 0.14991181657848324,
+              "count": 2469
+            }
+          },
+          "demographic_parity_diff": 0.008741184044458672,
+          "equal_opportunity_diff": 0.029749200370669304,
+          "disparate_impact_ratio": 0.990343631585786,
+          "passes": true
+        },
+        "AGE_BIN": {
+          "groups": {
+            "<30": {
+              "approval_rate": 0.9463487332339792,
+              "tpr": 0.09219858156028368,
+              "count": 671
+            },
+            "30-44": {
+              "approval_rate": 0.8848080133555927,
+              "tpr": 0.19583333333333333,
+              "count": 1198
+            },
+            "45-59": {
+              "approval_rate": 0.8768844221105527,
+              "tpr": 0.19402985074626866,
+              "count": 1194
+            },
+            "60+": {
+              "approval_rate": 0.9096541042849767,
+              "tpr": 0.15551181102362205,
+              "count": 1937
+            }
+          },
+          "demographic_parity_diff": 0.06946431112342644,
+          "equal_opportunity_diff": 0.10363475177304965,
+          "disparate_impact_ratio": 0.926597554702647,
+          "passes": false
+        }
+      },
+      "passes": false
+    },
+    {
+      "month": 4,
+      "by_group": {
+        "SEX": {
+          "groups": {
+            "1": {
+              "approval_rate": 0.8992493085736862,
+              "tpr": 0.16838487972508592,
+              "count": 2531
+            },
+            "2": {
+              "approval_rate": 0.9096800324017821,
+              "tpr": 0.1456140350877193,
+              "count": 2469
+            }
+          },
+          "demographic_parity_diff": 0.010430723828095845,
+          "equal_opportunity_diff": 0.022770844637366616,
+          "disparate_impact_ratio": 0.9885336344026854,
+          "passes": true
+        },
+        "AGE_BIN": {
+          "groups": {
+            "<30": {
+              "approval_rate": 0.9531531531531532,
+              "tpr": 0.06086956521739131,
+              "count": 555
+            },
+            "30-44": {
+              "approval_rate": 0.8995850622406639,
+              "tpr": 0.1956521739130435,
+              "count": 1205
+            },
+            "45-59": {
+              "approval_rate": 0.8720735785953178,
+              "tpr": 0.19924812030075187,
+              "count": 1196
+            },
+            "60+": {
+              "approval_rate": 0.9129158512720157,
+              "tpr": 0.14048059149722736,
+              "count": 2044
+            }
+          },
+          "demographic_parity_diff": 0.08107957455783543,
+          "equal_opportunity_diff": 0.13837855508336055,
+          "disparate_impact_ratio": 0.914935417996978,
+          "passes": false
+        }
+      },
+      "passes": false
+    },
+    {
+      "month": 5,
+      "by_group": {
+        "SEX": {
+          "groups": {
+            "1": {
+              "approval_rate": 0.8933227973133149,
+              "tpr": 0.17043478260869566,
+              "count": 2531
+            },
+            "2": {
+              "approval_rate": 0.907249898744431,
+              "tpr": 0.14912280701754385,
+              "count": 2469
+            }
+          },
+          "demographic_parity_diff": 0.013927101431116085,
+          "equal_opportunity_diff": 0.021311975591151805,
+          "disparate_impact_ratio": 0.9846491011457922,
+          "passes": true
+        },
+        "AGE_BIN": {
+          "groups": {
+            "<30": {
+              "approval_rate": 0.9550561797752809,
+              "tpr": 0.054945054945054944,
+              "count": 445
+            },
+            "30-44": {
+              "approval_rate": 0.8828451882845189,
+              "tpr": 0.2175925925925926,
+              "count": 1195
+            },
+            "45-59": {
+              "approval_rate": 0.8672199170124482,
+              "tpr": 0.2099236641221374,
+              "count": 1205
+            },
+            "60+": {
+              "approval_rate": 0.9169373549883991,
+              "tpr": 0.13194444444444445,
+              "count": 2155
+            }
+          },
+          "demographic_parity_diff": 0.08783626276283274,
+          "equal_opportunity_diff": 0.16264753764753764,
+          "disparate_impact_ratio": 0.908030266048328,
+          "passes": false
+        }
+      },
+      "passes": false
+    },
+    {
+      "month": 6,
+      "by_group": {
+        "SEX": {
+          "groups": {
+            "1": {
+              "approval_rate": 0.8893717898064006,
+              "tpr": 0.17247386759581881,
+              "count": 2531
+            },
+            "2": {
+              "approval_rate": 0.9056298096395302,
+              "tpr": 0.131175468483816,
+              "count": 2469
+            }
+          },
+          "demographic_parity_diff": 0.016258019833129578,
+          "equal_opportunity_diff": 0.04129839911200281,
+          "disparate_impact_ratio": 0.982047830515207,
+          "passes": true
+        },
+        "AGE_BIN": {
+          "groups": {
+            "<30": {
+              "approval_rate": 0.9331306990881459,
+              "tpr": 0.12195121951219512,
+              "count": 329
+            },
+            "30-44": {
+              "approval_rate": 0.904121110176619,
+              "tpr": 0.14130434782608695,
+              "count": 1189
+            },
+            "45-59": {
+              "approval_rate": 0.8891645988420182,
+              "tpr": 0.1794871794871795,
+              "count": 1209
+            },
+            "60+": {
+              "approval_rate": 0.8930928288605368,
+              "tpr": 0.14479638009049775,
+              "count": 2273
+            }
+          },
+          "demographic_parity_diff": 0.04396610024612779,
+          "equal_opportunity_diff": 0.05753595997498437,
+          "disparate_impact_ratio": 0.9528832345896546,
+          "passes": true
+        }
+      },
+      "passes": true
+    }
+  ],
+  "passes": false
+}
