@@ -10,6 +10,8 @@ import pytest
 
 SEED = 42
 N_ROWS = 400
+SMALL_N_ROWS = 8
+DRIFT_SEED = 43
 
 FEATURE_COLUMNS = [
     "LIMIT_BAL",
@@ -49,10 +51,49 @@ def make_credit_frame(n_rows: int = N_ROWS, seed: int = SEED) -> pd.DataFrame:
     )
 
 
+def make_drifted_frame(n_rows: int = N_ROWS, seed: int = DRIFT_SEED) -> pd.DataFrame:
+    """Cria um DataFrame de produção com Data Drift (features deslocadas).
+
+    Desloca ``LIMIT_BAL``/``AGE``/``PAY_0`` para cima, preservando o
+    schema e o domínio do contrato, para simular snapshots de produção
+    usados nos testes de drift e monitoramento.
+
+    Args:
+        n_rows: Número de linhas.
+        seed: Seed para reprodutibilidade.
+
+    Returns:
+        DataFrame com as features deslocadas.
+    """
+    frame = make_credit_frame(n_rows=n_rows, seed=seed)
+    frame["LIMIT_BAL"] = frame["LIMIT_BAL"] * 1.5
+    frame["AGE"] = np.clip(frame["AGE"] + 10, 18, 100)
+    frame["PAY_0"] = np.clip(frame["PAY_0"] + 2, -2, 8)
+    return frame
+
+
 @pytest.fixture()
 def credit_frame() -> pd.DataFrame:
     """DataFrame sintético válido conforme o contrato."""
     return make_credit_frame()
+
+
+@pytest.fixture()
+def reference_frame() -> pd.DataFrame:
+    """DataFrame de referência fixo (seed=42) para comparações de drift."""
+    return make_credit_frame()
+
+
+@pytest.fixture()
+def small_valid_frame() -> pd.DataFrame:
+    """DataFrame pequeno e válido conforme o contrato (reuso em contratos)."""
+    return make_credit_frame(n_rows=SMALL_N_ROWS)
+
+
+@pytest.fixture()
+def production_frame() -> pd.DataFrame:
+    """DataFrame de produção com Data Drift (seed fixa, features deslocadas)."""
+    return make_drifted_frame()
 
 
 @pytest.fixture()

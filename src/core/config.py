@@ -25,10 +25,12 @@ class Settings(BaseSettings):
         reference_data_path: Caminho do dataset de referência (treino).
         production_data_dir: Diretório dos snapshots de produção (drift).
         reports_dir: Diretório base dos relatórios gerados.
+        dataset_source: Fonte do dataset de referência (uci | synthetic).
         mlflow_tracking_uri: URI do servidor/backend de tracking MLflow.
         mlflow_port: Porta do servidor MLflow (Docker).
         dashboard_port: Porta do dashboard Streamlit.
         prometheus_port: Porta do Prometheus.
+        prometheus_exporter_port: Porta do exporter /metrics (prometheus-client).
         grafana_port: Porta do Grafana.
         drift_psi_stable: Limite superior de PSI para distribuição estável.
         drift_psi_moderate: Limite superior de PSI para drift moderado.
@@ -51,11 +53,13 @@ class Settings(BaseSettings):
     reference_data_path: Path = Path("data/reference/reference.parquet")
     production_data_dir: Path = Path("data/production")
     reports_dir: Path = Path("reports")
+    dataset_source: Literal["uci", "synthetic"] = "uci"
     model_backend: Literal["joblib", "onnx"] = "joblib"
     mlflow_tracking_uri: str = "http://localhost:5001"
     mlflow_port: int = 5001
     dashboard_port: int = 8501
     prometheus_port: int = 9090
+    prometheus_exporter_port: int = 8000
     grafana_port: int = 3000
     drift_psi_stable: float = 0.1
     drift_psi_moderate: float = 0.25

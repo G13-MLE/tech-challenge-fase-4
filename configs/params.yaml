@@ -11,6 +11,14 @@ data:
   reference_train_size: 0.8
   seed: 42
 
+dataset:
+  # Fonte do dataset de referência: uci (real ~30k) | synthetic (fallback offline/CI)
+  source: uci
+
+quality:
+  # Limiar de similaridade Jaccard (MinHash/LSH) para near-duplicates
+  near_dup_threshold: 0.9
+
 train:
   seed: 42
   test_size: 0.2
@@ -51,3 +59,33 @@ drift_thresholds:
   auc_drop_alert: 0.05
   # p-valor do teste de Kolmogorov-Smirnov
   ks_pvalue_alert: 0.05
+  # Multivariado (MMD²/Energy): número de reamostragens bootstrap do limiar nulo
+  multivariate_n_bootstrap: 200
+  # Quantil do limiar nulo calibrado por bootstrap (p95)
+  multivariate_bootstrap_quantile: 0.95
+
+# Data SLOs e Error Budget (FR-015)
+slo:
+  accuracy_min: 0.85
+  psi_max: 0.25
+  ks_pvalue_min: 0.05
+  missing_rate_max: 0.01
+
+# Consolidação anti-fadiga de alertas (FR-016) — apenas notificação
+alerts:
+  # Nº de features que devem cruzar juntas para consolidar um alerta
+  breach_features: 2
+  # Nº de janelas consecutivas para 1 feature crítica consolidar um alerta
+  consolidation_windows: 3
+
+# Gatilho de re-treino por regra objetiva (FR-017)
+retrain:
+  # Nº de meses consecutivos em severidade crítica para disparar o re-treino
+  consecutive_critical_windows: 2
+
+# Guardrails de fairness por subgrupo (FR-017, FR-026)
+fairness:
+  # Razão de impacto dispar mínima (regra dos 80%)
+  disparate_impact_min: 0.8
+  # Diferença máxima de equal opportunity (TPR) em SEX e faixas de AGE
+  equal_opportunity_max: 0.10
