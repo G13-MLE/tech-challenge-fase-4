@@ -2,8 +2,32 @@
   "status": "failed",
   "file": "data/corrupted/bad_batch.parquet",
   "n_rows": 201,
-  "n_violations": 17,
+  "n_violations": 22,
   "violations": [
+    {
+      "schema_context": "Column",
+      "column": "LIMIT_BAL",
+      "check": "not_nullable",
+      "check_number": null,
+      "failure_case": null,
+      "index": 16
+    },
+    {
+      "schema_context": "Column",
+      "column": "LIMIT_BAL",
+      "check": "not_nullable",
+      "check_number": null,
+      "failure_case": null,
+      "index": 17
+    },
+    {
+      "schema_context": "Column",
+      "column": "LIMIT_BAL",
+      "check": "not_nullable",
+      "check_number": null,
+      "failure_case": null,
+      "index": 18
+    },
     {
       "schema_context": "Column",
       "column": "LIMIT_BAL",
@@ -86,6 +110,14 @@
     },
     {
       "schema_context": "Column",
+      "column": "MARRIAGE",
+      "check": "isin([1, 2, 3])",
+      "check_number": 0,
+      "failure_case": 7.0,
+      "index": 15
+    },
+    {
+      "schema_context": "Column",
       "column": "AGE",
       "check": "in_range(18, 100)",
       "check_number": 0,
@@ -134,11 +166,41 @@
     },
     {
       "schema_context": "Column",
+      "column": "BILL_AMT1",
+      "check": "not_nullable",
+      "check_number": null,
+      "failure_case": null,
+      "index": 19
+    },
+    {
+      "schema_context": "Column",
       "column": "PAY_AMT1",
       "check": "greater_than_or_equal_to(0)",
       "check_number": 0,
       "failure_case": -50.0,
       "index": 15
     }
-  ]
+  ],
+  "quality": {
+    "completeness": 0.997789,
+    "uniqueness": 0.995025,
+    "timeliness": "not_applicable",
+    "consistency": 0.88115,
+    "validity": 0.895522,
+    "n_rows": 201,
+    "n_columns": 9,
+    "n_duplicate_rows": 1,
+    "n_invalid_rows": 21,
+    "decisions": {
+      "LIMIT_BAL": "keep",
+      "SEX": "keep",
+      "EDUCATION": "keep",
+      "MARRIAGE": "keep",
+      "AGE": "keep",
+      "PAY_0": "keep",
+      "BILL_AMT1": "keep",
+      "PAY_AMT1": "keep",
+      "default_next_month": "keep"
+    }
+  }
 }

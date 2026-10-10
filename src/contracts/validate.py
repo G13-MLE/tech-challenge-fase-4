@@ -1,16 +1,19 @@
 """Validação do lote contra o contrato de dados.
 
 Bloqueia a ingestão (exit code não-zero) quando o lote viola o contrato,
-escrevendo um relatório JSON com as regras violadas.
+escrevendo um relatório JSON com as regras violadas e as dimensões de
+qualidade (FR-003). A validação é lazy: todas as violações são coletadas.
 """
 
 import json
 import logging
+import sys
 from pathlib import Path
 
 import pandas as pd
 import pandera.errors as pa_errors
 
+from src.contracts.quality import compute_quality
 from src.contracts.schema import CREDIT_CONTRACT
 from src.core.dataset import (
     REFERENCE_DATA_PATH,
@@ -31,11 +34,12 @@ def validate_batch(path: str | None = None) -> dict:
         path: Caminho do Parquet a validar; se None, usa o de referência.
 
     Returns:
-        Relatório com status e violações encontradas.
+        Relatório com status, violações e dimensões de qualidade.
     """
     data_path = REFERENCE_DATA_PATH if path is None else Path(path)
     frame = load_parquet(data_path)
     assert isinstance(frame, pd.DataFrame)
+    quality = compute_quality(frame)
     try:
         CREDIT_CONTRACT.validate(frame, lazy=True)
     except pa_errors.SchemaErrors as err:
@@ -45,6 +49,7 @@ def validate_batch(path: str | None = None) -> dict:
             "n_rows": int(len(frame)),
             "n_violations": int(len(err.failure_cases)),
             "violations": json.loads(err.failure_cases.to_json(orient="records")),
+            "quality": quality,
         }
         atomic_write_text(VALIDATION_RESULT_PATH, json.dumps(report, indent=2))
         logger.error("Contrato violado: %d falhas em %s.", report["n_violations"], data_path)
@@ -55,21 +60,29 @@ def validate_batch(path: str | None = None) -> dict:
         "n_rows": int(len(frame)),
         "n_violations": 0,
         "violations": [],
+        "quality": quality,
     }
     atomic_write_text(VALIDATION_RESULT_PATH, json.dumps(report, indent=2))
     logger.info("Contrato validado com sucesso: %d linhas.", len(frame))
     return report
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     """Ponto de entrada do estágio de validação.
+
+    Args:
+        argv: Argumentos de linha de comando; o primeiro é o caminho
+            opcional do Parquet (padrão: dataset de referência). Se None,
+            usa ``sys.argv[1:]``.
 
     Raises:
         SystemExit: Código 1 se o contrato for violado (bloqueia a ingestão).
     """
-    report = validate_batch()
+    arguments = sys.argv[1:] if argv is None else argv
+    path = arguments[0] if arguments else None
+    report = validate_batch(path)
     if report["status"] != "passed":
-        raise SystemExit(1)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
