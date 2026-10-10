@@ -163,10 +163,18 @@ def start(port: int = 8000) -> None:
 
 
 def main() -> None:
-    """Ponto de entrada do exporter (bloqueante)."""
+    """Ponto de entrada do exporter (bloqueante).
+
+    O servidor HTTP do ``prometheus_client`` roda em uma *daemon thread*;
+    sem um bloqueio no processo principal, o interpretador encerra o
+    processo imediatamente após o início e o ``/metrics`` nunca responde.
+    """
+    from threading import Event
+
     from src.core.config import get_settings
 
     start(get_settings().prometheus_exporter_port)
+    Event().wait()
 
 
 if __name__ == "__main__":

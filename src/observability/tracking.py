@@ -27,6 +27,7 @@ __all__ = [
 
 MODEL_NAME = "credit_scoring"
 EXPERIMENT_NAME = "credit_drift_monitor"
+_SKOPS_TRUSTED_TYPES = ["xgboost.core.Booster", "xgboost.sklearn.XGBClassifier"]
 
 
 def _configure_mlflow_env() -> None:
@@ -57,12 +58,15 @@ def dataset_digest(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _build_input_dataset(path: Path, digest: str):
-    """Constrói um ``mlflow.data.Dataset`` com o digest SHA-256 do arquivo.
+def _build_input_dataset(path: Path):
+    """Constrói um ``mlflow.data.Dataset`` a partir do arquivo do dataset.
+
+    O campo ``digest`` do MLflow tem limite de 36 caracteres e não aceita
+    um SHA-256 integral; o hash completo é registrado como parâmetro da
+    run (``dataset_sha256``) e o ``Dataset`` usa o digest nativo do MLflow.
 
     Args:
-        path: Caminho do dataset de entrada (Parquet ou CSV).
-        digest: Digest SHA-256 do arquivo, registrado no ``Dataset``.
+        path: Caminho do dataset (Parquet ou CSV).
 
     Returns:
         ``mlflow.data.Dataset`` ou ``None`` se o arquivo não existir.
@@ -74,7 +78,7 @@ def _build_input_dataset(path: Path, digest: str):
     from mlflow.data.pandas_dataset import from_pandas
 
     frame = pd.read_parquet(path) if path.suffix == ".parquet" else pd.read_csv(path)
-    return from_pandas(frame, source=str(path), name=path.name, digest=digest)
+    return from_pandas(frame, source=str(path), name=path.name)
 
 
 def artifact_gate(paths: list[Path]) -> dict:
@@ -95,7 +99,12 @@ def tracking_run(name: str, params: dict | None = None, experiment: str = EXPERI
     """Context manager de uma execução MLflow.
 
     Se o MLflow não estiver disponível, faz fallback silencioso (a etapa
-    não deve quebrar só por ausência do tracking server).
+    não deve quebrar só por ausência do tracking server). O fallback cobre
+    apenas falhas na abertura da run; exceções lançadas pelo corpo do
+    ``with`` propagam normalmente (a run é encerrada como FAILED). Um
+    gerador de contextmanager não pode dar um segundo ``yield`` após
+    receber um ``throw`` — isso levanta ``RuntimeError`` e mascara o erro
+    original.
 
     Args:
         name: Nome da execução.
@@ -106,17 +115,29 @@ def tracking_run(name: str, params: dict | None = None, experiment: str = EXPERI
         Objeto de run do MLflow (ou None em fallback).
     """
     _configure_mlflow_env()
+    mlflow = None
+    run = None
     try:
         import mlflow
 
         mlflow.set_experiment(experiment)
-        with mlflow.start_run(run_name=name) as run:
-            if params:
-                mlflow.log_params({key: str(value) for key, value in params.items()})
-            yield run
+        run = mlflow.start_run(run_name=name)
+        if params:
+            mlflow.log_params({key: str(value) for key, value in params.items()})
     except Exception as exc:  # noqa: BLE001
         logger.warning("MLflow indisponível (%s); seguindo sem tracking.", exc)
+        if mlflow is not None and run is not None:
+            mlflow.end_run(status="FAILED")
         yield None
+        return
+    finished = True
+    try:
+        yield run
+    except BaseException:
+        finished = False
+        raise
+    finally:
+        mlflow.end_run(status="FINISHED" if finished else "FAILED")
 
 
 def log_model_run(
@@ -166,16 +187,20 @@ def log_model_run(
             else:
                 signature = None
             if dataset_path is not None:
-                digest = dataset_digest(Path(dataset_path))
-                dataset = _build_input_dataset(Path(dataset_path), digest)
+                dataset_path = Path(dataset_path)
+                digest = dataset_digest(dataset_path)
+                dataset = _build_input_dataset(dataset_path)
                 if dataset is not None:
                     mlflow.log_input(dataset, context="training")
+                if digest:
+                    mlflow.log_param("dataset_sha256", digest)
             model_info = mlflow.sklearn.log_model(
                 sk_model=estimator,
-                artifact_path="model",
+                name="model",
                 signature=signature,
                 input_example=input_example,
                 registered_model_name=MODEL_NAME,
+                skops_trusted_types=_SKOPS_TRUSTED_TYPES,
             )
             for artifact in artifacts:
                 if artifact.exists():

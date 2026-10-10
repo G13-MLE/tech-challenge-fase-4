@@ -15,7 +15,9 @@ services:
 
   # ── MLflow tracking server ───────────────────────────────────────────
   mlflow:
-    image: ghcr.io/mlflow/mlflow:v2.16.2
+    # Registros oficiais do MLflow são publicados em ghcr.io/mlflow/mlflow
+    # (tags <= 2.16.x não existem lá; Docker Hub descontinuou o repositório).
+    image: ghcr.io/mlflow/mlflow:v3.15.1
     profiles:
       - mlflow
     ports:
@@ -25,7 +27,7 @@ services:
     command:
       - sh
       - -c
-      - "pip install --quiet boto3 && mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:////mlruns/mlflow.db --default-artifact-root /mlruns/artifacts"
+      - "mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:////mlruns/mlflow.db --artifacts-destination /mlruns/artifacts"
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
       interval: 30s
