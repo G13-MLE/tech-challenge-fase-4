@@ -12,6 +12,8 @@ import pandera.errors as pa_errors
 import pandera.pandas as pa
 
 from src.contracts.schema import CREDIT_CONTRACT
+from src.data.missingness import diagnose_missingness
+from src.data.outliers import detect_outliers
 
 __all__ = ["compute_quality", "DEFAULT_DECISION"]
 
@@ -95,8 +97,9 @@ def compute_quality(frame: pd.DataFrame) -> dict:
 
     Returns:
         Bloco ``quality`` do ``ValidationReport`` com completude,
-        unicidade, temporalidade, consistência, validade e as decisões
-        por coluna (padrão ``keep``, sem mutação).
+        unicidade, temporalidade, consistência, validade, diagnóstico de
+        ausência (MCAR/MAR/MNAR), detecção de outliers (≥3 métodos) e as
+        decisões por coluna (padrão ``keep``, sem mutação).
     """
     validity, n_invalid = _validity(frame)
     n_rows = int(len(frame))
@@ -111,5 +114,7 @@ def compute_quality(frame: pd.DataFrame) -> dict:
         "n_columns": int(frame.shape[1]),
         "n_duplicate_rows": n_duplicates,
         "n_invalid_rows": n_invalid,
+        "missingness": diagnose_missingness(frame),
+        "outliers": detect_outliers(frame),
         "decisions": {str(column): DEFAULT_DECISION for column in frame.columns},
     }

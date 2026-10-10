@@ -32,10 +32,6 @@ __all__ = [
     "evaluate_snapshots",
 ]
 
-# Fatores adicionais de rotação por unidade de ``concept_drift_strength``.
-# Calibrado para produzir uma queda de ROC-AUC > 0.05 ao longo de 6 meses.
-CONCEPT_ROTATION_SCALE = 3.0
-
 # Direções "espúrias" (não-direcionais do risco real) usadas na rotação.
 _SPURIOUS_WEIGHTS = {
     "AGE": 1.0,

@@ -8,21 +8,33 @@ stages:
     deps:
       - data/raw/reference.csv
       - src/data/ingest.py
+      - src/data/dedup.py
       - src/data/split.py
       - src/core/dataset.py
       - src/core/params.py
       - configs/params.yaml
     outs:
       - data/reference/reference.parquet
+    metrics:
+      - reports/validation/dedup.json:
+          cache: false
 
   validacao:
-    cmd: uv run python -m src.contracts.validate
+    cmd: uv run python -m src.contracts.validate && uv run python -m src.contracts.profile
     deps:
       - data/reference/reference.parquet
+      - reports/validation/dedup.json
       - src/contracts/schema.py
       - src/contracts/validate.py
+      - src/contracts/quality.py
+      - src/contracts/profile.py
+      - src/data/missingness.py
+      - src/data/outliers.py
       - src/core/dataset.py
       - configs/params.yaml
+    outs:
+      - reports/validation/profile.html:
+          cache: false
     metrics:
       - reports/validation/result.json:
           cache: false

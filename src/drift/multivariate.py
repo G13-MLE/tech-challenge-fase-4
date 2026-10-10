@@ -244,11 +244,17 @@ def build_multivariate_report(reference: pd.DataFrame, production: pd.DataFrame)
     prod_std = _subsample(prod_std, _MAX_SAMPLES, _BOOTSTRAP_SEED)
     gamma = median_heuristic_gamma(ref_std, prod_std)
     mmd2 = mmd2_unbiased(ref_std, prod_std, gamma)
-    p95 = mmd2_bootstrap_threshold(ref_std, gamma, thresholds.multivariate_n_bootstrap, 0.95)
-    p99 = mmd2_bootstrap_threshold(ref_std, gamma, thresholds.multivariate_n_bootstrap, 0.99)
+    primary_quantile = thresholds.multivariate_bootstrap_quantile
+    upper_quantile = max(0.99, primary_quantile)
+    p95 = mmd2_bootstrap_threshold(
+        ref_std, gamma, thresholds.multivariate_n_bootstrap, primary_quantile
+    )
+    p99 = mmd2_bootstrap_threshold(
+        ref_std, gamma, thresholds.multivariate_n_bootstrap, upper_quantile
+    )
     energy = energy_distance(ref_std, prod_std)
     energy_threshold = energy_bootstrap_threshold(
-        ref_std, thresholds.multivariate_n_bootstrap, 0.95
+        ref_std, thresholds.multivariate_n_bootstrap, primary_quantile
     )
     report = {
         "features": numeric,
@@ -258,6 +264,7 @@ def build_multivariate_report(reference: pd.DataFrame, production: pd.DataFrame)
         "mmd2_threshold_p95": float(p95),
         "mmd2_threshold_p99": float(p99),
         "mmd2_threshold": float(p95),
+        "mmd2_threshold_quantile": float(primary_quantile),
         "energy": float(energy),
         "energy_threshold": float(energy_threshold),
         "drifted": bool(mmd2 > p95),

@@ -57,6 +57,26 @@ def dataset_digest(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _build_input_dataset(path: Path, digest: str):
+    """Constrói um ``mlflow.data.Dataset`` com o digest SHA-256 do arquivo.
+
+    Args:
+        path: Caminho do dataset de entrada (Parquet ou CSV).
+        digest: Digest SHA-256 do arquivo, registrado no ``Dataset``.
+
+    Returns:
+        ``mlflow.data.Dataset`` ou ``None`` se o arquivo não existir.
+    """
+    if not path.exists():
+        logger.warning("Dataset %s inexistente; log_input ignorado.", path)
+        return None
+    import pandas as pd
+    from mlflow.data.pandas_dataset import from_pandas
+
+    frame = pd.read_parquet(path) if path.suffix == ".parquet" else pd.read_csv(path)
+    return from_pandas(frame, source=str(path), name=path.name, digest=digest)
+
+
 def artifact_gate(paths: list[Path]) -> dict:
     """Verifica se todos os artefatos obrigatórios existem (gate).
 
@@ -147,7 +167,9 @@ def log_model_run(
                 signature = None
             if dataset_path is not None:
                 digest = dataset_digest(Path(dataset_path))
-                mlflow.log_param("dataset_sha256", digest)
+                dataset = _build_input_dataset(Path(dataset_path), digest)
+                if dataset is not None:
+                    mlflow.log_input(dataset, context="training")
             model_info = mlflow.sklearn.log_model(
                 sk_model=estimator,
                 artifact_path="model",

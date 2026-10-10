@@ -1,15 +1,15 @@
 {
-  "decision": "no_action",
+  "decision": "retrain",
   "signals": {
-    "consecutive_critical_windows": 1,
+    "consecutive_critical_windows": 4,
     "required_windows": 2,
-    "max_psi": 0.3,
-    "breached_feature_share": 1.0,
-    "champion_auc": 0.8
+    "max_psi": 2.2207695901256,
+    "breached_feature_share": 0.5,
+    "champion_auc": 0.7668700202455592
   },
   "guardrails": {
     "auc_ok": true,
-    "fairness_ok": true,
+    "fairness_ok": false,
     "disparate_impact_min": 0.8,
     "equal_opportunity_max": 0.1,
     "promoted": false,

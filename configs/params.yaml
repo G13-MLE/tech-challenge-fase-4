@@ -35,7 +35,6 @@ train:
   xgboost_learning_rate: 0.05
   xgboost_subsample: 0.8
   xgboost_colsample_bytree: 0.8
-  cv_folds: 5
 
 drift:
   seed: 42
@@ -48,8 +47,9 @@ drift:
     LIMIT_BAL: increase
     AGE: increase
     PAY_0: increase
-  # Drift de conceito: fração de mudança em P(y|X)
-  concept_drift_strength: 0.3
+  # Drift de conceito: fração de mudança em P(y|X). Calibrado para produzir
+  # uma queda monotônica de ROC-AUC ao longo dos 6 snapshots (dados UCI 350).
+  concept_drift_strength: 1.5
 
 drift_thresholds:
   # PSI é a métrica de decisão primária (effect size)
@@ -57,8 +57,6 @@ drift_thresholds:
   psi_moderate: 0.25
   # Queda de ROC-AUC que dispara alerta de degradação
   auc_drop_alert: 0.05
-  # p-valor do teste de Kolmogorov-Smirnov
-  ks_pvalue_alert: 0.05
   # Multivariado (MMD²/Energy): número de reamostragens bootstrap do limiar nulo
   multivariate_n_bootstrap: 200
   # Quantil do limiar nulo calibrado por bootstrap (p95)

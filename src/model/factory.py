@@ -1,30 +1,13 @@
-"""Factory de modelos e wrapper com metadados de treino.
+"""Factory de modelos do pipeline.
 
 Centraliza a construção do estimador configurado em ``configs/params.yaml``
 (``xgboost`` ou ``logistic_regression``) para que treino e re-treino
 compartilhem a mesma definição (FR-006).
 """
 
-from dataclasses import dataclass, field
-
 from src.core.params import load_params
 
-__all__ = ["TrainedModel", "build_estimator"]
-
-
-@dataclass
-class TrainedModel:
-    """Modelo treinado com metadados do pipeline.
-
-    Attributes:
-        estimator: Estimador scikit-learn/XGBoost treinado.
-        feature_names: Ordem das features usadas no treino.
-        metrics: Métricas de avaliação no conjunto de teste.
-    """
-
-    estimator: object
-    feature_names: list[str]
-    metrics: dict[str, float] = field(default_factory=dict)
+__all__ = ["build_estimator"]
 
 
 def build_estimator(name: str | None = None) -> object:

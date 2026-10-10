@@ -1,0 +1,10 @@
+{
+  "method": "sha256+minhash_lsh",
+  "near_dup_threshold": 0.9,
+  "num_perm": 128,
+  "n_before": 30000,
+  "n_after": 29797,
+  "exact_duplicates_removed": 120,
+  "near_duplicates_removed": 83,
+  "total_removed": 203
+}

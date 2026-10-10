@@ -93,15 +93,17 @@ make monitoring-up    # Prometheus (9090) + Grafana (3000) + exporter /metrics (
   `champion`/`challenger`.
 - **Exporter Prometheus** (`src/observability/exporter.py`) em `exporter:8000` + Grafana as-code.
 
-### Métricas Principais (pipeline atual, dados de exemplo)
+### Métricas Principais (pipeline atual, UCI 350 real)
 
 | Métrica | Valor |
 | ------- | ----- |
-| ROC-AUC baseline (referência) | ~0.71 |
-| ROC-AUC último snapshot | ~0.67 (queda ≈ 0.03) |
-| PSI máx. (`PAY_0`) | ~2.8 (**breach** > 0.25) |
-| MMD² (multivariado) | flag de drift de dependência (`LIMIT_BAL × AGE`) |
+| Referência (UCI 350, após dedup) | 29.797 amostras |
+| ROC-AUC do modelo (teste) | ~0.767 |
+| ROC-AUC mês 1 → mês 6 | ~0.655 → ~0.587 (queda ≈ 0.067, monotônica) |
+| PSI máx. (`AGE`) | ~2.22 (**breach** > 0.25) |
+| MMD² (multivariado) | drift de dependência (`LIMIT_BAL × AGE`) detectado |
 | Label drift `P(Y)` | ≈ 0 (preservado na simulação de concept drift) |
+| Decisão de re-treino | `retrain` (N=2 meses críticos); promoção bloqueada (fairness) |
 
 ## Governança e LGPD
 
