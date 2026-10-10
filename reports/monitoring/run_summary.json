@@ -3,29 +3,29 @@
     "drift_alerts_total": 4,
     "n_severe": 4,
     "model_roc_auc_by_month": [
-      0.6962881645114942,
-      0.7025733743386925,
-      0.6857193685338832,
-      0.677524805454493,
-      0.6693975384998782,
-      0.670253769340862
+      0.6546820340598637,
+      0.64081560288766,
+      0.6245310754613219,
+      0.6117514700909616,
+      0.6060927993673095,
+      0.5873164795990115
     ],
     "model_brier_by_month": [
-      0.16719070076942444,
-      0.16642944514751434,
-      0.16963520646095276,
-      0.17098510265350342,
-      0.17247174680233002,
-      0.1737789809703827
+      0.16614344716072083,
+      0.17069517076015472,
+      0.17595063149929047,
+      0.18126966059207916,
+      0.18755577504634857,
+      0.19539198279380798
     ],
-    "model_auc_baseline": 0.6962881645114942,
-    "model_auc_last": 0.670253769340862,
-    "model_auc_drop": 0.02603439517063222,
+    "model_auc_baseline": 0.6546820340598637,
+    "model_auc_last": 0.5873164795990115,
+    "model_auc_drop": 0.06736555446085224,
     "is_breach": true,
     "tasks": {
-      "n_events": 30,
-      "n_failed": 7,
-      "total_latency_ms": 255983.07,
+      "n_events": 124,
+      "n_failed": 26,
+      "total_latency_ms": 342677.28,
       "rows_processed": 6
     },
     "slo_status": "critical"
@@ -34,14 +34,24 @@
     {
       "type": "data_drift",
       "severity": "high",
+      "month": 4,
+      "features": [
+        "LIMIT_BAL",
+        "AGE"
+      ],
+      "windows": 1,
+      "message": "2 features com drift severo juntas no m\u00eas 4."
+    },
+    {
+      "type": "data_drift",
+      "severity": "high",
       "month": 5,
       "features": [
         "LIMIT_BAL",
-        "AGE",
-        "PAY_0"
+        "AGE"
       ],
       "windows": 1,
-      "message": "3 features com drift severo juntas no m\u00eas 5."
+      "message": "2 features com drift severo juntas no m\u00eas 5."
     },
     {
       "type": "data_drift",
@@ -61,27 +71,53 @@
       "severity": "critical",
       "month": 6,
       "features": [
-        "PAY_0"
+        "LIMIT_BAL"
       ],
-      "windows": 5,
-      "message": "Feature cr\u00edtica PAY_0 em severidade severa por 5 meses consecutivos."
+      "windows": 4,
+      "message": "Feature cr\u00edtica LIMIT_BAL em severidade severa por 4 meses consecutivos."
+    },
+    {
+      "type": "data_drift",
+      "severity": "critical",
+      "month": 6,
+      "features": [
+        "AGE"
+      ],
+      "windows": 3,
+      "message": "Feature cr\u00edtica AGE em severidade severa por 3 meses consecutivos."
+    },
+    {
+      "type": "model_degradation",
+      "feature": "model",
+      "severity": "high",
+      "auc_drop": 0.06736555446085224
     }
   ],
-  "n_alerts": 3,
+  "n_alerts": 6,
   "slo": {
     "status_geral": "critical",
     "alertas": [
       {
         "type": "data_drift",
         "severity": "high",
+        "month": 4,
+        "features": [
+          "LIMIT_BAL",
+          "AGE"
+        ],
+        "windows": 1,
+        "message": "2 features com drift severo juntas no m\u00eas 4."
+      },
+      {
+        "type": "data_drift",
+        "severity": "high",
         "month": 5,
         "features": [
           "LIMIT_BAL",
-          "AGE",
-          "PAY_0"
+          "AGE"
         ],
         "windows": 1,
-        "message": "3 features com drift severo juntas no m\u00eas 5."
+        "message": "2 features com drift severo juntas no m\u00eas 5."
       },
       {
         "type": "data_drift",
@@ -101,32 +137,48 @@
         "severity": "critical",
         "month": 6,
         "features": [
-          "PAY_0"
+          "LIMIT_BAL"
         ],
-        "windows": 5,
-        "message": "Feature cr\u00edtica PAY_0 em severidade severa por 5 meses consecutivos."
+        "windows": 4,
+        "message": "Feature cr\u00edtica LIMIT_BAL em severidade severa por 4 meses consecutivos."
+      },
+      {
+        "type": "data_drift",
+        "severity": "critical",
+        "month": 6,
+        "features": [
+          "AGE"
+        ],
+        "windows": 3,
+        "message": "Feature cr\u00edtica AGE em severidade severa por 3 meses consecutivos."
+      },
+      {
+        "type": "model_degradation",
+        "feature": "model",
+        "severity": "high",
+        "auc_drop": 0.06736555446085224
       }
     ],
     "checks": [
       {
         "slo": "accuracy_min",
-        "value": 0.7356,
+        "value": 0.7351746820149679,
         "threshold": 0.85,
         "comparison": "min",
-        "error_budget": -0.11439999999999995,
+        "error_budget": -0.11482531798503204,
         "status": "breach"
       },
       {
         "slo": "psi_max",
-        "value": 2.7769274133255895,
+        "value": 2.2207695901256,
         "threshold": 0.25,
         "comparison": "max",
-        "error_budget": -2.5269274133255895,
+        "error_budget": -1.9707695901256002,
         "status": "breach"
       },
       {
         "slo": "ks_pvalue_min",
-        "value": 1.6468463960321092e-289,
+        "value": 0.0,
         "threshold": 0.05,
         "comparison": "min",
         "error_budget": -0.05,
@@ -143,7 +195,7 @@
     ]
   },
   "retrain_decision": "retrain",
-  "fairness_passed": true,
+  "fairness_passed": false,
   "tracking": {
     "tracked": false,
     "model_version": null,

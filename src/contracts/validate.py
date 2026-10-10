@@ -16,6 +16,7 @@ import pandera.errors as pa_errors
 from src.contracts.quality import compute_quality
 from src.contracts.schema import CREDIT_CONTRACT
 from src.core.dataset import (
+    DEDUP_REPORT_PATH,
     REFERENCE_DATA_PATH,
     VALIDATION_RESULT_PATH,
     atomic_write_text,
@@ -26,6 +27,12 @@ from src.observability.logging import TaskTimer
 logger = logging.getLogger(__name__)
 
 __all__ = ["validate_batch", "main"]
+
+
+def _attach_dedup(quality: dict) -> None:
+    """Anexa o resumo de deduplicação ao bloco de qualidade, se existir."""
+    if DEDUP_REPORT_PATH.exists():
+        quality["dedup"] = json.loads(DEDUP_REPORT_PATH.read_text(encoding="utf-8"))
 
 
 def validate_batch(path: str | None = None) -> dict:
@@ -41,6 +48,7 @@ def validate_batch(path: str | None = None) -> dict:
     frame = load_parquet(data_path)
     assert isinstance(frame, pd.DataFrame)
     quality = compute_quality(frame)
+    _attach_dedup(quality)
     try:
         CREDIT_CONTRACT.validate(frame, lazy=True)
     except pa_errors.SchemaErrors as err:

@@ -54,7 +54,6 @@ class Settings(BaseSettings):
     production_data_dir: Path = Path("data/production")
     reports_dir: Path = Path("reports")
     dataset_source: Literal["uci", "synthetic"] = "uci"
-    model_backend: Literal["joblib", "onnx"] = "joblib"
     mlflow_tracking_uri: str = "http://localhost:5001"
     mlflow_port: int = 5001
     dashboard_port: int = 8501

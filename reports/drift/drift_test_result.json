@@ -1,6 +1,6 @@
 {
   "is_breach": true,
-  "max_psi": 2.7769274133255895,
+  "max_psi": 2.2207695901256,
   "drifted_features": [
     "LIMIT_BAL",
     "EDUCATION",
@@ -12,7 +12,7 @@
       "name": "ValueDrift(column=LIMIT_BAL,method=psi,threshold=0.1)",
       "column": "LIMIT_BAL",
       "method": "psi",
-      "value": 1.4749354573378084,
+      "value": 1.3528059784048088,
       "threshold": 0.1,
       "passed": false
     },
@@ -20,7 +20,7 @@
       "name": "ValueDrift(column=AGE,method=psi,threshold=0.1)",
       "column": "AGE",
       "method": "psi",
-      "value": 1.471241263243299,
+      "value": 2.147950255348881,
       "threshold": 0.1,
       "passed": false
     },
@@ -28,7 +28,7 @@
       "name": "ValueDrift(column=PAY_0,method=psi,threshold=0.1)",
       "column": "PAY_0",
       "method": "psi",
-      "value": 1.6780093159816871,
+      "value": 0.9851809863650471,
       "threshold": 0.1,
       "passed": false
     },
@@ -54,7 +54,7 @@
       "method": "chisquare",
       "value": 1.0,
       "threshold": 0.05,
-      "passed": false
+      "passed": true
     },
     {
       "name": "ValueDrift(column=EDUCATION,method=chisquare,threshold=0.05)",
@@ -62,7 +62,7 @@
       "method": "chisquare",
       "value": 0.0,
       "threshold": 0.05,
-      "passed": true
+      "passed": false
     },
     {
       "name": "ValueDrift(column=MARRIAGE,method=chisquare,threshold=0.05)",
@@ -70,17 +70,17 @@
       "method": "chisquare",
       "value": 1.0,
       "threshold": 0.05,
-      "passed": false
+      "passed": true
     },
     {
       "name": "ValueDrift(column=default_next_month,method=chisquare,threshold=0.05)",
       "column": "default_next_month",
       "method": "chisquare",
-      "value": 0.4180809799684062,
+      "value": 0.7063877782183559,
       "threshold": 0.05,
-      "passed": false
+      "passed": true
     }
   ],
-  "n_failed": 6,
+  "n_failed": 4,
   "passed": false
 }

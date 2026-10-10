@@ -82,7 +82,6 @@ class TrainParams(BaseModel):
         xgboost_learning_rate: Taxa de aprendizado do XGBoost.
         xgboost_subsample: Fração de amostras por árvore do XGBoost.
         xgboost_colsample_bytree: Fração de features por árvore do XGBoost.
-        cv_folds: Número de folds para cross-validation (0 desativa).
     """
 
     seed: int = Field(ge=0, default=42)
@@ -96,7 +95,6 @@ class TrainParams(BaseModel):
     xgboost_learning_rate: float = Field(gt=0, le=1, default=0.05)
     xgboost_subsample: float = Field(gt=0, le=1, default=0.8)
     xgboost_colsample_bytree: float = Field(gt=0, le=1, default=0.8)
-    cv_folds: int = Field(ge=0, default=5)
 
 
 class DriftParams(BaseModel):
@@ -114,7 +112,7 @@ class DriftParams(BaseModel):
     n_snapshots: int = Field(ge=2, default=6)
     intensity: float = Field(ge=0, le=1, default=0.5)
     shifted_features: dict[str, str] = Field(default_factory=dict)
-    concept_drift_strength: float = Field(ge=0, le=1, default=0.3)
+    concept_drift_strength: float = Field(ge=0, le=2, default=1.5)
 
 
 class DriftThresholds(BaseModel):
@@ -124,7 +122,6 @@ class DriftThresholds(BaseModel):
         psi_stable: Limite superior de PSI para distribuição estável.
         psi_moderate: Limite superior de PSI para drift moderado.
         auc_drop_alert: Queda de ROC-AUC que dispara alerta de degradação.
-        ks_pvalue_alert: p-valor do teste de Kolmogorov-Smirnov para alerta.
         multivariate_n_bootstrap: Reamostragens bootstrap do limiar nulo multivariado.
         multivariate_bootstrap_quantile: Quantil do limiar nulo (ex.: 0.95 = p95).
     """
@@ -132,7 +129,6 @@ class DriftThresholds(BaseModel):
     psi_stable: float = Field(gt=0, default=0.1)
     psi_moderate: float = Field(gt=0, default=0.25)
     auc_drop_alert: float = Field(gt=0, le=1, default=0.05)
-    ks_pvalue_alert: float = Field(gt=0, le=1, default=0.05)
     multivariate_n_bootstrap: int = Field(ge=1, default=200)
     multivariate_bootstrap_quantile: float = Field(gt=0, lt=1, default=0.95)
 

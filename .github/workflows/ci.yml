@@ -88,7 +88,9 @@ jobs:
           uv run python -m src.data.ingest
           uv run python -m src.model.train
           uv run python -m src.drift.run
-      - name: Gate de drift (qualquer feature PSI > 0.25 = breach)
+      - name: Gate de drift — sem falso positivo (PSI <= 0.25)
+        run: uv run python scripts/drift_gate.py --self-check
+      - name: Gate de drift — detector confirma o drift injetado (PSI > 0.25)
         run: uv run python scripts/drift_gate.py --expect-breach
       - name: Publica evidências de drift
         if: always()

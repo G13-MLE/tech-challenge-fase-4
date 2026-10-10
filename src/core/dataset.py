@@ -15,6 +15,7 @@ __all__ = [
     "PRODUCTION_DIR",
     "MODEL_PATH",
     "VALIDATION_RESULT_PATH",
+    "DEDUP_REPORT_PATH",
     "TRAIN_METRICS_PATH",
     "DRIFT_REPORT_PATH",
     "STATISTICAL_REPORT_PATH",
@@ -39,6 +40,7 @@ PRODUCTION_DIR = Path("data/production")
 MODEL_PATH = Path("models/model.joblib")
 
 VALIDATION_RESULT_PATH = Path("reports/validation/result.json")
+DEDUP_REPORT_PATH = Path("reports/validation/dedup.json")
 PROFILE_HTML_PATH = Path("reports/validation/profile.html")
 TRAIN_METRICS_PATH = Path("reports/train_metrics.json")
 DRIFT_REPORT_PATH = Path("reports/drift/drift_report.html")

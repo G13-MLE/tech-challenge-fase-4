@@ -2,7 +2,7 @@
   "n_features": 8,
   "n_drifted": 4,
   "n_severe": 4,
-  "max_psi": 2.7769274133255895,
+  "max_psi": 2.2207695901256,
   "psi_bands": {
     "stable": 0.1,
     "moderate": 0.25
@@ -17,11 +17,11 @@
   "features": {
     "LIMIT_BAL": {
       "type": "numeric",
-      "psi": 1.2068733206259743,
+      "psi": 2.2207695901256,
       "severity": "severe",
       "ks": {
-        "statistic": 0.1552,
-        "pvalue": 6.165319553479879e-53
+        "statistic": 0.3320804107796087,
+        "pvalue": 0.0
       },
       "corrected_significant": true,
       "bonferroni_significant": true
@@ -34,7 +34,7 @@
         "statistic": 0.0,
         "pvalue": 1.0,
         "cramers_v": 0.0,
-        "expected_min": 2469.0,
+        "expected_min": 11837.0,
         "method": "fisher_exact"
       },
       "corrected_significant": false,
@@ -42,13 +42,13 @@
     },
     "EDUCATION": {
       "type": "categorical",
-      "psi": 1.1618486774690246,
+      "psi": 1.1619540544567946,
       "severity": "severe",
       "chi2": {
-        "statistic": 526.3943330177523,
-        "pvalue": 1.3087331047865502e-112,
-        "cramers_v": 0.22943285140052466,
-        "expected_min": 250.0,
+        "statistic": 3136.9891975853393,
+        "pvalue": 0.0,
+        "cramers_v": 0.22943266158590378,
+        "expected_min": 444.5,
         "method": "chi2"
       },
       "corrected_significant": true,
@@ -62,7 +62,7 @@
         "statistic": 0.0,
         "pvalue": 1.0,
         "cramers_v": 0.0,
-        "expected_min": 1660.0,
+        "expected_min": 377.0,
         "method": "chi2"
       },
       "corrected_significant": false,
@@ -70,24 +70,24 @@
     },
     "AGE": {
       "type": "numeric",
-      "psi": 1.1119142377082758,
+      "psi": 1.2894758426715585,
       "severity": "severe",
       "ks": {
-        "statistic": 0.15360000000000007,
-        "pvalue": 7.436638677410782e-52
+        "statistic": 0.22143168775380076,
+        "pvalue": 0.0
       },
       "corrected_significant": true,
       "bonferroni_significant": true
     },
     "PAY_0": {
       "type": "categorical",
-      "psi": 2.7769274133255895,
+      "psi": 0.9874932780268485,
       "severity": "severe",
       "chi2": {
-        "statistic": 1385.7443954614182,
-        "pvalue": 1.6468463960321092e-289,
-        "cramers_v": 0.3722558791290499,
-        "expected_min": 164.5,
+        "statistic": 12634.339399399858,
+        "pvalue": 0.0,
+        "cramers_v": 0.4604420738480187,
+        "expected_min": 7.0,
         "method": "chi2"
       },
       "corrected_significant": true,
@@ -121,11 +121,11 @@
       "month": 1,
       "n_drifted": 0,
       "n_severe": 0,
-      "max_psi": 0.0607662358443631,
+      "max_psi": 0.04766219772187398,
       "is_breach": false,
       "features": {
         "LIMIT_BAL": {
-          "psi": 0.00811534119539045,
+          "psi": 0.04766219772187398,
           "severity": "stable"
         },
         "SEX": {
@@ -141,11 +141,11 @@
           "severity": "stable"
         },
         "AGE": {
-          "psi": 0.006868898793300154,
+          "psi": 0.01382676145166843,
           "severity": "stable"
         },
         "PAY_0": {
-          "psi": 0.0607662358443631,
+          "psi": 0.0,
           "severity": "stable"
         },
         "BILL_AMT1": {
@@ -161,13 +161,13 @@
     {
       "month": 2,
       "n_drifted": 1,
-      "n_severe": 1,
-      "max_psi": 0.5756499155150803,
-      "is_breach": true,
+      "n_severe": 0,
+      "max_psi": 0.22813608522682466,
+      "is_breach": false,
       "features": {
         "LIMIT_BAL": {
-          "psi": 0.032379306084769535,
-          "severity": "stable"
+          "psi": 0.22813608522682466,
+          "severity": "moderate"
         },
         "SEX": {
           "psi": 0.0,
@@ -182,12 +182,12 @@
           "severity": "stable"
         },
         "AGE": {
-          "psi": 0.030819984655108608,
+          "psi": 0.061705555482924695,
           "severity": "stable"
         },
         "PAY_0": {
-          "psi": 0.5756499155150803,
-          "severity": "severe"
+          "psi": 0.0,
+          "severity": "stable"
         },
         "BILL_AMT1": {
           "psi": 0.0,
@@ -201,14 +201,14 @@
     },
     {
       "month": 3,
-      "n_drifted": 1,
+      "n_drifted": 2,
       "n_severe": 1,
-      "max_psi": 1.3371021914673424,
+      "max_psi": 0.52489456755946,
       "is_breach": true,
       "features": {
         "LIMIT_BAL": {
-          "psi": 0.09380356754307348,
-          "severity": "stable"
+          "psi": 0.52489456755946,
+          "severity": "severe"
         },
         "SEX": {
           "psi": 0.0,
@@ -223,12 +223,12 @@
           "severity": "stable"
         },
         "AGE": {
-          "psi": 0.09363759617820078,
-          "severity": "stable"
+          "psi": 0.16052245244155577,
+          "severity": "moderate"
         },
         "PAY_0": {
-          "psi": 1.3371021914673424,
-          "severity": "severe"
+          "psi": 1.1351040665887946e-07,
+          "severity": "stable"
         },
         "BILL_AMT1": {
           "psi": 0.0,
@@ -242,14 +242,14 @@
     },
     {
       "month": 4,
-      "n_drifted": 3,
-      "n_severe": 1,
-      "max_psi": 1.9933289474080031,
+      "n_drifted": 2,
+      "n_severe": 2,
+      "max_psi": 1.1688676769057336,
       "is_breach": true,
       "features": {
         "LIMIT_BAL": {
-          "psi": 0.22986951857429644,
-          "severity": "moderate"
+          "psi": 1.1688676769057336,
+          "severity": "severe"
         },
         "SEX": {
           "psi": 0.0,
@@ -264,12 +264,12 @@
           "severity": "stable"
         },
         "AGE": {
-          "psi": 0.21651582452506482,
-          "severity": "moderate"
+          "psi": 0.33907212055968805,
+          "severity": "severe"
         },
         "PAY_0": {
-          "psi": 1.9933289474080031,
-          "severity": "severe"
+          "psi": 0.00031459321446145863,
+          "severity": "stable"
         },
         "BILL_AMT1": {
           "psi": 0.0,
@@ -284,12 +284,12 @@
     {
       "month": 5,
       "n_drifted": 3,
-      "n_severe": 3,
-      "max_psi": 2.101631365858587,
+      "n_severe": 2,
+      "max_psi": 1.537040587666212,
       "is_breach": true,
       "features": {
         "LIMIT_BAL": {
-          "psi": 0.5243946239471518,
+          "psi": 1.537040587666212,
           "severity": "severe"
         },
         "SEX": {
@@ -305,12 +305,12 @@
           "severity": "stable"
         },
         "AGE": {
-          "psi": 0.5778067452360683,
+          "psi": 0.6102490673016683,
           "severity": "severe"
         },
         "PAY_0": {
-          "psi": 2.101631365858587,
-          "severity": "severe"
+          "psi": 0.12234535125898588,
+          "severity": "moderate"
         },
         "BILL_AMT1": {
           "psi": 0.0,
@@ -326,11 +326,11 @@
       "month": 6,
       "n_drifted": 4,
       "n_severe": 4,
-      "max_psi": 2.7769274133255895,
+      "max_psi": 2.2207695901256,
       "is_breach": true,
       "features": {
         "LIMIT_BAL": {
-          "psi": 1.2068733206259743,
+          "psi": 2.2207695901256,
           "severity": "severe"
         },
         "SEX": {
@@ -338,7 +338,7 @@
           "severity": "stable"
         },
         "EDUCATION": {
-          "psi": 1.1618486774690246,
+          "psi": 1.1619540544567946,
           "severity": "severe"
         },
         "MARRIAGE": {
@@ -346,11 +346,11 @@
           "severity": "stable"
         },
         "AGE": {
-          "psi": 1.1119142377082758,
+          "psi": 1.2894758426715585,
           "severity": "severe"
         },
         "PAY_0": {
-          "psi": 2.7769274133255895,
+          "psi": 0.9874932780268485,
           "severity": "severe"
         },
         "BILL_AMT1": {
@@ -376,13 +376,14 @@
       "reference": 400,
       "production": 400
     },
-    "gamma": 0.06890335874490111,
-    "mmd2": 0.03725696813958845,
-    "mmd2_threshold_p95": 0.0033626714191128267,
-    "mmd2_threshold_p99": 0.006170337043816043,
-    "mmd2_threshold": 0.0033626714191128267,
-    "energy": 0.20104631146774787,
-    "energy_threshold": 0.0438087106652965,
+    "gamma": 0.1105426828162791,
+    "mmd2": 0.0763316927987685,
+    "mmd2_threshold_p95": 0.003947102722745961,
+    "mmd2_threshold_p99": 0.007558150718486958,
+    "mmd2_threshold": 0.003947102722745961,
+    "mmd2_threshold_quantile": 0.95,
+    "energy": 0.3354486725751622,
+    "energy_threshold": 0.03975367795946421,
     "drifted": true,
     "n_bootstrap": 200
   },

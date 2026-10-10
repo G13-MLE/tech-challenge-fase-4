@@ -1,196 +1,176 @@
 {
-  "status": "failed",
-  "file": "data/corrupted/bad_batch.parquet",
-  "n_rows": 201,
-  "n_violations": 22,
-  "violations": [
-    {
-      "schema_context": "Column",
-      "column": "LIMIT_BAL",
-      "check": "not_nullable",
-      "check_number": null,
-      "failure_case": null,
-      "index": 16
-    },
-    {
-      "schema_context": "Column",
-      "column": "LIMIT_BAL",
-      "check": "not_nullable",
-      "check_number": null,
-      "failure_case": null,
-      "index": 17
-    },
-    {
-      "schema_context": "Column",
-      "column": "LIMIT_BAL",
-      "check": "not_nullable",
-      "check_number": null,
-      "failure_case": null,
-      "index": 18
-    },
-    {
-      "schema_context": "Column",
-      "column": "LIMIT_BAL",
-      "check": "greater_than(0)",
-      "check_number": 0,
-      "failure_case": -100.0,
-      "index": 5
-    },
-    {
-      "schema_context": "Column",
-      "column": "LIMIT_BAL",
-      "check": "greater_than(0)",
-      "check_number": 0,
-      "failure_case": -100.0,
-      "index": 6
-    },
-    {
-      "schema_context": "Column",
-      "column": "LIMIT_BAL",
-      "check": "greater_than(0)",
-      "check_number": 0,
-      "failure_case": -100.0,
-      "index": 7
-    },
-    {
-      "schema_context": "Column",
-      "column": "LIMIT_BAL",
-      "check": "greater_than(0)",
-      "check_number": 0,
-      "failure_case": -100.0,
-      "index": 8
-    },
-    {
-      "schema_context": "Column",
-      "column": "LIMIT_BAL",
-      "check": "greater_than(0)",
-      "check_number": 0,
-      "failure_case": -100.0,
-      "index": 9
-    },
-    {
-      "schema_context": "Column",
-      "column": "EDUCATION",
-      "check": "isin([1, 2, 3, 4])",
-      "check_number": 0,
-      "failure_case": 99.0,
-      "index": 10
-    },
-    {
-      "schema_context": "Column",
-      "column": "EDUCATION",
-      "check": "isin([1, 2, 3, 4])",
-      "check_number": 0,
-      "failure_case": 99.0,
-      "index": 11
-    },
-    {
-      "schema_context": "Column",
-      "column": "EDUCATION",
-      "check": "isin([1, 2, 3, 4])",
-      "check_number": 0,
-      "failure_case": 99.0,
-      "index": 12
-    },
-    {
-      "schema_context": "Column",
-      "column": "EDUCATION",
-      "check": "isin([1, 2, 3, 4])",
-      "check_number": 0,
-      "failure_case": 99.0,
-      "index": 13
-    },
-    {
-      "schema_context": "Column",
-      "column": "EDUCATION",
-      "check": "isin([1, 2, 3, 4])",
-      "check_number": 0,
-      "failure_case": 99.0,
-      "index": 14
-    },
-    {
-      "schema_context": "Column",
-      "column": "MARRIAGE",
-      "check": "isin([1, 2, 3])",
-      "check_number": 0,
-      "failure_case": 7.0,
-      "index": 15
-    },
-    {
-      "schema_context": "Column",
-      "column": "AGE",
-      "check": "in_range(18, 100)",
-      "check_number": 0,
-      "failure_case": 15.0,
-      "index": 0
-    },
-    {
-      "schema_context": "Column",
-      "column": "AGE",
-      "check": "in_range(18, 100)",
-      "check_number": 0,
-      "failure_case": 15.0,
-      "index": 1
-    },
-    {
-      "schema_context": "Column",
-      "column": "AGE",
-      "check": "in_range(18, 100)",
-      "check_number": 0,
-      "failure_case": 15.0,
-      "index": 2
-    },
-    {
-      "schema_context": "Column",
-      "column": "AGE",
-      "check": "in_range(18, 100)",
-      "check_number": 0,
-      "failure_case": 15.0,
-      "index": 3
-    },
-    {
-      "schema_context": "Column",
-      "column": "AGE",
-      "check": "in_range(18, 100)",
-      "check_number": 0,
-      "failure_case": 15.0,
-      "index": 4
-    },
-    {
-      "schema_context": "Column",
-      "column": "AGE",
-      "check": "in_range(18, 100)",
-      "check_number": 0,
-      "failure_case": 15.0,
-      "index": 200
-    },
-    {
-      "schema_context": "Column",
-      "column": "BILL_AMT1",
-      "check": "not_nullable",
-      "check_number": null,
-      "failure_case": null,
-      "index": 19
-    },
-    {
-      "schema_context": "Column",
-      "column": "PAY_AMT1",
-      "check": "greater_than_or_equal_to(0)",
-      "check_number": 0,
-      "failure_case": -50.0,
-      "index": 15
-    }
-  ],
+  "status": "passed",
+  "file": "data/reference/reference.parquet",
+  "n_rows": 29797,
+  "n_violations": 0,
+  "violations": [],
   "quality": {
-    "completeness": 0.997789,
-    "uniqueness": 0.995025,
+    "completeness": 1.0,
+    "uniqueness": 1.0,
     "timeliness": "not_applicable",
-    "consistency": 0.88115,
-    "validity": 0.895522,
-    "n_rows": 201,
+    "consistency": 1.0,
+    "validity": 1.0,
+    "n_rows": 29797,
     "n_columns": 9,
-    "n_duplicate_rows": 1,
-    "n_invalid_rows": 21,
+    "n_duplicate_rows": 0,
+    "n_invalid_rows": 0,
+    "missingness": {
+      "n_rows": 29797,
+      "target_column": "default_next_month",
+      "columns": {
+        "LIMIT_BAL": {
+          "missing_rate": 0.0,
+          "n_missing": 0,
+          "mechanism": "none",
+          "decision": "keep"
+        },
+        "SEX": {
+          "missing_rate": 0.0,
+          "n_missing": 0,
+          "mechanism": "none",
+          "decision": "keep"
+        },
+        "EDUCATION": {
+          "missing_rate": 0.0,
+          "n_missing": 0,
+          "mechanism": "none",
+          "decision": "keep"
+        },
+        "MARRIAGE": {
+          "missing_rate": 0.0,
+          "n_missing": 0,
+          "mechanism": "none",
+          "decision": "keep"
+        },
+        "AGE": {
+          "missing_rate": 0.0,
+          "n_missing": 0,
+          "mechanism": "none",
+          "decision": "keep"
+        },
+        "PAY_0": {
+          "missing_rate": 0.0,
+          "n_missing": 0,
+          "mechanism": "none",
+          "decision": "keep"
+        },
+        "BILL_AMT1": {
+          "missing_rate": 0.0,
+          "n_missing": 0,
+          "mechanism": "none",
+          "decision": "keep"
+        },
+        "PAY_AMT1": {
+          "missing_rate": 0.0,
+          "n_missing": 0,
+          "mechanism": "none",
+          "decision": "keep"
+        },
+        "default_next_month": {
+          "missing_rate": 0.0,
+          "n_missing": 0,
+          "mechanism": "none",
+          "decision": "keep"
+        }
+      },
+      "mechanism_summary": {
+        "none": 9,
+        "MCAR": 0,
+        "MAR": 0,
+        "MNAR": 0,
+        "undefined": 0
+      }
+    },
+    "outliers": {
+      "methods": [
+        "zscore",
+        "iqr",
+        "lof",
+        "isolation_forest"
+      ],
+      "thresholds": {
+        "zscore": 3.0,
+        "iqr_factor": 1.5,
+        "contamination": "auto"
+      },
+      "n_rows": 29797,
+      "numeric_columns": [
+        "LIMIT_BAL",
+        "SEX",
+        "EDUCATION",
+        "MARRIAGE",
+        "AGE",
+        "PAY_0",
+        "BILL_AMT1",
+        "PAY_AMT1"
+      ],
+      "columns": {
+        "LIMIT_BAL": {
+          "n_outliers_zscore": 130,
+          "n_outliers_iqr": 167,
+          "rate_zscore": 0.004363,
+          "rate_iqr": 0.005605
+        },
+        "SEX": {
+          "n_outliers_zscore": 0,
+          "n_outliers_iqr": 0,
+          "rate_zscore": 0.0,
+          "rate_iqr": 0.0
+        },
+        "EDUCATION": {
+          "n_outliers_zscore": 0,
+          "n_outliers_iqr": 468,
+          "rate_zscore": 0.0,
+          "rate_iqr": 0.015706
+        },
+        "MARRIAGE": {
+          "n_outliers_zscore": 0,
+          "n_outliers_iqr": 0,
+          "rate_zscore": 0.0,
+          "rate_iqr": 0.0
+        },
+        "AGE": {
+          "n_outliers_zscore": 140,
+          "n_outliers_iqr": 271,
+          "rate_zscore": 0.004698,
+          "rate_iqr": 0.009095
+        },
+        "PAY_0": {
+          "n_outliers_zscore": 141,
+          "n_outliers_iqr": 3127,
+          "rate_zscore": 0.004732,
+          "rate_iqr": 0.104943
+        },
+        "BILL_AMT1": {
+          "n_outliers_zscore": 681,
+          "n_outliers_iqr": 2366,
+          "rate_zscore": 0.022855,
+          "rate_iqr": 0.079404
+        },
+        "PAY_AMT1": {
+          "n_outliers_zscore": 390,
+          "n_outliers_iqr": 2732,
+          "rate_zscore": 0.013089,
+          "rate_iqr": 0.091687
+        }
+      },
+      "multivariate": {
+        "n_outliers_lof": 1323,
+        "n_outliers_isolation_forest": 6687,
+        "rate_lof": 0.0444,
+        "rate_isolation_forest": 0.224419
+      },
+      "decisions": {
+        "LIMIT_BAL": "keep",
+        "SEX": "keep",
+        "EDUCATION": "keep",
+        "MARRIAGE": "keep",
+        "AGE": "keep",
+        "PAY_0": "keep",
+        "BILL_AMT1": "keep",
+        "PAY_AMT1": "keep"
+      }
+    },
     "decisions": {
       "LIMIT_BAL": "keep",
       "SEX": "keep",
@@ -201,6 +181,16 @@
       "BILL_AMT1": "keep",
       "PAY_AMT1": "keep",
       "default_next_month": "keep"
+    },
+    "dedup": {
+      "method": "sha256+minhash_lsh",
+      "near_dup_threshold": 0.9,
+      "num_perm": 128,
+      "n_before": 30000,
+      "n_after": 29797,
+      "exact_duplicates_removed": 120,
+      "near_duplicates_removed": 83,
+      "total_removed": 203
     }
   }
 }

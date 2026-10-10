@@ -24,6 +24,43 @@ __all__ = ["build_evidently_report", "build_test_suite_result"]
 _EVIDENTLY_NUM_METHOD = "psi"
 _EVIDENTLY_CAT_METHOD = "chisquare"
 
+# Stattests cujo resultado é um **p-valor**: o drift é sinalizado quando o
+# score fica **abaixo** do limiar (score menor = evidência mais forte de
+# drift). Os demais métodos retornam um tamanho de efeito (ex.: PSI,
+# Wasserstein, Jensen-Shannon), onde o drift aparece quando o score
+# **excede** o limiar.
+_P_VALUE_METHODS = {
+    "chisquare",
+    "chi-square",
+    "ks",
+    "kstest",
+    "ks_2samp",
+    "cramervonmises",
+    "cramer_von_mises",
+    "mannwhitney",
+    "mann_whitney",
+    "fisher_exact",
+    "fisher",
+    "t_test",
+    "ttest",
+}
+
+
+def _is_drift(method: str, value: float, threshold: float) -> bool:
+    """Decide se um teste Evidently sinaliza drift a partir do método.
+
+    Args:
+        method: Nome do stattest (``config["method"]``).
+        value: Score retornado pelo stattest (p-valor ou tamanho de efeito).
+        threshold: Limiar configurado do teste.
+
+    Returns:
+        True se o teste detecta drift, False caso contrário.
+    """
+    if method.lower() in _P_VALUE_METHODS:
+        return value < threshold
+    return value > threshold
+
 
 def build_evidently_report(reference, production) -> str:
     """Gera o relatório HTML de drift com Evidently.
@@ -91,16 +128,17 @@ def _evidently_test_results(reference, production) -> dict:
         if not name.startswith("ValueDrift"):
             continue
         config = metric.get("config", {})
+        method = str(config.get("method") or "")
         threshold = float(config.get("threshold", 0.1))
         value = float(metric.get("value", 0.0) or 0.0)
         tests.append(
             {
                 "name": name,
                 "column": config.get("column"),
-                "method": config.get("method"),
+                "method": method,
                 "value": value,
                 "threshold": threshold,
-                "passed": value <= threshold,
+                "passed": not _is_drift(method, value, threshold),
             }
         )
     return {

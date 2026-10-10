@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 
 import src.observability.logging as logging_module
+import src.observability.retrain as retrain_module
 from src.observability.alerts import build_alerts, consolidate_history_alerts
 from src.observability.exporter import collect_metrics
 from src.observability.fairness import evaluate_fairness
@@ -108,8 +109,9 @@ def test_build_alerts_with_history_and_degradation():
     assert any(alert["type"] == "data_drift" for alert in alerts)
 
 
-def test_retrain_trigger_and_guardrails():
+def test_retrain_trigger_and_guardrails(tmp_path, monkeypatch):
     """Regra objetiva (N=2 meses) dispara re-treino; guardrails nunca promovem."""
+    monkeypatch.setattr(retrain_module, "RETRAIN_DECISION_PATH", tmp_path / "retrain.json")
     history = _history([{"month": m, "features": {"A": {"psi": 0.3}}} for m in (1, 2)])
     consecutive, max_psi, _ = max_consecutive_critical(history, 0.25)
     assert consecutive == 2 and max_psi == 0.3
@@ -128,8 +130,9 @@ def test_retrain_trigger_and_guardrails():
     assert report["guardrails"]["promoted"] is False
 
 
-def test_no_retrain_below_window():
+def test_no_retrain_below_window(tmp_path, monkeypatch):
     """Sem meses consecutivos suficientes, a decisão é no_action."""
+    monkeypatch.setattr(retrain_module, "RETRAIN_DECISION_PATH", tmp_path / "retrain.json")
     statistical = {"history": [{"month": 1, "features": {"A": {"psi": 0.3}}}]}
     report = decide_retrain(statistical, champion_metrics={"roc_auc": 0.8})
     assert report["decision"] == "no_action"

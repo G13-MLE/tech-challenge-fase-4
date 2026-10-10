@@ -1,59 +1,65 @@
 {
-  "roc_auc": 0.7091029286890711,
-  "precision": 0.4166666666666667,
-  "recall": 0.13215859030837004,
-  "brier": 0.16336971521377563,
-  "n_train": 4000,
-  "n_test": 1000,
+  "roc_auc": 0.7668700202455592,
+  "precision": 0.6854103343465046,
+  "recall": 0.3416666666666667,
+  "brier": 0.1369277387857437,
+  "n_train": 23837,
+  "n_test": 5960,
   "classifier": "xgboost",
   "calibration": [
     {
       "bin": 0.05,
-      "mean_predicted": 0.053118232637643814,
-      "fraction_positive": 0.06832298136645963,
-      "count": 322
+      "mean_predicted": 0.06462153792381287,
+      "fraction_positive": 0.07400379506641366,
+      "count": 1581
     },
     {
       "bin": 0.15000000000000002,
-      "mean_predicted": 0.14688816666603088,
-      "fraction_positive": 0.21621621621621623,
-      "count": 185
+      "mean_predicted": 0.1456007957458496,
+      "fraction_positive": 0.15091066782307025,
+      "count": 2306
     },
     {
       "bin": 0.25,
-      "mean_predicted": 0.25214681029319763,
-      "fraction_positive": 0.31724137931034485,
-      "count": 145
+      "mean_predicted": 0.24261662364006042,
+      "fraction_positive": 0.22386363636363638,
+      "count": 880
     },
     {
       "bin": 0.35000000000000003,
-      "mean_predicted": 0.3501870632171631,
-      "fraction_positive": 0.25766871165644173,
-      "count": 163
+      "mean_predicted": 0.34645137190818787,
+      "fraction_positive": 0.34104046242774566,
+      "count": 346
     },
     {
       "bin": 0.45,
-      "mean_predicted": 0.4443567991256714,
-      "fraction_positive": 0.415929203539823,
-      "count": 113
+      "mean_predicted": 0.4444136917591095,
+      "fraction_positive": 0.4708994708994709,
+      "count": 189
     },
     {
       "bin": 0.55,
-      "mean_predicted": 0.5410685539245605,
-      "fraction_positive": 0.43103448275862066,
-      "count": 58
+      "mean_predicted": 0.5468058586120605,
+      "fraction_positive": 0.5,
+      "count": 94
     },
     {
       "bin": 0.6500000000000001,
-      "mean_predicted": 0.6490920186042786,
-      "fraction_positive": 0.4166666666666667,
-      "count": 12
+      "mean_predicted": 0.6627801656723022,
+      "fraction_positive": 0.6963350785340314,
+      "count": 191
     },
     {
       "bin": 0.75,
-      "mean_predicted": 0.7266138792037964,
-      "fraction_positive": 0.0,
-      "count": 2
+      "mean_predicted": 0.7445864677429199,
+      "fraction_positive": 0.7272727272727273,
+      "count": 319
+    },
+    {
+      "bin": 0.8500000000000001,
+      "mean_predicted": 0.8274276852607727,
+      "fraction_positive": 0.7222222222222222,
+      "count": 54
     }
   ]
 }
