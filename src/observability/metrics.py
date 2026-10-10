@@ -17,11 +17,10 @@ __all__ = ["HEALTH_METRICS", "aggregate_health", "aggregate_task_metrics"]
 HEALTH_METRICS = {
     "pipeline_task_status": "Status de execução de cada estágio (started/success/failed)",
     "pipeline_task_latency_ms": "Latência de execução de cada tarefa em milissegundos",
-    "volume_rows_processed": "Número de linhas processadas por estágio",
+    "pipeline_rows_processed": "Número de linhas processadas por estágio",
     "drift_alerts_total": "Quantidade de features com drift acima do limiar",
     "model_roc_auc": "ROC-AUC do modelo por snapshot de produção",
     "model_auc_drop": "Queda de ROC-AUC em relação ao baseline de referência",
-    "model_brier": "Brier score por snapshot (calibração das probabilidades)",
     "slo_status": "Status geral do SLO de dados (ok/degraded/critical)",
 }
 

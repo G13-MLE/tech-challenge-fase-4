@@ -63,11 +63,11 @@ jobs:
           uv run python scripts/make_bad_batch.py
       - name: Contrato deve bloquear o lote corrompido (exit != 0)
         run: |
-          if uv run python -m src.contracts.validate data/corrupted/bad_batch.parquet; then
+          if uv run python -m src.contracts.validate data/corrupted/bad_batch.parquet reports/validation/bad_batch_result.json; then
             echo "FALHA: o contrato não bloqueou um lote corrompido." >&2
             exit 1
           else
-            echo "OK: lote corrompido bloqueado pelo contrato."
+            echo "OK: lote corrompido bloqueado pelo contrato (relatório de violações gravado)."
           fi
 
   drift-gate:

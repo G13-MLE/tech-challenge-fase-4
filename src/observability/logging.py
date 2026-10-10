@@ -123,6 +123,17 @@ class TaskTimer:
         self.fields = fields
         self.start = 0.0
 
+    def record(self, **fields: object) -> None:
+        """Adiciona campos extras ao evento de término (ex.: ``n_rows``).
+
+        Permite registrar métricas conhecidas apenas após o início da
+        tarefa (ex.: volume processado) no evento ``success``/``failed``.
+
+        Args:
+            **fields: Campos a acrescentar ao evento de término.
+        """
+        self.fields.update(fields)
+
     def __enter__(self) -> "TaskTimer":
         """Marca o início e registra o evento de início.
 

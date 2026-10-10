@@ -99,6 +99,7 @@ def decide_retrain(
             "max_psi": max_psi,
             "breached_feature_share": breach_share,
             "champion_auc": champion_auc,
+            "challenger_auc": None if challenger_auc is None else float(challenger_auc),
         },
         "guardrails": {
             "auc_ok": bool(auc_ok),

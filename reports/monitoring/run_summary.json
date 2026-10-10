@@ -3,30 +3,30 @@
     "drift_alerts_total": 4,
     "n_severe": 4,
     "model_roc_auc_by_month": [
-      0.6546820340598637,
-      0.64081560288766,
-      0.6245310754613219,
-      0.6117514700909616,
-      0.6060927993673095,
-      0.5873164795990115
+      0.6561157669963452,
+      0.6417855776868986,
+      0.6248216502491375,
+      0.6129545523202311,
+      0.607873870534564,
+      0.6087371640179432
     ],
     "model_brier_by_month": [
-      0.16614344716072083,
-      0.17069517076015472,
-      0.17595063149929047,
-      0.18126966059207916,
-      0.18755577504634857,
-      0.19539198279380798
+      0.16633838415145874,
+      0.17094743251800537,
+      0.17650634050369263,
+      0.1818363517522812,
+      0.18846341967582703,
+      0.19342482089996338
     ],
-    "model_auc_baseline": 0.6546820340598637,
-    "model_auc_last": 0.5873164795990115,
-    "model_auc_drop": 0.06736555446085224,
+    "model_auc_baseline": 0.6561157669963452,
+    "model_auc_last": 0.6087371640179432,
+    "model_auc_drop": 0.04737860297840202,
     "is_breach": true,
     "tasks": {
-      "n_events": 124,
-      "n_failed": 26,
-      "total_latency_ms": 342677.28,
-      "rows_processed": 6
+      "n_events": 164,
+      "n_failed": 38,
+      "total_latency_ms": 360177.53,
+      "rows_processed": 269381
     },
     "slo_status": "critical"
   },
@@ -85,15 +85,9 @@
       ],
       "windows": 3,
       "message": "Feature cr\u00edtica AGE em severidade severa por 3 meses consecutivos."
-    },
-    {
-      "type": "model_degradation",
-      "feature": "model",
-      "severity": "high",
-      "auc_drop": 0.06736555446085224
     }
   ],
-  "n_alerts": 6,
+  "n_alerts": 5,
   "slo": {
     "status_geral": "critical",
     "alertas": [
@@ -151,21 +145,15 @@
         ],
         "windows": 3,
         "message": "Feature cr\u00edtica AGE em severidade severa por 3 meses consecutivos."
-      },
-      {
-        "type": "model_degradation",
-        "feature": "model",
-        "severity": "high",
-        "auc_drop": 0.06736555446085224
       }
     ],
     "checks": [
       {
         "slo": "accuracy_min",
-        "value": 0.7351746820149679,
+        "value": 0.7323891666946337,
         "threshold": 0.85,
         "comparison": "min",
-        "error_budget": -0.11482531798503204,
+        "error_budget": -0.11761083330536626,
         "status": "breach"
       },
       {
@@ -195,6 +183,7 @@
     ]
   },
   "retrain_decision": "retrain",
+  "challenger_auc": 0.629590019220014,
   "fairness_passed": false,
   "tracking": {
     "tracked": false,
@@ -204,5 +193,6 @@
       "passed": true,
       "missing": []
     }
-  }
+  },
+  "n_rows": 29797
 }

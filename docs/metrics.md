@@ -8,8 +8,9 @@ idênticos aos expostos pelo exporter Prometheus (`src/observability/exporter.py
 
 - `run_id` correlaciona todos os estágios de uma execução de pipeline; `trace_id` correlaciona uma
   execução/estágio. Ambos são propagados via `PIPELINE_RUN_ID` e registrados em cada evento.
-- Logs em JSON-lines: `{task, status, timestamp, run_id, trace_id, latency_ms?, n_rows?, model_name?,
-  model_version?}`.
+- Logs em JSON-lines: todo evento traz `{task, status, timestamp, run_id, trace_id}`. Os eventos de
+  término (`success`/`failed`) acrescentam `latency_ms` e `n_rows` (o evento `started` carrega apenas a
+  correlação). Eventos de inferência acrescentam `model_name`/`model_version` (FR-018).
 - Relatórios em `reports/**/*.json` são a fonte do exporter (padrão *proxy*: lidos no momento do scrape).
 
 ## Métricas operacionais (exporter / dashboard)

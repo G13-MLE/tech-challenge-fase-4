@@ -11,6 +11,13 @@ Duas representações compartilham as mesmas constantes de domínio:
   estágio ``validacao`` (fonte única de verdade).
 - ``CreditSchema``: ``pa.DataFrameModel`` class-based + ``@pa.check_types``
   que fornece tipagem estática das fronteiras (FR-004).
+
+Escopo das colunas ``PAY_*`` (FR-001): a ingestão projeta o batch canônico
+para 8 features + alvo; das colunas de histórico de pagamento do UCI 350
+(``PAY_0..PAY_6``), apenas ``PAY_0`` (status mais recente) é retido e,
+portanto, validado. ``PAY_2..PAY_6`` são descartados em ``src/data/ingest.py``
+e estão **fora do escopo** do contrato — o domínio ``PAY_ALLOWED`` aplica-se
+a essas colunas quando retidas.
 """
 
 import pandera.pandas as pa

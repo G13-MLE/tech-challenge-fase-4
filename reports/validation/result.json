@@ -7,7 +7,10 @@
   "quality": {
     "completeness": 1.0,
     "uniqueness": 1.0,
-    "timeliness": "not_applicable",
+    "timeliness": {
+      "status": "not_applicable",
+      "reason": "lote sem coluna temporal; frescor garantido por DVC/snapshots mensais"
+    },
     "consistency": 1.0,
     "validity": 1.0,
     "n_rows": 29797,
@@ -191,6 +194,33 @@
       "exact_duplicates_removed": 120,
       "near_duplicates_removed": 83,
       "total_removed": 203
+    },
+    "harmonization": {
+      "policy": "code harmonization to documented domain (no semantic change)",
+      "columns": {
+        "EDUCATION": {
+          "mapping": {
+            "0": 4,
+            "5": 4,
+            "6": 4
+          },
+          "remapped_counts": {
+            "5": 280,
+            "6": 51,
+            "0": 14
+          },
+          "n_remapped": 345
+        },
+        "MARRIAGE": {
+          "mapping": {
+            "0": 3
+          },
+          "remapped_counts": {
+            "0": 54
+          },
+          "n_remapped": 54
+        }
+      }
     }
   }
 }

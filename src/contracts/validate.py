@@ -17,6 +17,7 @@ from src.contracts.quality import compute_quality
 from src.contracts.schema import CREDIT_CONTRACT
 from src.core.dataset import (
     DEDUP_REPORT_PATH,
+    HARMONIZATION_REPORT_PATH,
     REFERENCE_DATA_PATH,
     VALIDATION_RESULT_PATH,
     atomic_write_text,
@@ -29,26 +30,36 @@ logger = logging.getLogger(__name__)
 __all__ = ["validate_batch", "main"]
 
 
-def _attach_dedup(quality: dict) -> None:
-    """Anexa o resumo de deduplicação ao bloco de qualidade, se existir."""
+def _attach_ingestion_metadata(quality: dict) -> None:
+    """Anexa a dedup e a harmonização de categorias ao bloco de qualidade.
+
+    Torna auditáveis decisões tomadas na ingestão (dedup e harmonização de
+    códigos não documentados do UCI para o domínio do contrato), de forma
+    consistente com a política *flag-and-keep* (sem mutação silenciosa).
+    """
     if DEDUP_REPORT_PATH.exists():
         quality["dedup"] = json.loads(DEDUP_REPORT_PATH.read_text(encoding="utf-8"))
+    if HARMONIZATION_REPORT_PATH.exists():
+        quality["harmonization"] = json.loads(HARMONIZATION_REPORT_PATH.read_text(encoding="utf-8"))
 
 
-def validate_batch(path: str | None = None) -> dict:
+def validate_batch(path: str | None = None, report_path: Path | None = None) -> dict:
     """Valida um lote de dados contra o contrato de crédito.
 
     Args:
         path: Caminho do Parquet a validar; se None, usa o de referência.
+        report_path: Caminho do relatório de saída; se None, usa
+            ``reports/validation/result.json``.
 
     Returns:
         Relatório com status, violações e dimensões de qualidade.
     """
     data_path = REFERENCE_DATA_PATH if path is None else Path(path)
+    output_path = VALIDATION_RESULT_PATH if report_path is None else report_path
     frame = load_parquet(data_path)
     assert isinstance(frame, pd.DataFrame)
     quality = compute_quality(frame)
-    _attach_dedup(quality)
+    _attach_ingestion_metadata(quality)
     try:
         CREDIT_CONTRACT.validate(frame, lazy=True)
     except pa_errors.SchemaErrors as err:
@@ -60,7 +71,7 @@ def validate_batch(path: str | None = None) -> dict:
             "violations": json.loads(err.failure_cases.to_json(orient="records")),
             "quality": quality,
         }
-        atomic_write_text(VALIDATION_RESULT_PATH, json.dumps(report, indent=2))
+        atomic_write_text(output_path, json.dumps(report, indent=2))
         logger.error("Contrato violado: %d falhas em %s.", report["n_violations"], data_path)
         return report
     report = {
@@ -71,7 +82,7 @@ def validate_batch(path: str | None = None) -> dict:
         "violations": [],
         "quality": quality,
     }
-    atomic_write_text(VALIDATION_RESULT_PATH, json.dumps(report, indent=2))
+    atomic_write_text(output_path, json.dumps(report, indent=2))
     logger.info("Contrato validado com sucesso: %d linhas.", len(frame))
     return report
 
@@ -81,16 +92,19 @@ def main(argv: list[str] | None = None) -> None:
 
     Args:
         argv: Argumentos de linha de comando; o primeiro é o caminho
-            opcional do Parquet (padrão: dataset de referência). Se None,
-            usa ``sys.argv[1:]``.
+            opcional do Parquet (padrão: dataset de referência) e o segundo
+            o caminho opcional do relatório de saída. Se None, usa
+            ``sys.argv[1:]``.
 
     Raises:
         SystemExit: Código 1 se o contrato for violado (bloqueia a ingestão).
     """
     arguments = sys.argv[1:] if argv is None else argv
     path = arguments[0] if arguments else None
-    with TaskTimer("validacao"):
-        report = validate_batch(path)
+    report_path = Path(arguments[1]) if len(arguments) > 1 else None
+    with TaskTimer("validacao") as timer:
+        report = validate_batch(path, report_path)
+        timer.record(n_rows=report["n_rows"])
         if report["status"] != "passed":
             sys.exit(1)
 

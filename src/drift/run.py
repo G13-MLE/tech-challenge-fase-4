@@ -14,6 +14,7 @@ from src.core.dataset import (
     PERFORMANCE_PATH,
     REFERENCE_DATA_PATH,
     STATISTICAL_REPORT_PATH,
+    TRAIN_METRICS_PATH,
     atomic_write_text,
     load_parquet,
 )
@@ -51,6 +52,11 @@ def run() -> dict:
         Dicionário com caminhos e resultados de performance.
     """
     reference = load_parquet(REFERENCE_DATA_PATH)
+    baseline_auc: float | None = None
+    if TRAIN_METRICS_PATH.exists():
+        baseline_auc = float(
+            json.loads(TRAIN_METRICS_PATH.read_text(encoding="utf-8")).get("roc_auc", 0.0)
+        )
     paths = simulate_snapshots()
     snapshots = [load_parquet(path) for path in paths]
 
@@ -68,7 +74,7 @@ def run() -> dict:
 
     # Discrimina os três tipos de drift.
     label = prior_label_drift(reference, last_snapshot)
-    performance = evaluate_snapshots(snapshots)
+    performance = evaluate_snapshots(snapshots, baseline_auc=baseline_auc)
     label_by_month = {
         month: prior_label_drift(reference, snapshot)
         for month, snapshot in enumerate(snapshots, start=1)
@@ -91,6 +97,7 @@ def run() -> dict:
 
     summary = {
         "n_snapshots": len(snapshots),
+        "n_rows": int(sum(len(snapshot) for snapshot in snapshots)),
         "statistical_report": str(STATISTICAL_REPORT_PATH),
         "performance_report": str(PERFORMANCE_PATH),
         "is_breach": last_report["is_breach"],

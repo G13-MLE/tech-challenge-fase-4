@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 
 from src.core.dataset import MODEL_PATH
+from src.observability.logging import log_event
 
 logger = logging.getLogger(__name__)
 
@@ -46,4 +47,14 @@ def predict_proba(frame: pd.DataFrame, bundle: dict | None = None) -> np.ndarray
     if bundle is None:
         bundle = load_model()
     features = [column for column in bundle["features"] if column in frame.columns]
-    return bundle["model"].predict_proba(frame[features])[:, 1]
+    probabilities = bundle["model"].predict_proba(frame[features])[:, 1]
+    # FR-018: registra nome/versão do modelo nos logs de inferência.
+    if bundle.get("model_name"):
+        log_event(
+            "inferencia",
+            "success",
+            n_rows=int(len(frame)),
+            model_name=bundle.get("model_name"),
+            model_version=bundle.get("model_version"),
+        )
+    return probabilities

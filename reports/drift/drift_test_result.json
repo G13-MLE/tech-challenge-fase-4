@@ -82,5 +82,7 @@
     }
   ],
   "n_failed": 4,
-  "passed": false
+  "passed": false,
+  "suite_passed": false,
+  "suite_n_failed": 4
 }
