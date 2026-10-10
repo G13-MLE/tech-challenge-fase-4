@@ -62,9 +62,12 @@ class QualityParams(BaseModel):
     Attributes:
         near_dup_threshold: Limiar de similaridade Jaccard (MinHash/LSH) para
             considerar duas linhas como near-duplicates.
-        decisions: Decisão explícita (opt-in) por coluna — ``keep``,
-            ``remove`` ou ``transform``. Vazio mantém a política
-            flag-and-keep (FR-004), sem mutação silenciosa.
+        decisions: Registro auditável da decisão pretendida por coluna —
+            ``keep``, ``remove`` ou ``transform``. É **descritivo**: as
+            remoções/transformações **não** são aplicadas automaticamente
+            (política flag-and-keep, FR-004), evitando mutação silenciosa;
+            qualquer transformação efetiva deve ser implementada de forma
+            explícita pelo operador.
     """
 
     near_dup_threshold: float = Field(gt=0, le=1, default=0.9)
