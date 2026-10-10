@@ -9,6 +9,7 @@ import json
 
 import numpy as np
 import pandas as pd
+import pytest
 
 import src.observability.logging as logging_module
 import src.observability.retrain as retrain_module
@@ -19,6 +20,7 @@ from src.observability.logging import TaskTimer
 from src.observability.metrics import aggregate_health
 from src.observability.retrain import decide_retrain, max_consecutive_critical
 from src.observability.slo import MonitoringPipeline, evaluate_check
+from src.observability.tracking import tracking_run
 
 TARGET = "default_next_month"
 
@@ -176,3 +178,82 @@ def test_exporter_collects_without_reports():
     """O exporter não falha quando os relatórios estão ausentes."""
     families = collect_metrics()
     assert isinstance(families, list)
+
+
+def test_tracking_run_fallback_when_mlflow_unavailable(monkeypatch):
+    """Sem servidor MLflow, tracking_run degrada para None sem quebrar."""
+    import mlflow
+
+    def _offline(*args, **kwargs):
+        raise ConnectionError("sem tracking server")
+
+    monkeypatch.setattr(mlflow, "set_experiment", _offline)
+    with tracking_run("fallback") as run:
+        assert run is None
+
+
+def test_tracking_run_body_exception_propagates_and_fails_run(monkeypatch):
+    """Erro no corpo do with propaga limpo e encerra a run como FAILED.
+
+    Regressão: um contextmanager não pode dar um segundo yield após
+    receber um throw — isso levanta RuntimeError e mascara o erro original.
+    """
+    import mlflow
+
+    statuses: list[str | None] = []
+    monkeypatch.setattr(mlflow, "set_experiment", lambda *args, **kwargs: None)
+    monkeypatch.setattr(mlflow, "start_run", lambda *args, **kwargs: object())
+    monkeypatch.setattr(mlflow, "end_run", lambda status=None: statuses.append(status))
+
+    with (
+        pytest.raises(ValueError, match="falha no corpo"),
+        tracking_run("corpo") as run,
+    ):
+        assert run is not None
+        raise ValueError("falha no corpo")
+
+    assert statuses == ["FAILED"]
+
+
+def test_exporter_process_serves_metrics():
+    """O processo do exporter permanece vivo e responde em /metrics.
+
+    Regressão: o servidor HTTP do ``prometheus_client`` roda em daemon
+    thread; sem bloqueio no processo principal, o interpretador encerra
+    imediatamente e o endpoint nunca responde.
+    """
+    import os
+    import socket
+    import subprocess
+    import sys
+    import time
+    import urllib.request
+
+    with socket.socket() as probe:
+        probe.bind(("127.0.0.1", 0))
+        port = probe.getsockname()[1]
+
+    env = {**os.environ, "PROMETHEUS_EXPORTER_PORT": str(port)}
+    process = subprocess.Popen(
+        [sys.executable, "-m", "src.observability.exporter"],
+        env=env,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    try:
+        body = None
+        deadline = time.monotonic() + 15
+        while time.monotonic() < deadline:
+            try:
+                with urllib.request.urlopen(f"http://127.0.0.1:{port}/metrics") as response:
+                    body = response.read().decode("utf-8")
+                break
+            except OSError:
+                assert process.poll() is None, "processo do exporter encerrou antes de escutar"
+                time.sleep(0.25)
+        assert body is not None, "exporter não respondeu /metrics no prazo"
+        assert "drift_psi" in body
+        assert "model_roc_auc" in body
+    finally:
+        process.terminate()
+        process.wait(timeout=10)
