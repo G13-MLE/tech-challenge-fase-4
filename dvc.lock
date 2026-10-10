@@ -155,7 +155,7 @@ stages:
       nfiles: 6
     - path: reports/drift/drift_report.html
       hash: md5
-      md5: 848c0becc8091e48ea3b0701b761ec0c
+      md5: 7df73fe1a648ef4416d4ed29ba0e5ce8
       size: 4058799
     - path: reports/drift/performance.json
       hash: md5
