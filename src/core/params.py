@@ -14,9 +14,15 @@ from pydantic import BaseModel, Field
 __all__ = [
     "PARAMS_PATH",
     "DataParams",
+    "DatasetParams",
+    "QualityParams",
     "TrainParams",
     "DriftParams",
     "DriftThresholds",
+    "SLOParams",
+    "AlertsParams",
+    "RetrainParams",
+    "FairnessParams",
     "Params",
     "load_params",
 ]
@@ -38,6 +44,27 @@ class DataParams(BaseModel):
     id_column: str = "ID"
     reference_train_size: float = Field(gt=0, lt=1, default=0.8)
     seed: int = Field(ge=0, default=42)
+
+
+class DatasetParams(BaseModel):
+    """Parâmetros da fonte do dataset de referência.
+
+    Attributes:
+        source: Fonte do dataset ('uci' real ou 'synthetic' fallback offline/CI).
+    """
+
+    source: Literal["uci", "synthetic"] = "uci"
+
+
+class QualityParams(BaseModel):
+    """Parâmetros das verificações de qualidade de dados.
+
+    Attributes:
+        near_dup_threshold: Limiar de similaridade Jaccard (MinHash/LSH) para
+            considerar duas linhas como near-duplicates.
+    """
+
+    near_dup_threshold: float = Field(gt=0, le=1, default=0.9)
 
 
 class TrainParams(BaseModel):
@@ -98,12 +125,67 @@ class DriftThresholds(BaseModel):
         psi_moderate: Limite superior de PSI para drift moderado.
         auc_drop_alert: Queda de ROC-AUC que dispara alerta de degradação.
         ks_pvalue_alert: p-valor do teste de Kolmogorov-Smirnov para alerta.
+        multivariate_n_bootstrap: Reamostragens bootstrap do limiar nulo multivariado.
+        multivariate_bootstrap_quantile: Quantil do limiar nulo (ex.: 0.95 = p95).
     """
 
     psi_stable: float = Field(gt=0, default=0.1)
     psi_moderate: float = Field(gt=0, default=0.25)
     auc_drop_alert: float = Field(gt=0, le=1, default=0.05)
     ks_pvalue_alert: float = Field(gt=0, le=1, default=0.05)
+    multivariate_n_bootstrap: int = Field(ge=1, default=200)
+    multivariate_bootstrap_quantile: float = Field(gt=0, lt=1, default=0.95)
+
+
+class SLOParams(BaseModel):
+    """Data SLOs e Error Budget usados pelo estágio de monitoramento.
+
+    Attributes:
+        accuracy_min: Acurácia mínima aceitável do modelo.
+        psi_max: PSI máximo tolerado por feature.
+        ks_pvalue_min: p-valor mínimo tolerado no teste KS.
+        missing_rate_max: Taxa máxima tolerada de valores ausentes.
+    """
+
+    accuracy_min: float = Field(ge=0, le=1, default=0.85)
+    psi_max: float = Field(gt=0, default=0.25)
+    ks_pvalue_min: float = Field(ge=0, le=1, default=0.05)
+    missing_rate_max: float = Field(ge=0, le=1, default=0.01)
+
+
+class AlertsParams(BaseModel):
+    """Regras de consolidação anti-fadiga de alertas (FR-016).
+
+    Attributes:
+        breach_features: Nº de features que devem cruzar juntas para consolidar.
+        consolidation_windows: Nº de janelas consecutivas para uma feature crítica.
+    """
+
+    breach_features: int = Field(ge=1, default=2)
+    consolidation_windows: int = Field(ge=1, default=3)
+
+
+class RetrainParams(BaseModel):
+    """Gatilho objetivo de re-treino (FR-017).
+
+    Attributes:
+        consecutive_critical_windows: Nº de meses consecutivos em severidade
+            crítica para disparar o re-treino.
+    """
+
+    consecutive_critical_windows: int = Field(ge=1, default=2)
+
+
+class FairnessParams(BaseModel):
+    """Guardrails de fairness por subgrupo (FR-017, FR-026).
+
+    Attributes:
+        disparate_impact_min: Razão de impacto dispar mínima (regra dos 80%).
+        equal_opportunity_max: Diferença máxima de equal opportunity (TPR).
+    """
+
+    disparate_impact_min: float = Field(gt=0, le=1, default=0.8)
+    equal_opportunity_max: float = Field(ge=0, le=1, default=0.10)
 
 
 class Params(BaseModel):
@@ -111,15 +193,27 @@ class Params(BaseModel):
 
     Attributes:
         data: Parâmetros de dados.
+        dataset: Fonte do dataset de referência.
+        quality: Parâmetros de qualidade de dados.
         train: Parâmetros de treino.
         drift: Parâmetros de simulação de drift.
         drift_thresholds: Limiares de drift.
+        slo: Data SLOs e Error Budget.
+        alerts: Regras de consolidação de alertas.
+        retrain: Gatilho de re-treino.
+        fairness: Guardrails de fairness.
     """
 
     data: DataParams
+    dataset: DatasetParams
+    quality: QualityParams
     train: TrainParams
     drift: DriftParams
     drift_thresholds: DriftThresholds
+    slo: SLOParams
+    alerts: AlertsParams
+    retrain: RetrainParams
+    fairness: FairnessParams
 
 
 @lru_cache

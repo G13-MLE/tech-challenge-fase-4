@@ -19,6 +19,11 @@ __all__ = [
     "DRIFT_REPORT_PATH",
     "STATISTICAL_REPORT_PATH",
     "RUN_SUMMARY_PATH",
+    "SLO_REPORT_PATH",
+    "RETRAIN_DECISION_PATH",
+    "PROFILE_HTML_PATH",
+    "FAIRNESS_DIR",
+    "PERFORMANCE_PATH",
     "ID_COLUMN",
     "TARGET_COLUMN",
     "load_parquet",
@@ -33,10 +38,15 @@ PRODUCTION_DIR = Path("data/production")
 MODEL_PATH = Path("models/model.joblib")
 
 VALIDATION_RESULT_PATH = Path("reports/validation/result.json")
+PROFILE_HTML_PATH = Path("reports/validation/profile.html")
 TRAIN_METRICS_PATH = Path("reports/train_metrics.json")
 DRIFT_REPORT_PATH = Path("reports/drift/drift_report.html")
 STATISTICAL_REPORT_PATH = Path("reports/drift/statistical_report.json")
+PERFORMANCE_PATH = Path("reports/drift/performance.json")
+SLO_REPORT_PATH = Path("reports/monitoring/slo_report.json")
+RETRAIN_DECISION_PATH = Path("reports/monitoring/retrain_decision.json")
 RUN_SUMMARY_PATH = Path("reports/monitoring/run_summary.json")
+FAIRNESS_DIR = Path("reports/fairness")
 
 ID_COLUMN = "ID"
 TARGET_COLUMN = "default_next_month"
