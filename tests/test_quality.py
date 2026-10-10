@@ -26,6 +26,25 @@ def test_compute_quality_dimensions(credit_frame):
     assert all(decision == "keep" for decision in quality["decisions"].values())
 
 
+def test_quality_decision_override_is_recorded_without_mutation(monkeypatch):
+    """O override `quality.decisions` é auditado, mas não muta os dados (flag-and-keep)."""
+    import src.contracts.quality as quality_module
+    from src.core.params import load_params
+
+    overridden = load_params().model_copy(deep=True)
+    overridden.quality.decisions = {"AGE": "remove"}
+    monkeypatch.setattr(quality_module, "load_params", lambda: overridden)
+
+    frame = make_credit_frame(n_rows=20, seed=3)
+    before = frame.copy()
+
+    quality = quality_module.compute_quality(frame)
+
+    assert quality["decisions"]["AGE"] == "remove"
+    assert "AGE" in frame.columns
+    pd.testing.assert_frame_equal(frame, before)
+
+
 def test_dedup_removes_exact_and_near_duplicates():
     """Dedup remove duplicatas exatas (SHA-256) e near-duplicates (MinHash/LSH)."""
     frame = make_credit_frame(n_rows=40, seed=7)

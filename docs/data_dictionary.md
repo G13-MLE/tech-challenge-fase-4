@@ -32,7 +32,9 @@ O arquivo bruto contém o histórico completo; somente o subconjunto acima é us
 ## Notas de qualidade
 
 - **Política flag-and-keep**: ausências e outliers são **sinalizados** e mantidos (`reports/validation/result.json`
-  → `quality.decisions`), sem mutação silenciosa.
+  → `quality.decisions`), sem mutação silenciosa. O bloco `quality.decisions` é um **registro auditável** da
+  decisão pretendida por coluna (`keep`/`remove`/`transform`); ele **não** aplica remoções/transformações
+  automaticamente — qualquer mutação efetiva exige implementação explícita pelo operador.
 - **BILL_AMT** pode ser negativo (saldo credor) — **não** há regra de positividade.
 - **Deduplicação** (exata SHA-256 + near-duplicates MinHash/LSH) ocorre **antes** do split para evitar
   vazamento treino/teste (`src/data/dedup.py`).

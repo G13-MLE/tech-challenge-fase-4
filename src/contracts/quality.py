@@ -3,7 +3,10 @@
 Mede completude, unicidade, temporalidade, consistência e validade e
 registra a decisão por coluna. Política **flag-and-keep** (clarificação
 #5): nenhum achado muta os dados; cada coluna recebe a decisão padrão
-``keep`` e transformações são opt-in via configuração.
+``keep``. A configuração ``quality.decisions`` é um **registro auditável**
+da decisão pretendida por coluna (``keep``/``remove``/``transform``) e
+**não** aplica remoções/transformações automaticamente — qualquer
+mutação efetiva deve ser implementada de forma explícita pelo operador.
 """
 
 import numpy as np

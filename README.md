@@ -98,9 +98,9 @@ make monitoring-up    # Prometheus (9090) + Grafana (3000) + exporter /metrics (
 | Métrica | Valor |
 | ------- | ----- |
 | Referência (UCI 350, após dedup) | 29.797 amostras |
-| ROC-AUC do modelo (teste) | ~0.767 |
-| ROC-AUC mês 1 → mês 6 | ~0.655 → ~0.587 (queda ≈ 0.067, monotônica) |
-| PSI máx. (`AGE`) | ~2.22 (**breach** > 0.25) |
+| ROC-AUC do modelo (teste) | ~0.761 |
+| ROC-AUC mês 1 → mês 6 | ~0.656 → ~0.609 (concept drift ≈ 0.153 vs. baseline ~0.761; queda quase monotônica) |
+| PSI máx. (feature) | `LIMIT_BAL` ~2.221 (**breach** > 0.25; `AGE` ~1.289) |
 | MMD² (multivariado) | drift de dependência (`LIMIT_BAL × AGE`) detectado |
 | Label drift `P(Y)` | ≈ 0 (preservado na simulação de concept drift) |
 | Decisão de re-treino | `retrain` (N=2 meses críticos); promoção bloqueada (fairness) |
