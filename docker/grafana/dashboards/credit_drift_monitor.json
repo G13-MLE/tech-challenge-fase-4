@@ -1,0 +1,108 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "graphTooltip": 0,
+  "id": null,
+  "title": "Credit Drift Monitor",
+  "uid": "credit-drift-monitor",
+  "schemaVersion": 39,
+  "tags": ["credit", "drift", "observability"],
+  "timezone": "browser",
+  "time": { "from": "now-6h", "to": "now" },
+  "refresh": "10s",
+  "panels": [
+    {
+      "id": 1,
+      "title": "ROC-AUC por snapshot de produção",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "fieldConfig": { "defaults": { "unit": "percentunit" }, "overrides": [] },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "model_roc_auc",
+          "legendFormat": "mês {{month}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Queda de ROC-AUC vs baseline",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "model_auc_drop" }]
+    },
+    {
+      "id": 3,
+      "title": "Alertas de drift por tipo",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "sum(drift_alerts_total)" }]
+    },
+    {
+      "id": 4,
+      "title": "PSI por feature (heatmap de linha)",
+      "type": "timeseries",
+      "gridPos": { "h": 9, "w": 18, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "drift_psi",
+          "legendFormat": "{{feature}} (mês {{month}})"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Error budget por SLO",
+      "type": "bargauge",
+      "gridPos": { "h": 9, "w": 6, "x": 18, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [{ "refId": "A", "expr": "slo_error_budget" }]
+    },
+    {
+      "id": 6,
+      "title": "Latência por tarefa (ms)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 17 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "pipeline_task_latency_ms",
+          "legendFormat": "{{task}}"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Status das tarefas (1=ok)",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 17 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "pipeline_task_status",
+          "legendFormat": "{{task}}"
+        }
+      ]
+    }
+  ]
+}

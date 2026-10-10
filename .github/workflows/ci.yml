@@ -15,6 +15,9 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  PYTHON_VERSION: "3.12"
+
 jobs:
   lint:
     runs-on: ubuntu-latest
@@ -24,7 +27,7 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
-          python-version: "3.12"
+          python-version: ${{ env.PYTHON_VERSION }}
       - run: uv sync --frozen
       - run: uv run ruff check .
       - run: uv run ruff format --check .
@@ -37,6 +40,67 @@ jobs:
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
-          python-version: "3.12"
+          python-version: ${{ env.PYTHON_VERSION }}
       - run: uv sync --frozen
       - run: uv run pytest
+
+  contract-gate:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: "."
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: uv sync --frozen
+      - name: Gera dataset sintético e lote corrompido (offline)
+        run: |
+          uv run python scripts/generate_synthetic_data.py
+          uv run python -m src.data.ingest
+          uv run python scripts/make_bad_batch.py
+      - name: Contrato deve bloquear o lote corrompido (exit != 0)
+        run: |
+          if uv run python -m src.contracts.validate data/corrupted/bad_batch.parquet; then
+            echo "FALHA: o contrato não bloqueou um lote corrompido." >&2
+            exit 1
+          else
+            echo "OK: lote corrompido bloqueado pelo contrato."
+          fi
+
+  drift-gate:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: "."
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: uv sync --frozen
+      - name: Roda o pipeline de drift offline (dados sintéticos)
+        run: |
+          uv run python scripts/generate_synthetic_data.py
+          uv run python -m src.data.ingest
+          uv run python -m src.model.train
+          uv run python -m src.drift.run
+      - name: Gate de drift (qualquer feature PSI > 0.25 = breach)
+        run: uv run python scripts/drift_gate.py --expect-breach
+      - name: Publica evidências de drift
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: drift-evidence
+          path: reports/drift/
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build da imagem (tag por SHA do commit)
+        run: docker build -t credit-monitor:${{ github.sha }} -f docker/Dockerfile .

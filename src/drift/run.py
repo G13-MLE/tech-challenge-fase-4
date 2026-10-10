@@ -1,27 +1,47 @@
 """Orquestra a Etapa 2: simulação, detecção e avaliação de drift.
 
-Gera os snapshots, roda os testes PSI/KS, produz o relatório Evidently
-e mede a degradação de performance (Concept Drift).
+Gera os snapshots (Data + Concept Drift), roda os testes PSI/KS/χ² com
+correção de múltiplas comparações, o teste multivariado (MMD²/Energy), o
+relatório Evidently (PSI/χ²), o gate de drift e mede a degradação de
+performance (Concept Drift) por mês. Todos os relatórios são escritos
+atomicamente (FR-008–FR-014).
 """
 
 import json
 import logging
 
 from src.core.dataset import (
+    PERFORMANCE_PATH,
+    REFERENCE_DATA_PATH,
     STATISTICAL_REPORT_PATH,
     atomic_write_text,
     load_parquet,
 )
-from src.drift.concept import evaluate_snapshots
-from src.drift.detect import build_evidently_report
+from src.drift.concept import evaluate_snapshots, prior_label_drift
+from src.drift.detect import build_evidently_report, build_test_suite_result
+from src.drift.multivariate import build_multivariate_report
 from src.drift.simulate import simulate_snapshots
 from src.drift.stats import build_statistical_report
 
 logger = logging.getLogger(__name__)
 
-PERFORMANCE_PATH = STATISTICAL_REPORT_PATH.parent / "performance.json"
-
 __all__ = ["run", "main"]
+
+
+def _history_entry(month: int, report: dict) -> dict:
+    """Resume um relatório mensal para a série temporal de PSI."""
+    features = report["features"]
+    return {
+        "month": month,
+        "n_drifted": report["n_drifted"],
+        "n_severe": report["n_severe"],
+        "max_psi": report["max_psi"],
+        "is_breach": report["is_breach"],
+        "features": {
+            name: {"psi": entry["psi"], "severity": entry["severity"]}
+            for name, entry in features.items()
+        },
+    }
 
 
 def run() -> dict:
@@ -30,19 +50,52 @@ def run() -> dict:
     Returns:
         Dicionário com caminhos e resultados de performance.
     """
-    from src.core.dataset import REFERENCE_DATA_PATH
-
     reference = load_parquet(REFERENCE_DATA_PATH)
     paths = simulate_snapshots()
     snapshots = [load_parquet(path) for path in paths]
-    build_evidently_report(reference, snapshots[-1])
-    build_statistical_report(reference, snapshots[-1])
+
+    history: list[dict] = []
+    last_report: dict = {}
+    for month, snapshot in enumerate(snapshots, start=1):
+        report = build_statistical_report(reference, snapshot, write=False)
+        history.append(_history_entry(month, report))
+        last_report = report
+
+    last_snapshot = snapshots[-1]
+    last_report["history"] = history
+    last_report["month"] = len(snapshots)
+    last_report["multivariate"] = build_multivariate_report(reference, last_snapshot)
+
+    # Discrimina os três tipos de drift.
+    label = prior_label_drift(reference, last_snapshot)
     performance = evaluate_snapshots(snapshots)
+    label_by_month = {
+        month: prior_label_drift(reference, snapshot)
+        for month, snapshot in enumerate(snapshots, start=1)
+    }
+    for entry in performance:
+        drift = label_by_month[entry["month"]]
+        entry["p_positive"] = drift["production_positive_rate"]
+        entry["label_drift"] = drift["label_drift"]
+    last_report["drift_types"] = {
+        "data_drift": bool(last_report["n_drifted"] > 0),
+        "label_drift": bool(abs(label["label_drift"]) > 0.02),
+        "concept_drift": bool(performance[-1]["concept_drift"] > 0.0),
+        "multivariate_drift": bool(last_report["multivariate"]["drifted"]),
+    }
+    atomic_write_text(STATISTICAL_REPORT_PATH, json.dumps(last_report, indent=2))
     atomic_write_text(PERFORMANCE_PATH, json.dumps(performance, indent=2))
+
+    build_evidently_report(reference, last_snapshot)
+    build_test_suite_result(reference, last_snapshot, last_report)
+
     summary = {
         "n_snapshots": len(snapshots),
         "statistical_report": str(STATISTICAL_REPORT_PATH),
-        "performance_by_month": performance,
+        "performance_report": str(PERFORMANCE_PATH),
+        "is_breach": last_report["is_breach"],
+        "auc_last_month": performance[-1]["roc_auc"],
+        "auc_drop": performance[-1]["concept_drift"],
     }
     logger.info("Drift concluído com %d snapshots.", len(snapshots))
     return summary
@@ -50,7 +103,10 @@ def run() -> dict:
 
 def main() -> None:
     """Ponto de entrada do estágio de drift."""
-    run()
+    from src.observability.logging import TaskTimer
+
+    with TaskTimer("drift"):
+        run()
 
 
 if __name__ == "__main__":

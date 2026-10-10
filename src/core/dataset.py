@@ -18,6 +18,7 @@ __all__ = [
     "TRAIN_METRICS_PATH",
     "DRIFT_REPORT_PATH",
     "STATISTICAL_REPORT_PATH",
+    "DRIFT_TEST_RESULT_PATH",
     "RUN_SUMMARY_PATH",
     "SLO_REPORT_PATH",
     "RETRAIN_DECISION_PATH",
@@ -42,6 +43,7 @@ PROFILE_HTML_PATH = Path("reports/validation/profile.html")
 TRAIN_METRICS_PATH = Path("reports/train_metrics.json")
 DRIFT_REPORT_PATH = Path("reports/drift/drift_report.html")
 STATISTICAL_REPORT_PATH = Path("reports/drift/statistical_report.json")
+DRIFT_TEST_RESULT_PATH = Path("reports/drift/drift_test_result.json")
 PERFORMANCE_PATH = Path("reports/drift/performance.json")
 SLO_REPORT_PATH = Path("reports/monitoring/slo_report.json")
 RETRAIN_DECISION_PATH = Path("reports/monitoring/retrain_decision.json")

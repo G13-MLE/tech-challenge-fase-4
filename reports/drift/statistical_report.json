@@ -1,70 +1,395 @@
 {
   "n_features": 8,
-  "n_drifted": 3,
+  "n_drifted": 4,
+  "n_severe": 4,
+  "max_psi": 2.7769274133255895,
+  "psi_bands": {
+    "stable": 0.1,
+    "moderate": 0.25
+  },
+  "multiple_comparison": {
+    "method": "fdr_bh",
+    "alpha": 0.05,
+    "n_significant_fdr": 4,
+    "n_significant_bonferroni": 4
+  },
+  "is_breach": true,
   "features": {
     "LIMIT_BAL": {
-      "psi": 1.2078743973685702,
+      "type": "numeric",
+      "psi": 1.2068733206259743,
+      "severity": "severe",
       "ks": {
-        "statistic": 0.15560000000000007,
-        "pvalue": 3.294736424788177e-53
+        "statistic": 0.1552,
+        "pvalue": 6.165319553479879e-53
       },
-      "severity": "severe"
+      "corrected_significant": true,
+      "bonferroni_significant": true
     },
     "SEX": {
+      "type": "categorical",
       "psi": 0.0,
-      "ks": {
+      "severity": "stable",
+      "chi2": {
         "statistic": 0.0,
-        "pvalue": 1.0
+        "pvalue": 1.0,
+        "cramers_v": 0.0,
+        "expected_min": 2469.0,
+        "method": "fisher_exact"
       },
-      "severity": "stable"
+      "corrected_significant": false,
+      "bonferroni_significant": false
     },
     "EDUCATION": {
-      "psi": 0.0,
-      "ks": {
-        "statistic": 0.0,
-        "pvalue": 1.0
+      "type": "categorical",
+      "psi": 1.1618486774690246,
+      "severity": "severe",
+      "chi2": {
+        "statistic": 526.3943330177523,
+        "pvalue": 1.3087331047865502e-112,
+        "cramers_v": 0.22943285140052466,
+        "expected_min": 250.0,
+        "method": "chi2"
       },
-      "severity": "stable"
+      "corrected_significant": true,
+      "bonferroni_significant": true
     },
     "MARRIAGE": {
+      "type": "categorical",
       "psi": 0.0,
-      "ks": {
+      "severity": "stable",
+      "chi2": {
         "statistic": 0.0,
-        "pvalue": 1.0
+        "pvalue": 1.0,
+        "cramers_v": 0.0,
+        "expected_min": 1660.0,
+        "method": "chi2"
       },
-      "severity": "stable"
+      "corrected_significant": false,
+      "bonferroni_significant": false
     },
     "AGE": {
-      "psi": 1.0991265913483568,
+      "type": "numeric",
+      "psi": 1.1119142377082758,
+      "severity": "severe",
       "ks": {
-        "statistic": 0.16359999999999997,
-        "pvalue": 8.42310065849609e-59
+        "statistic": 0.15360000000000007,
+        "pvalue": 7.436638677410782e-52
       },
-      "severity": "severe"
+      "corrected_significant": true,
+      "bonferroni_significant": true
     },
     "PAY_0": {
-      "psi": 0.9868196407219315,
-      "ks": {
-        "statistic": 0.19119999999999998,
-        "pvalue": 2.7211569480807905e-80
+      "type": "categorical",
+      "psi": 2.7769274133255895,
+      "severity": "severe",
+      "chi2": {
+        "statistic": 1385.7443954614182,
+        "pvalue": 1.6468463960321092e-289,
+        "cramers_v": 0.3722558791290499,
+        "expected_min": 164.5,
+        "method": "chi2"
       },
-      "severity": "severe"
+      "corrected_significant": true,
+      "bonferroni_significant": true
     },
     "BILL_AMT1": {
+      "type": "numeric",
       "psi": 0.0,
+      "severity": "stable",
       "ks": {
         "statistic": 0.0,
         "pvalue": 1.0
       },
-      "severity": "stable"
+      "corrected_significant": false,
+      "bonferroni_significant": false
     },
     "PAY_AMT1": {
+      "type": "numeric",
       "psi": 0.0,
+      "severity": "stable",
       "ks": {
         "statistic": 0.0,
         "pvalue": 1.0
       },
-      "severity": "stable"
+      "corrected_significant": false,
+      "bonferroni_significant": false
     }
+  },
+  "history": [
+    {
+      "month": 1,
+      "n_drifted": 0,
+      "n_severe": 0,
+      "max_psi": 0.0607662358443631,
+      "is_breach": false,
+      "features": {
+        "LIMIT_BAL": {
+          "psi": 0.00811534119539045,
+          "severity": "stable"
+        },
+        "SEX": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "EDUCATION": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "MARRIAGE": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "AGE": {
+          "psi": 0.006868898793300154,
+          "severity": "stable"
+        },
+        "PAY_0": {
+          "psi": 0.0607662358443631,
+          "severity": "stable"
+        },
+        "BILL_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "PAY_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        }
+      }
+    },
+    {
+      "month": 2,
+      "n_drifted": 1,
+      "n_severe": 1,
+      "max_psi": 0.5756499155150803,
+      "is_breach": true,
+      "features": {
+        "LIMIT_BAL": {
+          "psi": 0.032379306084769535,
+          "severity": "stable"
+        },
+        "SEX": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "EDUCATION": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "MARRIAGE": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "AGE": {
+          "psi": 0.030819984655108608,
+          "severity": "stable"
+        },
+        "PAY_0": {
+          "psi": 0.5756499155150803,
+          "severity": "severe"
+        },
+        "BILL_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "PAY_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        }
+      }
+    },
+    {
+      "month": 3,
+      "n_drifted": 1,
+      "n_severe": 1,
+      "max_psi": 1.3371021914673424,
+      "is_breach": true,
+      "features": {
+        "LIMIT_BAL": {
+          "psi": 0.09380356754307348,
+          "severity": "stable"
+        },
+        "SEX": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "EDUCATION": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "MARRIAGE": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "AGE": {
+          "psi": 0.09363759617820078,
+          "severity": "stable"
+        },
+        "PAY_0": {
+          "psi": 1.3371021914673424,
+          "severity": "severe"
+        },
+        "BILL_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "PAY_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        }
+      }
+    },
+    {
+      "month": 4,
+      "n_drifted": 3,
+      "n_severe": 1,
+      "max_psi": 1.9933289474080031,
+      "is_breach": true,
+      "features": {
+        "LIMIT_BAL": {
+          "psi": 0.22986951857429644,
+          "severity": "moderate"
+        },
+        "SEX": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "EDUCATION": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "MARRIAGE": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "AGE": {
+          "psi": 0.21651582452506482,
+          "severity": "moderate"
+        },
+        "PAY_0": {
+          "psi": 1.9933289474080031,
+          "severity": "severe"
+        },
+        "BILL_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "PAY_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        }
+      }
+    },
+    {
+      "month": 5,
+      "n_drifted": 3,
+      "n_severe": 3,
+      "max_psi": 2.101631365858587,
+      "is_breach": true,
+      "features": {
+        "LIMIT_BAL": {
+          "psi": 0.5243946239471518,
+          "severity": "severe"
+        },
+        "SEX": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "EDUCATION": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "MARRIAGE": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "AGE": {
+          "psi": 0.5778067452360683,
+          "severity": "severe"
+        },
+        "PAY_0": {
+          "psi": 2.101631365858587,
+          "severity": "severe"
+        },
+        "BILL_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "PAY_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        }
+      }
+    },
+    {
+      "month": 6,
+      "n_drifted": 4,
+      "n_severe": 4,
+      "max_psi": 2.7769274133255895,
+      "is_breach": true,
+      "features": {
+        "LIMIT_BAL": {
+          "psi": 1.2068733206259743,
+          "severity": "severe"
+        },
+        "SEX": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "EDUCATION": {
+          "psi": 1.1618486774690246,
+          "severity": "severe"
+        },
+        "MARRIAGE": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "AGE": {
+          "psi": 1.1119142377082758,
+          "severity": "severe"
+        },
+        "PAY_0": {
+          "psi": 2.7769274133255895,
+          "severity": "severe"
+        },
+        "BILL_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "PAY_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        }
+      }
+    }
+  ],
+  "month": 6,
+  "multivariate": {
+    "features": [
+      "LIMIT_BAL",
+      "AGE",
+      "BILL_AMT1",
+      "PAY_AMT1"
+    ],
+    "n_samples": {
+      "reference": 400,
+      "production": 400
+    },
+    "gamma": 0.06890335874490111,
+    "mmd2": 0.03725696813958845,
+    "mmd2_threshold_p95": 0.0033626714191128267,
+    "mmd2_threshold_p99": 0.006170337043816043,
+    "mmd2_threshold": 0.0033626714191128267,
+    "energy": 0.20104631146774787,
+    "energy_threshold": 0.0438087106652965,
+    "drifted": true,
+    "n_bootstrap": 200
+  },
+  "drift_types": {
+    "data_drift": true,
+    "label_drift": false,
+    "concept_drift": true,
+    "multivariate_drift": true
   }
 }

@@ -21,6 +21,7 @@ from src.core.dataset import (
     atomic_write_text,
     load_parquet,
 )
+from src.observability.logging import TaskTimer
 
 logger = logging.getLogger(__name__)
 
@@ -80,9 +81,10 @@ def main(argv: list[str] | None = None) -> None:
     """
     arguments = sys.argv[1:] if argv is None else argv
     path = arguments[0] if arguments else None
-    report = validate_batch(path)
-    if report["status"] != "passed":
-        sys.exit(1)
+    with TaskTimer("validacao"):
+        report = validate_batch(path)
+        if report["status"] != "passed":
+            sys.exit(1)
 
 
 if __name__ == "__main__":

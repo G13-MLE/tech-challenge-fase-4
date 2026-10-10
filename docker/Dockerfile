@@ -1,16 +1,18 @@
+# syntax=docker/dockerfile:1
 # =============================================================================
 # Estágio 1: Build - instala dependências com uv
 # =============================================================================
 FROM python:3.12-slim AS builder
 
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+RUN pip install --no-cache-dir uv
 
 WORKDIR /build
 
 COPY pyproject.toml uv.lock ./
 COPY src/ src/
 
-RUN uv sync --frozen --no-dev --no-install-project
+# Cache mount do uv: acelera rebuilds (o primeiro build ainda baixa tudo).
+RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --no-dev --no-install-project
 
 # =============================================================================
 # Estágio 2: Runtime - imagem leve com apenas o necessário

@@ -1,0 +1,19 @@
+{
+  "decision": "no_action",
+  "signals": {
+    "consecutive_critical_windows": 1,
+    "required_windows": 2,
+    "max_psi": 0.3,
+    "breached_feature_share": 1.0,
+    "champion_auc": 0.8
+  },
+  "guardrails": {
+    "auc_ok": true,
+    "fairness_ok": true,
+    "disparate_impact_min": 0.8,
+    "equal_opportunity_max": 0.1,
+    "promoted": false,
+    "note": "Challenger nunca \u00e9 promovido automaticamente."
+  },
+  "model_version": "challenger"
+}

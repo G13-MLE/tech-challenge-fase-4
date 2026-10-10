@@ -1,0 +1,234 @@
+schema: '2.0'
+stages:
+  ingestao:
+    cmd: uv run python -m src.data.ingest
+    deps:
+    - path: configs/params.yaml
+      hash: md5
+      md5: 59e5349b10963e1c2c018aae9cc5360e
+      size: 2981
+    - path: data/raw/reference.csv
+      hash: md5
+      md5: 13219a40540d9ad976473711cab4f0d9
+      size: 265064
+    - path: src/core/dataset.py
+      hash: md5
+      md5: fde2671c48770ded4ac800a308732ef6
+      size: 3687
+    - path: src/core/params.py
+      hash: md5
+      md5: 67a010712e624d0bcef20d200d4892a1
+      size: 8311
+    - path: src/data/ingest.py
+      hash: md5
+      md5: 844d1d44e9eefd50741dc4549efbdcb2
+      size: 1475
+    - path: src/data/split.py
+      hash: md5
+      md5: e5758ddd77c7a27886d9d4ea0a9423b6
+      size: 1185
+    outs:
+    - path: data/reference/reference.parquet
+      hash: md5
+      md5: 919c84b5b57627c4a68fbdbd900c985f
+      size: 130112
+  validacao:
+    cmd: uv run python -m src.contracts.validate
+    deps:
+    - path: configs/params.yaml
+      hash: md5
+      md5: 59e5349b10963e1c2c018aae9cc5360e
+      size: 2981
+    - path: data/reference/reference.parquet
+      hash: md5
+      md5: 919c84b5b57627c4a68fbdbd900c985f
+      size: 130112
+    - path: src/contracts/schema.py
+      hash: md5
+      md5: c71c5412fab548852d1427b76e821c9c
+      size: 3496
+    - path: src/contracts/validate.py
+      hash: md5
+      md5: bfaa733794dbb20c969c55f7c4322e96
+      size: 2957
+    - path: src/core/dataset.py
+      hash: md5
+      md5: fde2671c48770ded4ac800a308732ef6
+      size: 3687
+    outs:
+    - path: reports/validation/result.json
+      hash: md5
+      md5: 7437720d5e55e656957d822c73ee2fbb
+      size: 628
+  treino:
+    cmd: uv run python -m src.model.train
+    deps:
+    - path: configs/params.yaml
+      hash: md5
+      md5: 59e5349b10963e1c2c018aae9cc5360e
+      size: 2981
+    - path: data/reference/reference.parquet
+      hash: md5
+      md5: 919c84b5b57627c4a68fbdbd900c985f
+      size: 130112
+    - path: src/core/dataset.py
+      hash: md5
+      md5: fde2671c48770ded4ac800a308732ef6
+      size: 3687
+    - path: src/core/params.py
+      hash: md5
+      md5: 67a010712e624d0bcef20d200d4892a1
+      size: 8311
+    - path: src/model/evaluate.py
+      hash: md5
+      md5: 5d5421e4bb9c0249e0b22a75dad83a08
+      size: 2606
+    - path: src/model/train.py
+      hash: md5
+      md5: 9a49b32580bb6168f2a87e47faccd9ee
+      size: 2929
+    outs:
+    - path: models/model.joblib
+      hash: md5
+      md5: b1c9a5f3cb5881e50e2444893a0e586a
+      size: 492571
+    - path: reports/train_metrics.json
+      hash: md5
+      md5: 89ed765ae61d7cc13ddfedf7551e0732
+      size: 1391
+  drift:
+    cmd: uv run python -m src.drift.run
+    deps:
+    - path: configs/params.yaml
+      hash: md5
+      md5: 59e5349b10963e1c2c018aae9cc5360e
+      size: 2981
+    - path: data/reference/reference.parquet
+      hash: md5
+      md5: 919c84b5b57627c4a68fbdbd900c985f
+      size: 130112
+    - path: models/model.joblib
+      hash: md5
+      md5: b1c9a5f3cb5881e50e2444893a0e586a
+      size: 492571
+    - path: src/core/dataset.py
+      hash: md5
+      md5: fde2671c48770ded4ac800a308732ef6
+      size: 3687
+    - path: src/core/params.py
+      hash: md5
+      md5: 67a010712e624d0bcef20d200d4892a1
+      size: 8311
+    - path: src/drift/concept.py
+      hash: md5
+      md5: 0156a60d7bcf98d9ead97faa253a602c
+      size: 7687
+    - path: src/drift/detect.py
+      hash: md5
+      md5: f7fbbec9bf0c1bcd7c14051c7081b47b
+      size: 5312
+    - path: src/drift/multivariate.py
+      hash: md5
+      md5: 8c5a392b2651ff692516202536bcf946
+      size: 9649
+    - path: src/drift/simulate.py
+      hash: md5
+      md5: cec73824ace9b5f62ae35cecc8f6dbe2
+      size: 5120
+    - path: src/drift/stats.py
+      hash: md5
+      md5: 116722fb13fb2966ffa774a9335ff4c2
+      size: 11404
+    - path: src/model/evaluate.py
+      hash: md5
+      md5: 5d5421e4bb9c0249e0b22a75dad83a08
+      size: 2606
+    - path: src/model/predict.py
+      hash: md5
+      md5: 46ef5bbbfc5fc470a8ad4e3fc4d69b1a
+      size: 1344
+    outs:
+    - path: data/production
+      hash: md5
+      md5: 6ea3049ab0f0e1dfc89839fbd141f701.dir
+      size: 873793
+      nfiles: 6
+    - path: reports/drift/drift_report.html
+      hash: md5
+      md5: 848c0becc8091e48ea3b0701b761ec0c
+      size: 4058799
+    - path: reports/drift/performance.json
+      hash: md5
+      md5: 641e17528718e5352b3364a414c40866
+      size: 10553
+    - path: reports/drift/statistical_report.json
+      hash: md5
+      md5: 09644990747fda5e0db9b707e5bb90ee
+      size: 8870
+  monitoramento:
+    cmd: uv run python -m src.observability.run
+    deps:
+    - path: configs/params.yaml
+      hash: md5
+      md5: 59e5349b10963e1c2c018aae9cc5360e
+      size: 2981
+    - path: data/production
+      hash: md5
+      md5: 6ea3049ab0f0e1dfc89839fbd141f701.dir
+      size: 873793
+      nfiles: 6
+    - path: data/reference/reference.parquet
+      hash: md5
+      md5: 919c84b5b57627c4a68fbdbd900c985f
+      size: 130112
+    - path: models/model.joblib
+      hash: md5
+      md5: b1c9a5f3cb5881e50e2444893a0e586a
+      size: 492571
+    - path: reports/drift/performance.json
+      hash: md5
+      md5: 641e17528718e5352b3364a414c40866
+      size: 10553
+    - path: reports/drift/statistical_report.json
+      hash: md5
+      md5: 09644990747fda5e0db9b707e5bb90ee
+      size: 8870
+    - path: reports/train_metrics.json
+      hash: md5
+      md5: 89ed765ae61d7cc13ddfedf7551e0732
+      size: 1391
+    - path: reports/validation/result.json
+      hash: md5
+      md5: 7437720d5e55e656957d822c73ee2fbb
+      size: 628
+    - path: src/core/dataset.py
+      hash: md5
+      md5: fde2671c48770ded4ac800a308732ef6
+      size: 3687
+    - path: src/model/predict.py
+      hash: md5
+      md5: 46ef5bbbfc5fc470a8ad4e3fc4d69b1a
+      size: 1344
+    - path: src/observability
+      hash: md5
+      md5: 883ab1287b3b15d95325c75a54458310.dir
+      size: 107702
+      nfiles: 20
+    outs:
+    - path: reports/fairness
+      hash: md5
+      md5: 702e833e6938945671f32c1fd7896da6.dir
+      size: 10687
+      nfiles: 2
+    - path: reports/monitoring/retrain_decision.json
+      hash: md5
+      md5: 5b0a127ca14c60b9387e7ec21414734d
+      size: 478
+    - path: reports/monitoring/run_summary.json
+      hash: md5
+      md5: 0f8fe7e3998fcd4ea6b9546dd69f567b
+      size: 3529
+    - path: reports/monitoring/slo_report.json
+      hash: md5
+      md5: 5dbaf5dd3d5e88cf981e177b8dc5afe4
+      size: 1581

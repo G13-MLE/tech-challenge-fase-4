@@ -1,39 +1,156 @@
 {
   "health": {
-    "drift_alerts_total": 3,
+    "drift_alerts_total": 4,
+    "n_severe": 4,
     "model_roc_auc_by_month": [
-      0.6997091213697808,
-      0.6501503394638212,
-      0.6229097355401512,
-      0.5858448363363817,
-      0.5639412856992196,
-      0.5456216762619082
+      0.6962881645114942,
+      0.7025733743386925,
+      0.6857193685338832,
+      0.677524805454493,
+      0.6693975384998782,
+      0.670253769340862
     ],
-    "model_auc_baseline": 0.6997091213697808,
-    "model_auc_last": 0.5456216762619082,
-    "model_auc_drop": 0.15408744510787264
+    "model_brier_by_month": [
+      0.16719070076942444,
+      0.16642944514751434,
+      0.16963520646095276,
+      0.17098510265350342,
+      0.17247174680233002,
+      0.1737789809703827
+    ],
+    "model_auc_baseline": 0.6962881645114942,
+    "model_auc_last": 0.670253769340862,
+    "model_auc_drop": 0.02603439517063222,
+    "is_breach": true,
+    "tasks": {
+      "n_events": 30,
+      "n_failed": 7,
+      "total_latency_ms": 255983.07,
+      "rows_processed": 6
+    },
+    "slo_status": "critical"
   },
   "alerts": [
     {
       "type": "data_drift",
-      "feature": "LIMIT_BAL",
-      "psi": 1.2078743973685702
+      "severity": "high",
+      "month": 5,
+      "features": [
+        "LIMIT_BAL",
+        "AGE",
+        "PAY_0"
+      ],
+      "windows": 1,
+      "message": "3 features com drift severo juntas no m\u00eas 5."
     },
     {
       "type": "data_drift",
-      "feature": "AGE",
-      "psi": 1.0991265913483568
+      "severity": "high",
+      "month": 6,
+      "features": [
+        "LIMIT_BAL",
+        "EDUCATION",
+        "AGE",
+        "PAY_0"
+      ],
+      "windows": 1,
+      "message": "4 features com drift severo juntas no m\u00eas 6."
     },
     {
       "type": "data_drift",
-      "feature": "PAY_0",
-      "psi": 0.9868196407219315
-    },
-    {
-      "type": "model_degradation",
-      "feature": "model",
-      "auc_drop": 0.15408744510787264
+      "severity": "critical",
+      "month": 6,
+      "features": [
+        "PAY_0"
+      ],
+      "windows": 5,
+      "message": "Feature cr\u00edtica PAY_0 em severidade severa por 5 meses consecutivos."
     }
   ],
-  "n_alerts": 4
+  "n_alerts": 3,
+  "slo": {
+    "status_geral": "critical",
+    "alertas": [
+      {
+        "type": "data_drift",
+        "severity": "high",
+        "month": 5,
+        "features": [
+          "LIMIT_BAL",
+          "AGE",
+          "PAY_0"
+        ],
+        "windows": 1,
+        "message": "3 features com drift severo juntas no m\u00eas 5."
+      },
+      {
+        "type": "data_drift",
+        "severity": "high",
+        "month": 6,
+        "features": [
+          "LIMIT_BAL",
+          "EDUCATION",
+          "AGE",
+          "PAY_0"
+        ],
+        "windows": 1,
+        "message": "4 features com drift severo juntas no m\u00eas 6."
+      },
+      {
+        "type": "data_drift",
+        "severity": "critical",
+        "month": 6,
+        "features": [
+          "PAY_0"
+        ],
+        "windows": 5,
+        "message": "Feature cr\u00edtica PAY_0 em severidade severa por 5 meses consecutivos."
+      }
+    ],
+    "checks": [
+      {
+        "slo": "accuracy_min",
+        "value": 0.7356,
+        "threshold": 0.85,
+        "comparison": "min",
+        "error_budget": -0.11439999999999995,
+        "status": "breach"
+      },
+      {
+        "slo": "psi_max",
+        "value": 2.7769274133255895,
+        "threshold": 0.25,
+        "comparison": "max",
+        "error_budget": -2.5269274133255895,
+        "status": "breach"
+      },
+      {
+        "slo": "ks_pvalue_min",
+        "value": 1.6468463960321092e-289,
+        "threshold": 0.05,
+        "comparison": "min",
+        "error_budget": -0.05,
+        "status": "breach"
+      },
+      {
+        "slo": "missing_rate_max",
+        "value": 0.0,
+        "threshold": 0.01,
+        "comparison": "max",
+        "error_budget": 0.01,
+        "status": "ok"
+      }
+    ]
+  },
+  "retrain_decision": "retrain",
+  "fairness_passed": true,
+  "tracking": {
+    "tracked": false,
+    "model_version": null,
+    "uri": null,
+    "gates": {
+      "passed": true,
+      "missing": []
+    }
+  }
 }
