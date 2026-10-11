@@ -30,13 +30,23 @@ logger = logging.getLogger(__name__)
 __all__ = ["validate_batch", "main"]
 
 
-def _attach_ingestion_metadata(quality: dict) -> None:
+def _attach_ingestion_metadata(quality: dict, data_path: Path) -> None:
     """Anexa a dedup e a harmonização de categorias ao bloco de qualidade.
 
     Torna auditáveis decisões tomadas na ingestão (dedup e harmonização de
     códigos não documentados do UCI para o domínio do contrato), de forma
     consistente com a política *flag-and-keep* (sem mutação silenciosa).
+
+    O bloco só é anexado ao relatório do **dataset de referência** (a ingestão
+    que o produziu); relatórios de outros lotes (ex.: o lote corrompido de
+    demonstração) não herdam metadados de dedup/harmonização da referência.
+
+    Args:
+        quality: Bloco de qualidade do relatório.
+        data_path: Caminho do lote efetivamente validado.
     """
+    if data_path.resolve() != REFERENCE_DATA_PATH.resolve():
+        return
     if DEDUP_REPORT_PATH.exists():
         quality["dedup"] = json.loads(DEDUP_REPORT_PATH.read_text(encoding="utf-8"))
     if HARMONIZATION_REPORT_PATH.exists():
@@ -59,7 +69,7 @@ def validate_batch(path: str | None = None, report_path: Path | None = None) -> 
     frame = load_parquet(data_path)
     assert isinstance(frame, pd.DataFrame)
     quality = compute_quality(frame)
-    _attach_ingestion_metadata(quality)
+    _attach_ingestion_metadata(quality, data_path)
     try:
         CREDIT_CONTRACT.validate(frame, lazy=True)
     except pa_errors.SchemaErrors as err:

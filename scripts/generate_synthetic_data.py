@@ -15,7 +15,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from src.core.dataset import DATA_RAW_PATH
+from src.core.dataset import DATA_RAW_PATH, atomic_write_text
 
 logger = logging.getLogger(__name__)
 
@@ -91,7 +91,7 @@ def generate(destination=DATA_RAW_PATH, n_rows: int = N_ROWS, seed: int = SEED):
 
     destination = Path(destination)
     destination.parent.mkdir(parents=True, exist_ok=True)
-    frame.to_csv(destination, index=False)
+    atomic_write_text(destination, frame.to_csv(index=False))
     logger.info(
         "Dataset sintético gerado: %s (%d linhas, taxa positiva %.3f).",
         destination,

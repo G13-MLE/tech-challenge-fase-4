@@ -13,6 +13,7 @@ A separação treino/validação usa ``src/data/split.py`` (``split_reference``)
 import hashlib
 import json
 import logging
+from io import BytesIO
 
 import joblib
 import pandas as pd
@@ -22,6 +23,7 @@ from src.core.dataset import (
     MODEL_PATH,
     REFERENCE_DATA_PATH,
     TRAIN_METRICS_PATH,
+    atomic_write_bytes,
     atomic_write_text,
     load_parquet,
 )
@@ -81,7 +83,9 @@ def train(frame: pd.DataFrame | None = None) -> dict[str, float]:
         "model_name": params.classifier,
         "model_version": _model_version(params.classifier, list(features)),
     }
-    joblib.dump(bundle, MODEL_PATH)
+    buffer = BytesIO()
+    joblib.dump(bundle, buffer)
+    atomic_write_bytes(MODEL_PATH, buffer.getvalue())
     metrics["calibration"] = calibration_bins(y_test.to_numpy(), probabilities)
     atomic_write_text(TRAIN_METRICS_PATH, json.dumps(metrics, indent=2))
     logger.info("Treino concluído. ROC-AUC: %.4f.", metrics["roc_auc"])

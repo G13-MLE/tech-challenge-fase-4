@@ -1,7 +1,7 @@
 """Gatilho de re-treino com guardrails (FR-017).
 
 Dispara o re-treino por uma regra objetiva e **distinta/later** da
-consolidação de alertas: qualquer feature com PSI ≥ 0.25 por N=2 meses
+consolidação de alertas: qualquer feature com PSI > 0.25 por N=2 meses
 consecutivos (severidade crítica). Em seguida aplica os **guardrails** de
 promoção — AUC do challenger ≥ AUC do champion, disparo de impacto ≥ 0.8
 e diferença de equal opportunity ≤ 0.10 — e **nunca promove
@@ -26,7 +26,7 @@ def max_consecutive_critical(history: list[dict], psi_max: float) -> tuple[int, 
 
     Args:
         history: Série mensal com ``features[col].psi``.
-        psi_max: Limiar de PSI crítico (0.25).
+        psi_max: Limiar de PSI crítico (estrito: ``psi > 0.25``).
 
     Returns:
         Tupla ``(meses_consecutivos, max_psi, fração_features_em_breach)``.
@@ -38,7 +38,7 @@ def max_consecutive_critical(history: list[dict], psi_max: float) -> tuple[int, 
     for entry in history:
         features = entry.get("features", {})
         breached = [
-            name for name, values in features.items() if float(values.get("psi", 0.0)) >= psi_max
+            name for name, values in features.items() if float(values.get("psi", 0.0)) > psi_max
         ]
         entry_max = max(
             (float(values.get("psi", 0.0)) for values in features.values()), default=0.0

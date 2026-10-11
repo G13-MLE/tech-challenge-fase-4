@@ -19,7 +19,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.core.dataset import DATA_RAW_PATH
+from src.core.dataset import DATA_RAW_PATH, atomic_write_text
 
 logger = logging.getLogger(__name__)
 
@@ -124,7 +124,7 @@ def download(destination: Path = DATA_RAW_PATH, *, force: bool = False) -> Path:
     except Exception as exc:  # noqa: BLE001 - fallback explícito
         logger.warning("Falha no download direto (%s); tentando kagglehub.", exc)
         frame = _from_kagglehub()
-    frame.to_csv(destination, index=False)
+    atomic_write_text(destination, frame.to_csv(index=False))
     logger.info("Dataset salvo em %s (%d linhas).", destination, len(frame))
     return destination
 

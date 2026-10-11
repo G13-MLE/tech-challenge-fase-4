@@ -10,7 +10,7 @@ from pathlib import Path
 
 import numpy as np
 
-from src.core.dataset import REFERENCE_DATA_PATH, load_parquet
+from src.core.dataset import REFERENCE_DATA_PATH, load_parquet, save_parquet
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ def make_bad_batch(destination: Path = BAD_BATCH_PATH) -> Path:
     frame.loc[19, "BILL_AMT1"] = np.nan
     frame = pd.concat([frame, frame.iloc[[0]]], ignore_index=True)
     destination.parent.mkdir(parents=True, exist_ok=True)
-    frame.to_parquet(destination, index=False)
+    save_parquet(frame, destination)
     logger.info("Lote corrompido gerado: %s (%d linhas).", destination, len(frame))
     return destination
 

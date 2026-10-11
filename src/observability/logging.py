@@ -145,7 +145,9 @@ class TaskTimer:
             run_id = resolve_run_id()
         set_correlation(run_id=run_id)
         self.start = time.perf_counter()
-        log_event(self.task, "started")
+        # FR-018/US4-AC1: todo evento carrega os sete campos; no `started` a
+        # latência e o volume ainda não são conhecidos (zerados até o término).
+        log_event(self.task, "started", latency_ms=0.0, n_rows=0)
         return self
 
     def __exit__(self, exc_type, exc, tb) -> None:

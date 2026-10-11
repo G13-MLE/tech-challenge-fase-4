@@ -12,7 +12,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["HEALTH_METRICS", "aggregate_health", "aggregate_task_metrics"]
+__all__ = ["HEALTH_METRICS", "aggregate_health", "aggregate_task_metrics", "reference_baseline"]
 
 HEALTH_METRICS = {
     "pipeline_task_status": "Status de execução de cada estágio (started/success/failed)",
@@ -59,6 +59,26 @@ def aggregate_task_metrics(log_path: Path) -> dict:
     }
 
 
+def reference_baseline(performance: list[dict]) -> float:
+    """ROC-AUC de referência (baseline) do modelo campeão.
+
+    Usa o AUC de referência registrado por snapshot (``reference_auc``, o
+    desempenho do modelo treinado no conjunto de referência). Se ausente,
+    recorre ao primeiro snapshot de produção (compatibilidade).
+
+    Args:
+        performance: Métricas de performance por mês.
+
+    Returns:
+        ROC-AUC do baseline de referência.
+    """
+    for entry in performance:
+        value = entry.get("reference_auc")
+        if value is not None:
+            return float(value)
+    return float(performance[0].get("roc_auc", 0.0)) if performance else 0.0
+
+
 def aggregate_health(
     statistical_report: dict, performance: list[dict], log_path: Path | None = None
 ) -> dict:
@@ -74,7 +94,7 @@ def aggregate_health(
     """
     auc_values = [entry.get("roc_auc", 0.0) for entry in performance]
     brier_values = [entry.get("brier", 0.0) for entry in performance]
-    baseline = auc_values[0] if auc_values else 0.0
+    baseline = reference_baseline(performance)
     last = auc_values[-1] if auc_values else 0.0
     health = {
         "drift_alerts_total": int(statistical_report.get("n_drifted", 0)),
