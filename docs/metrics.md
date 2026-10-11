@@ -8,9 +8,10 @@ idênticos aos expostos pelo exporter Prometheus (`src/observability/exporter.py
 
 - `run_id` correlaciona todos os estágios de uma execução de pipeline; `trace_id` correlaciona uma
   execução/estágio. Ambos são propagados via `PIPELINE_RUN_ID` e registrados em cada evento.
-- Logs em JSON-lines: todo evento traz `{task, status, timestamp, run_id, trace_id}`. Os eventos de
-  término (`success`/`failed`) acrescentam `latency_ms` e `n_rows` (o evento `started` carrega apenas a
-  correlação). Eventos de inferência acrescentam `model_name`/`model_version` (FR-018).
+- Logs em JSON-lines: todo evento traz `{task, status, timestamp, latency_ms, n_rows, run_id, trace_id}`.
+  Nos eventos `started` os campos `latency_ms`/`n_rows` vêm zerados (ainda não medidos) e são
+  preenchidos nos eventos de término (`success`/`failed`). Eventos de inferência acrescentam
+  `model_name`/`model_version` (FR-018).
 - Relatórios em `reports/**/*.json` são a fonte do exporter (padrão *proxy*: lidos no momento do scrape).
 
 ## Métricas operacionais (exporter / dashboard)
@@ -45,7 +46,7 @@ Definidos em `configs/params.yaml` → `slo` e avaliados por `src/observability/
 
 ## Métricas de drift e modelo (Etapa 2)
 
-- **PSI** (primário): bandas `stable < 0.1`, `moderate < 0.25`, `severe ≥ 0.25`. **Qualquer feature** com
+- **PSI** (primário): bandas `stable < 0.1`, `moderate ≤ 0.25`, `severe > 0.25`. **Qualquer feature** com
   PSI > 0.25 é um *breach* (SLO + gate de CI).
 - **KS** (numérico) e **χ²/Cramér's V** (categórico), com correção de múltiplas comparações (FDR-BH e
   Bonferroni).
@@ -55,7 +56,7 @@ Definidos em `configs/params.yaml` → `slo` e avaliados por `src/observability/
 ## Alertas (anti-fadiga)
 
 Consolidação (`src/observability/alerts.py`): alerta quando `breach_features` (≥2) features entram em
-drift **juntas** no mesmo mês, OU uma **feature crítica** (PSI ≥ 0.25) permanece severa por
+drift **juntas** no mesmo mês, OU uma **feature crítica** (PSI > 0.25) permanece severa por
 `consolidation_windows` (≥3) meses consecutivos. O **re-treino** só dispara em `consecutive_critical_windows`
 (N=2) meses críticos — regra distinta e posterior à consolidação de alertas.
 

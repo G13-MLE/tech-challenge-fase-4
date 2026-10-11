@@ -22,6 +22,7 @@ from src.core.dataset import (
     STATISTICAL_REPORT_PATH,
 )
 from src.observability.logging import LOG_PATH
+from src.observability.metrics import reference_baseline
 
 logger = logging.getLogger(__name__)
 
@@ -110,7 +111,8 @@ def collect_metrics() -> list:
             auc.add_metric([str(entry.get("month"))], float(entry.get("roc_auc", 0.0)))
         auc_drop = GaugeMetricFamily("model_auc_drop", "Queda de AUC vs baseline")
         auc_drop.add_metric(
-            [], float(performance[0].get("roc_auc", 0.0) - performance[-1].get("roc_auc", 0.0))
+            [],
+            float(reference_baseline(performance) - performance[-1].get("roc_auc", 0.0)),
         )
         families += [auc, auc_drop]
 

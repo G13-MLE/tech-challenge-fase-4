@@ -18,15 +18,15 @@
       0.18846341967582703,
       0.19342482089996338
     ],
-    "model_auc_baseline": 0.6561157669963452,
+    "model_auc_baseline": 0.7613084866851156,
     "model_auc_last": 0.6087371640179432,
-    "model_auc_drop": 0.04737860297840202,
+    "model_auc_drop": 0.15257132266717244,
     "is_breach": true,
     "tasks": {
-      "n_events": 256,
-      "n_failed": 58,
-      "total_latency_ms": 391371.29,
-      "rows_processed": 1558254
+      "n_events": 348,
+      "n_failed": 67,
+      "total_latency_ms": 441206.2,
+      "rows_processed": 3200490
     },
     "slo_status": "critical"
   },
@@ -85,9 +85,15 @@
       ],
       "windows": 3,
       "message": "Feature cr\u00edtica AGE em severidade severa por 3 meses consecutivos."
+    },
+    {
+      "type": "model_degradation",
+      "feature": "model",
+      "severity": "high",
+      "auc_drop": 0.15257132266717244
     }
   ],
-  "n_alerts": 5,
+  "n_alerts": 6,
   "slo": {
     "status_geral": "critical",
     "alertas": [
@@ -145,6 +151,12 @@
         ],
         "windows": 3,
         "message": "Feature cr\u00edtica AGE em severidade severa por 3 meses consecutivos."
+      },
+      {
+        "type": "model_degradation",
+        "feature": "model",
+        "severity": "high",
+        "auc_drop": 0.15257132266717244
       }
     ],
     "checks": [
@@ -187,8 +199,8 @@
   "fairness_passed": false,
   "tracking": {
     "tracked": true,
-    "model_version": "1",
-    "uri": "models:/m-d5f25f28ae8a4eb59849ebe2c12f496a",
+    "model_version": "3",
+    "uri": "models:/m-4a48a3311f9143659afbf245811cb963",
     "gates": {
       "passed": true,
       "missing": []

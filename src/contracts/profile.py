@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.core.dataset import PROFILE_HTML_PATH
+from src.core.dataset import PROFILE_HTML_PATH, normalize_text_file
 
 __all__ = ["generate_profile"]
 
@@ -56,6 +56,7 @@ def generate_profile(frame: pd.DataFrame, destination: Path = PROFILE_HTML_PATH)
 
         snapshot = Report([DataSummaryPreset()]).run(Dataset.from_pandas(frame))
         snapshot.save_html(str(tmp_path))
+        normalize_text_file(tmp_path)
         tmp_path.rename(destination)
         logger.info("Perfil Evidently gerado: %s.", destination)
     except Exception:  # noqa: BLE001 - fallback garantido para CI offline

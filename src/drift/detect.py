@@ -13,7 +13,9 @@ import logging
 from src.core.dataset import (
     DRIFT_REPORT_PATH,
     DRIFT_TEST_RESULT_PATH,
+    atomic_path,
     atomic_write_text,
+    normalize_text_file,
 )
 
 logger = logging.getLogger(__name__)
@@ -88,8 +90,9 @@ def build_evidently_report(reference, production) -> str:
         ]
     )
     snapshot = report.run(production_ds, reference_ds)
-    DRIFT_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    snapshot.save_html(str(DRIFT_REPORT_PATH))
+    with atomic_path(DRIFT_REPORT_PATH, suffix=".tmp.html") as tmp_path:
+        snapshot.save_html(str(tmp_path))
+        normalize_text_file(tmp_path)
     logger.info("Relatório Evidently salvo em %s.", DRIFT_REPORT_PATH)
     return str(DRIFT_REPORT_PATH)
 

@@ -361,43 +361,6 @@
       "BILL_AMT1": "keep",
       "PAY_AMT1": "keep",
       "default_next_month": "keep"
-    },
-    "dedup": {
-      "method": "sha256+minhash_lsh",
-      "near_dup_threshold": 0.9,
-      "num_perm": 128,
-      "n_before": 30000,
-      "n_after": 29797,
-      "exact_duplicates_removed": 120,
-      "near_duplicates_removed": 83,
-      "total_removed": 203
-    },
-    "harmonization": {
-      "policy": "code harmonization to documented domain (no semantic change)",
-      "columns": {
-        "EDUCATION": {
-          "mapping": {
-            "0": 4,
-            "5": 4,
-            "6": 4
-          },
-          "remapped_counts": {
-            "5": 280,
-            "6": 51,
-            "0": 14
-          },
-          "n_remapped": 345
-        },
-        "MARRIAGE": {
-          "mapping": {
-            "0": 3
-          },
-          "remapped_counts": {
-            "0": 54
-          },
-          "n_remapped": 54
-        }
-      }
     }
   }
 }

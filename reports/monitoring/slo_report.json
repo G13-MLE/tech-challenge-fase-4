@@ -55,6 +55,12 @@
       ],
       "windows": 3,
       "message": "Feature cr\u00edtica AGE em severidade severa por 3 meses consecutivos."
+    },
+    {
+      "type": "model_degradation",
+      "feature": "model",
+      "severity": "high",
+      "auc_drop": 0.15257132266717244
     }
   ],
   "checks": [

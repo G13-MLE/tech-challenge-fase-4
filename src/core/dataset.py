@@ -5,6 +5,8 @@ estágios do DVC, evitando literais espalhados pelo código. Todas as
 escritas são atômicas (write-to-temp-then-rename).
 """
 
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 
 import pandas as pd
@@ -34,6 +36,8 @@ __all__ = [
     "save_parquet",
     "atomic_write_text",
     "atomic_write_bytes",
+    "atomic_path",
+    "normalize_text_file",
 ]
 
 DATA_RAW_PATH = Path("data/raw/reference.csv")
@@ -100,10 +104,16 @@ def save_parquet(df: pd.DataFrame, path: Path) -> None:
 def atomic_write_text(path: Path, content: str) -> None:
     """Escreve conteúdo textual de forma atômica.
 
+    Garante um newline final no arquivo, de modo que o artefato gerado
+    permaneça estável sob o hook ``end-of-file-fixer`` e o ``dvc.lock``
+    continue idempotente.
+
     Args:
         path: Caminho do arquivo de saída.
         content: Conteúdo a ser escrito.
     """
+    if not content.endswith("\n"):
+        content = content + "\n"
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp_path = path.with_suffix(".tmp")
     try:
@@ -112,6 +122,23 @@ def atomic_write_text(path: Path, content: str) -> None:
     except Exception:
         tmp_path.unlink(missing_ok=True)
         raise
+
+
+def normalize_text_file(path: Path) -> None:
+    """Remove espaços ao final das linhas e garante newline final único.
+
+    Aplica em um arquivo já escrito o mesmo efeito dos hooks de pre-commit
+    ``trailing-whitespace`` e ``end-of-file-fixer``, mantendo os artefatos
+    gerados (ex.: HTML do Evidently) estáveis e o ``dvc.lock`` idempotente.
+
+    Args:
+        path: Arquivo de texto a normalizar (idealmente um temporário antes
+            do rename atômico).
+    """
+    lines = [line.rstrip() for line in path.read_text(encoding="utf-8").splitlines()]
+    while lines and lines[-1] == "":
+        lines.pop()
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def atomic_write_bytes(path: Path, content: bytes) -> None:
@@ -125,6 +152,32 @@ def atomic_write_bytes(path: Path, content: bytes) -> None:
     tmp_path = path.with_suffix(".tmp")
     try:
         tmp_path.write_bytes(content)
+        tmp_path.rename(path)
+    except Exception:
+        tmp_path.unlink(missing_ok=True)
+        raise
+
+
+@contextmanager
+def atomic_path(path: Path, suffix: str = ".tmp") -> Iterator[Path]:
+    """Fornece um caminho temporário e o renomeia atomicamente ao sair.
+
+    Útil para bibliotecas que escrevem diretamente em um caminho (ex.: o
+    ``save_html`` do Evidently). O consumidor escreve em ``<path>`` + ``suffix``
+    e, se o bloco concluir sem exceção, o arquivo é renomeado para ``path``
+    (write-to-temp-then-rename); em caso de erro, o temporário é removido.
+
+    Args:
+        path: Caminho final do arquivo.
+        suffix: Sufixo do arquivo temporário (default ``.tmp``).
+
+    Yields:
+        Caminho temporário onde o conteúdo deve ser escrito.
+    """
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp_path = path.with_name(path.name + suffix)
+    try:
+        yield tmp_path
         tmp_path.rename(path)
     except Exception:
         tmp_path.unlink(missing_ok=True)
