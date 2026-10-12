@@ -5,6 +5,7 @@ estágios do DVC, evitando literais espalhados pelo código. Todas as
 escritas são atômicas (write-to-temp-then-rename).
 """
 
+import re
 from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
@@ -38,6 +39,7 @@ __all__ = [
     "atomic_write_bytes",
     "atomic_path",
     "normalize_text_file",
+    "sanitize_cjk",
 ]
 
 DATA_RAW_PATH = Path("data/raw/reference.csv")
@@ -124,18 +126,61 @@ def atomic_write_text(path: Path, content: str) -> None:
         raise
 
 
+_CJK_PATTERN = re.compile(
+    "["
+    "\u3000-\u303f"  # CJK Symbols and Punctuation
+    "\u3040-\u30ff"  # Hiragana and Katakana
+    "\u3100-\u312f"  # Bopomofo
+    "\u31c0-\u31ef"  # CJK Strokes
+    "\u3200-\u32ff"  # Enclosed CJK Letters and Months
+    "\u3300-\u33ff"  # CJK Compatibility
+    "\u3400-\u4dbf"  # CJK Unified Ideographs Extension A
+    "\u4e00-\u9fff"  # CJK Unified Ideographs
+    "\uf900-\ufaff"  # CJK Compatibility Ideographs
+    "\ufe30-\ufe4f"  # CJK Compatibility Forms
+    "\uff00-\uffef"  # Halfwidth and Fullwidth Forms
+    "\U00020000-\U0002ebef"  # CJK Unified Ideographs Extensions B-F
+    "\U0002f800-\U0002fa1f"  # CJK Compatibility Ideographs Supplement
+    "]"
+)
+
+
+def sanitize_cjk(text: str) -> str:
+    """Substitui caracteres CJK (chinês/japonês) por espaço.
+
+    O bundle frontend embutido pelo Evidently carrega dados de localização
+    em diversos idiomas, incluindo chinês e japonês. Como os relatórios do
+    projeto são em português, esses caracteres são ruído; eles são trocados
+    por um espaço ASCII em vez de removidos porque a remoção pura deixa
+    expressões regulares inválidas no JavaScript gerado: uma âncora ``^``
+    seguida de um quantificador órfão (``^??``) dispara "Nothing to repeat".
+    A troca por espaço preserva a sintaxe do bundle e elimina qualquer
+    caractere CJK.
+
+    Args:
+        text: Conteúdo textual a sanitizar.
+
+    Returns:
+        O texto sem nenhum caractere CJK.
+    """
+    return _CJK_PATTERN.sub(" ", text)
+
+
 def normalize_text_file(path: Path) -> None:
     """Remove espaços ao final das linhas e garante newline final único.
 
     Aplica em um arquivo já escrito o mesmo efeito dos hooks de pre-commit
     ``trailing-whitespace`` e ``end-of-file-fixer``, mantendo os artefatos
     gerados (ex.: HTML do Evidently) estáveis e o ``dvc.lock`` idempotente.
+    Os caracteres CJK remanescentes (dados de localização embutidos pelo
+    bundle do Evidently) também são neutralizados; ver :func:`sanitize_cjk`.
 
     Args:
         path: Arquivo de texto a normalizar (idealmente um temporário antes
             do rename atômico).
     """
-    lines = [line.rstrip() for line in path.read_text(encoding="utf-8").splitlines()]
+    content = sanitize_cjk(path.read_text(encoding="utf-8"))
+    lines = [line.rstrip() for line in content.splitlines()]
     while lines and lines[-1] == "":
         lines.pop()
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")

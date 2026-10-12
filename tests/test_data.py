@@ -10,9 +10,11 @@ import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 from scripts.download_data import RAW_TARGET_COLUMN, normalize_columns, parse_uci_xls
 from scripts.generate_synthetic_data import generate
+from src.core.dataset import normalize_text_file, sanitize_cjk
 from src.data.dedup import deduplicate, row_hash
 from src.data.split import split_reference
 from tests.conftest import make_credit_frame
@@ -53,8 +55,9 @@ def test_synthetic_generator_has_predictive_signal(tmp_path):
     x_train, x_test, y_train, y_test = train_test_split(
         features, labels, test_size=0.2, random_state=42, stratify=labels
     )
-    model = LogisticRegression(max_iter=1000).fit(x_train, y_train)
-    auc = roc_auc_score(y_test, model.predict_proba(x_test)[:, 1])
+    scaler = StandardScaler().fit(x_train)
+    model = LogisticRegression(max_iter=2000).fit(scaler.transform(x_train), y_train)
+    auc = roc_auc_score(y_test, model.predict_proba(scaler.transform(x_test))[:, 1])
     assert auc > 0.5
 
 
@@ -84,3 +87,22 @@ def test_synthetic_frame_matches_contract_dtypes(tmp_path):
     assert frame["AGE"].between(18, 100).all()
     assert frame["SEX"].isin([1, 2]).all()
     assert np.isfinite(frame["LIMIT_BAL"]).all()
+
+
+def test_sanitize_cjk_replaces_east_asian_characters():
+    """Caracteres CJK do bundle do Evidently viram espaço (sintaxe preservada)."""
+    text = "mes = ['\u4e00\u6708', '\u4e8c\u6708']; rotulo = '\u4e0a\u4e2a\u6708'"
+    cleaned = sanitize_cjk(text)
+    assert not any("\u3000" <= char <= "\u9fff" for char in cleaned)
+    assert "mes = [" in cleaned
+    assert len(cleaned) == len(text)
+
+
+def test_normalize_text_file_removes_cjk_and_trailing_space(tmp_path):
+    """``normalize_text_file`` neutraliza CJK, espaços finais e newline final."""
+    target = tmp_path / "report.html"
+    target.write_text("<p>\u4e2d\u6587</p>   \n\n", encoding="utf-8")
+    normalize_text_file(target)
+    content = target.read_text(encoding="utf-8")
+    assert "\u4e2d" not in content
+    assert content == "<p>  </p>\n"
