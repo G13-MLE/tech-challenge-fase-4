@@ -544,6 +544,15 @@ O arquivo bruto é baixado via `make data-download` (ou gerado via `make data-sy
 DVC (`data/raw/reference.csv.dvc`). Dados e modelos **não** são commitados no Git (ver `.gitignore`).
 Use `uv run dvc push` para sincronizar com o remote OneDrive (opcional).
 
+### Versionamento de artefatos (`.gitignore`)
+
+- `data/`, `models/`, `logs/` e `mlruns/` são **ignorados** (regeneráveis ou gerenciados por DVC/MLflow).
+- `reports/**` **não** é ignorado — todo relatório HTML/JSON avaliado é commitado normalmente.
+- **Nota de política**: o diretório `docs/` está intencionalmente listado no `.gitignore` (decisão do grupo
+  para manter o scaffolding interno de specs fora do histórico). Os documentos avaliados **já existentes**
+  estão versionados por adição explícita; **novos** documentos de entrega em `docs/` devem ser adicionados
+  com `git add -f docs/<arquivo>` (ou a regra pode ser removida, mediante aprovação, caso a política mude).
+
 ## Vídeo STAR
 
 > **Link:** ⏳ pendente — inserir link público (YouTube unlisted / Loom / Drive).

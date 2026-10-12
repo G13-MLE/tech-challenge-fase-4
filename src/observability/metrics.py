@@ -1,7 +1,7 @@
 """Definição das métricas de saúde operacional do pipeline.
 
 Documenta e agrega as métricas exigidas pela Etapa 3: status de execução
-das tarefas, latência, volume processado, contagem de alertas de
+das tarefas, latência, volume processado, features com drift, alertas de
 falha/drift e ROC-AUC por snapshot. As definições canônicas ficam em
 ``docs/metrics.md`` (FR-020).
 """
@@ -18,7 +18,8 @@ HEALTH_METRICS = {
     "pipeline_task_status": "Status de execução de cada estágio (started/success/failed)",
     "pipeline_task_latency_ms": "Latência de execução de cada tarefa em milissegundos",
     "pipeline_rows_processed": "Número de linhas processadas por estágio",
-    "drift_alerts_total": "Quantidade de features com drift acima do limiar",
+    "drift_features_drifted": "Features com drift acima do limiar (severidade ≥ moderada)",
+    "drift_alerts_total": "Número de alertas de drift/falha por tipo (pós-consolidação)",
     "model_roc_auc": "ROC-AUC do modelo por snapshot de produção",
     "model_auc_drop": "Queda de ROC-AUC em relação ao baseline de referência",
     "slo_status": "Status geral do SLO de dados (ok/degraded/critical)",
@@ -97,7 +98,7 @@ def aggregate_health(
     baseline = reference_baseline(performance)
     last = auc_values[-1] if auc_values else 0.0
     health = {
-        "drift_alerts_total": int(statistical_report.get("n_drifted", 0)),
+        "drift_features_drifted": int(statistical_report.get("n_drifted", 0)),
         "n_severe": int(statistical_report.get("n_severe", 0)),
         "model_roc_auc_by_month": auc_values,
         "model_brier_by_month": brier_values,
