@@ -11,10 +11,11 @@
   "guardrails": {
     "auc_ok": false,
     "fairness_ok": false,
+    "eligible": false,
     "disparate_impact_min": 0.8,
     "equal_opportunity_max": 0.1,
     "promoted": false,
-    "note": "Challenger nunca \u00e9 promovido automaticamente."
+    "note": "Challenger nunca \u00e9 promovido automaticamente (FR-017); a promo\u00e7\u00e3o \u00e9 uma a\u00e7\u00e3o expl\u00edcita."
   },
   "model_version": "challenger"
 }

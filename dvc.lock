@@ -264,9 +264,9 @@ stages:
       size: 1748
     - path: src/observability
       hash: md5
-      md5: 15045d24b6fb2ca16b019ccbafe1a9ec.dir
-      size: 121649
-      nfiles: 20
+      md5: 225c040d3bcc71f9a65b3912387b5f07.dir
+      size: 52628
+      nfiles: 10
     outs:
     - path: reports/fairness
       hash: md5
@@ -275,12 +275,12 @@ stages:
       nfiles: 2
     - path: reports/monitoring/retrain_decision.json
       hash: md5
-      md5: 44ed88f3e1bfadfc2ee6c7785d8cd70f
-      size: 519
+      md5: 2ec8b1251403749c56116da52c8917e5
+      size: 614
     - path: reports/monitoring/run_summary.json
       hash: md5
-      md5: 8d9ec429583ef1e3fa4dd09b9527a898
-      size: 4897
+      md5: 63e91e8ee7b2239d9a705374120c4f0f
+      size: 4898
     - path: reports/monitoring/slo_report.json
       hash: md5
       md5: 651eab67629c08657bc9111551408a2d

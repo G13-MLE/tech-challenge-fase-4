@@ -156,26 +156,23 @@ def run() -> dict:
     return summary
 
 
-def _apply_registry_aliases(version: str, promote: bool) -> None:
-    """Define os aliases do Model Registry (FR-020).
+def _apply_registry_aliases(version: str) -> None:
+    """Define os aliases do Model Registry (FR-020), sem promoção automática (FR-017).
 
-    O modelo recém-treinado é sempre registrado como ``challenger``; só é
-    promovido a ``champion`` quando os **guardrails** aprovam a promoção.
-    Sem guardrails aprovados, mantém o ``champion`` vigente (ou faz
-    *bootstrap* do primeiro modelo quando não houver champion).
+    O modelo recém-treinado é sempre registrado como ``challenger``. O
+    ``champion`` **nunca** é trocado automaticamente: mantém o vigente (ou
+    faz *bootstrap* do primeiro modelo quando ainda não houver champion).
+    A promoção de um challenger elegível é uma ação explícita.
     """
     try:
         import mlflow
 
         client = mlflow.tracking.MlflowClient()
         client.set_registered_model_alias(MODEL_NAME, "challenger", version)
-        if promote:
+        try:
+            client.get_model_version_by_alias(MODEL_NAME, "champion")
+        except Exception:  # noqa: BLE001 - sem champion prévio: bootstrap
             client.set_registered_model_alias(MODEL_NAME, "champion", version)
-        else:
-            try:
-                client.get_model_version_by_alias(MODEL_NAME, "champion")
-            except Exception:  # noqa: BLE001 - sem champion prévio: bootstrap
-                client.set_registered_model_alias(MODEL_NAME, "champion", version)
     except Exception as exc:  # noqa: BLE001
         logger.warning("Aliases champion/challenger não definidos (%s).", exc)
 
@@ -206,9 +203,12 @@ def _track(train_metrics: dict, statistical: dict, retrain: dict) -> dict:
         run_name="monitoramento",
     )
     if result.get("tracked") and result.get("model_version"):
-        _apply_registry_aliases(
-            result["model_version"], promote=bool(retrain["guardrails"]["promoted"])
-        )
+        _apply_registry_aliases(result["model_version"])
+        if retrain["guardrails"].get("eligible"):
+            logger.info(
+                "Challenger elegível à promoção (guardrails OK); promoção exige ação "
+                "explícita (FR-017)."
+            )
     return result
 
 

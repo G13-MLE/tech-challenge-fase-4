@@ -1,3 +1,9 @@
 # Add patterns of files dvc should ignore, which could improve
 # the performance. Learn more at
 # https://dvc.org/doc/user-guide/dvcignore
+
+# Bytecode/cache Python: nunca deve entrar no hash de dependências
+# (é regenerado a cada import e tornaria `dvc status`/`dvc repro` instável).
+__pycache__/
+*.pyc
+*.pyo

@@ -5,7 +5,9 @@ consolidação de alertas: qualquer feature com PSI > 0.25 por N=2 meses
 consecutivos (severidade crítica). Em seguida aplica os **guardrails** de
 promoção — AUC do challenger ≥ AUC do champion, disparo de impacto ≥ 0.8
 e diferença de equal opportunity ≤ 0.10 — e **nunca promove
-automaticamente**.
+automaticamente**: satisfazer os guardrails marca o challenger como
+*elegível* (``eligible``), mas ``promoted`` permanece ``False`` e a
+promoção é uma ação explícita (FR-017).
 
 Escreve ``reports/monitoring/retrain_decision.json``.
 """
@@ -90,7 +92,7 @@ def decide_retrain(
         )
         fairness_ok = fairness_ok or not by_group
 
-    promoted = bool(decision == "retrain" and auc_ok and fairness_ok and challenger_auc is not None)
+    eligible = bool(decision == "retrain" and auc_ok and fairness_ok and challenger_auc is not None)
     report = {
         "decision": decision,
         "signals": {
@@ -104,10 +106,16 @@ def decide_retrain(
         "guardrails": {
             "auc_ok": bool(auc_ok),
             "fairness_ok": bool(fairness_ok),
+            # Elegibilidade à promoção (informativa): satisfazer os guardrails
+            # não promove o modelo — a promoção é uma ação explícita (FR-017).
+            "eligible": eligible,
             "disparate_impact_min": fairness_params.disparate_impact_min,
             "equal_opportunity_max": fairness_params.equal_opportunity_max,
-            "promoted": promoted,
-            "note": "Challenger nunca é promovido automaticamente.",
+            "promoted": False,
+            "note": (
+                "Challenger nunca é promovido automaticamente (FR-017); "
+                "a promoção é uma ação explícita."
+            ),
         },
         "model_version": model_version,
     }
