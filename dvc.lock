@@ -264,8 +264,8 @@ stages:
       size: 1748
     - path: src/observability
       hash: md5
-      md5: 225c040d3bcc71f9a65b3912387b5f07.dir
-      size: 52628
+      md5: cfe46967dc1d604e5c0e73a0aba43060.dir
+      size: 52750
       nfiles: 10
     outs:
     - path: reports/fairness
@@ -279,8 +279,8 @@ stages:
       size: 614
     - path: reports/monitoring/run_summary.json
       hash: md5
-      md5: 31e2d0ca9ebd5153b415fe3744bc4c09
-      size: 4898
+      md5: 48de9016adff482fd04a7d225b81ec28
+      size: 4902
     - path: reports/monitoring/slo_report.json
       hash: md5
       md5: 651eab67629c08657bc9111551408a2d

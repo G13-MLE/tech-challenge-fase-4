@@ -97,7 +97,7 @@ def main() -> None:
 
     # ── Cartões de topo ───────────────────────────────────────────────
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Alertas de drift", health.get("drift_alerts_total", 0))
+    col1.metric("Alertas de drift", len(summary.get("alerts", [])))
     col2.metric("ROC-AUC (baseline)", f"{health.get('model_auc_baseline', 0):.4f}")
     col3.metric("Queda de ROC-AUC", f"{health.get('model_auc_drop', 0):.4f}")
     col4.metric(
@@ -107,7 +107,8 @@ def main() -> None:
 
     st.caption(
         f"Decisão de re-treino: **{summary.get('retrain_decision', 'n/a')}** | "
-        f"Fairness OK: **{summary.get('fairness_passed', 'n/a')}**"
+        f"Fairness OK: **{summary.get('fairness_passed', 'n/a')}** | "
+        f"Features com drift: **{health.get('drift_features_drifted', 0)}**"
     )
 
     # ── Tarefas do pipeline ───────────────────────────────────────────
