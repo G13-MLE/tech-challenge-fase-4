@@ -316,6 +316,43 @@ Bandas PSI: `stable < 0.1` · `moderate ≤ 0.25` · **`severe > 0.25`** (breach
 > Relatório interativo: `reports/drift/drift_report.html` (Evidently). Evidências JSON:
 > `statistical_report.json`, `performance.json`, `drift_test_result.json`.
 
+### Demonstração executável — `make demo-drift`
+
+Comando **único e autocontido** para *ver o drift acontecendo* sem conhecer DVC. Simula um choque
+econômico amplificado, roda toda a pilha de detecção (Data + Concept Drift, PSI/KS/χ², MMD²/Energy,
+Evidently) e imprime um resumo legível no terminal:
+
+```bash
+make demo-drift                       # HTML do Evidently por padrão (≤ ~5 min)
+make demo-drift DEMO_ARGS="--months 8 --intensity 0.8"
+make demo-drift DEMO_ARGS="--no-evidently"   # execução rápida
+```
+
+Saída (ordem estável): cabeçalho (cenário/meses/seed), tabela **PSI × mês com severidade** das features
+deslocadas, série de **ROC-AUC por mês + queda vs baseline**, **flags** de drift
+(`data_drift`/`label_drift`/`concept_drift`/`multivariate_drift`), **alertas consolidados** e os
+caminhos dos relatórios. Exemplo real (referência UCI 350):
+
+```text
+PSI por feature deslocada (severidade: stable/moderate/severe)
+Feature    M1              M2              M3            M4            M5            M6
+LIMIT_BAL  0.136 moderate  0.606 severe    1.452 severe  2.429 severe  3.603 severe  4.097 severe
+AGE        0.037 stable    0.185 moderate  0.522 severe  1.358 severe  1.850 severe  2.550 severe
+PAY_0      0.000 stable    0.000 stable    0.058 stable  1.284 severe  2.130 severe  2.130 severe
+ROC-AUC: M1=0.6558 → M6=0.6111 (baseline 0.7613; queda 0.1502)
+Tipos de drift: data_drift=True  label_drift=False  concept_drift=True  multivariate_drift=True
+Alertas consolidados (8): [... features severas juntas + features críticas por ≥3 meses + model_degradation ...]
+```
+
+- **Evidência isolada** em `reports/drift/demo/` (`demo_summary.json`, `demo_summary.md`, o
+  `statistical_report.json`/`performance.json` do demo e o `drift_report.html`); snapshots em
+  `data/demo/`. Os artefatos canônicos `reports/drift/*` e `data/production/` **não** são tocados.
+- Configurável pelo bloco `demo:` de `configs/params.yaml` (rótulo, meses, intensidade, força do
+  Concept Drift, diretório de saída, seed) com overrides opcionais por CLI — `scenario` é apenas rótulo.
+- **Determinístico**: com a mesma seed, o conteúdo de `demo_summary.json` é idêntico (apenas o campo
+  `generated_at`, o instante da execução, é excluído da comparação); emite logs JSON-lines (task
+  `demo_drift`) e **não** registra run no MLflow nem relatório de SLO (alertas computados em memória).
+
 ## Etapa 3 — Observabilidade
 
 - **Logs JSON-lines** (`logs/pipeline.ndjson`) com correlação `run_id`/`trace_id` por execução; eventos de
@@ -556,6 +593,10 @@ Use `uv run dvc push` para sincronizar com o remote OneDrive (opcional).
 ## Vídeo STAR
 
 > **Link:** ⏳ pendente — inserir link público (YouTube unlisted / Loom / Drive).
+>
+> **Demonstração rápida (sem DVC):** `make demo-drift` simula um choque econômico realista e imprime o
+> resumo do drift no terminal (PSI por feature/mês, queda de ROC-AUC, alertas), deixando a evidência em
+> `reports/drift/demo/` — ideal para gravar a Ação 2 do vídeo.
 >
 > Roteiro esperado (≤ 5 minutos), completo em [`docs/video_script.md`](docs/video_script.md):
 > - **Situation**: fintech com modelo de crédito; choques econômicos → degradação silenciosa

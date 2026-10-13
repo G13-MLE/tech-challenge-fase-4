@@ -31,6 +31,13 @@ __all__ = [
     "PROFILE_HTML_PATH",
     "FAIRNESS_DIR",
     "PERFORMANCE_PATH",
+    "DEMO_DRIFT_DIR",
+    "DEMO_SNAPSHOTS_DIR",
+    "DEMO_SUMMARY_PATH",
+    "DEMO_SUMMARY_MD_PATH",
+    "DEMO_DRIFT_REPORT_PATH",
+    "DEMO_STATISTICAL_REPORT_PATH",
+    "DEMO_PERFORMANCE_PATH",
     "ID_COLUMN",
     "TARGET_COLUMN",
     "load_parquet",
@@ -61,6 +68,16 @@ SLO_REPORT_PATH = Path("reports/monitoring/slo_report.json")
 RETRAIN_DECISION_PATH = Path("reports/monitoring/retrain_decision.json")
 RUN_SUMMARY_PATH = Path("reports/monitoring/run_summary.json")
 FAIRNESS_DIR = Path("reports/fairness")
+
+# US7 — demo executável (`make demo-drift`): namespace isolado, nunca
+# sobrescreve os artefatos canônicos de `reports/drift/` nem `data/production/`.
+DEMO_DRIFT_DIR = Path("reports/drift/demo")
+DEMO_SNAPSHOTS_DIR = Path("data/demo")
+DEMO_SUMMARY_PATH = DEMO_DRIFT_DIR / "demo_summary.json"
+DEMO_SUMMARY_MD_PATH = DEMO_DRIFT_DIR / "demo_summary.md"
+DEMO_DRIFT_REPORT_PATH = DEMO_DRIFT_DIR / "drift_report.html"
+DEMO_STATISTICAL_REPORT_PATH = DEMO_DRIFT_DIR / "statistical_report.json"
+DEMO_PERFORMANCE_PATH = DEMO_DRIFT_DIR / "performance.json"
 
 ID_COLUMN = "ID"
 TARGET_COLUMN = "default_next_month"

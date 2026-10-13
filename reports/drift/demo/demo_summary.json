@@ -1,0 +1,364 @@
+{
+  "scenario": "economic_shock",
+  "seed": 42,
+  "prerequisites": [],
+  "n_snapshots": 6,
+  "months": [
+    {
+      "month": 1,
+      "max_psi": 0.13575819515932838,
+      "n_severe": 0,
+      "roc_auc": 0.6557730054893206,
+      "auc_drop": 0.10553548119579503,
+      "psi_by_feature": {
+        "LIMIT_BAL": {
+          "psi": 0.13575819515932838,
+          "severity": "moderate"
+        },
+        "SEX": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "EDUCATION": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "MARRIAGE": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "AGE": {
+          "psi": 0.036867474045610915,
+          "severity": "stable"
+        },
+        "PAY_0": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "BILL_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "PAY_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        }
+      }
+    },
+    {
+      "month": 2,
+      "max_psi": 0.6056677876837943,
+      "n_severe": 1,
+      "roc_auc": 0.639348774871429,
+      "auc_drop": 0.12195971181368659,
+      "psi_by_feature": {
+        "LIMIT_BAL": {
+          "psi": 0.6056677876837943,
+          "severity": "severe"
+        },
+        "SEX": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "EDUCATION": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "MARRIAGE": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "AGE": {
+          "psi": 0.18527952362796174,
+          "severity": "moderate"
+        },
+        "PAY_0": {
+          "psi": 4.862577056715355e-07,
+          "severity": "stable"
+        },
+        "BILL_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "PAY_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        }
+      }
+    },
+    {
+      "month": 3,
+      "max_psi": 1.4520537050271909,
+      "n_severe": 2,
+      "roc_auc": 0.6370069743031407,
+      "auc_drop": 0.12430151238197495,
+      "psi_by_feature": {
+        "LIMIT_BAL": {
+          "psi": 1.4520537050271909,
+          "severity": "severe"
+        },
+        "SEX": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "EDUCATION": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "MARRIAGE": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "AGE": {
+          "psi": 0.5221898546402322,
+          "severity": "severe"
+        },
+        "PAY_0": {
+          "psi": 0.05757260422368625,
+          "severity": "stable"
+        },
+        "BILL_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "PAY_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        }
+      }
+    },
+    {
+      "month": 4,
+      "max_psi": 2.4286949749092797,
+      "n_severe": 3,
+      "roc_auc": 0.6240888071529638,
+      "auc_drop": 0.13721967953215186,
+      "psi_by_feature": {
+        "LIMIT_BAL": {
+          "psi": 2.4286949749092797,
+          "severity": "severe"
+        },
+        "SEX": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "EDUCATION": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "MARRIAGE": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "AGE": {
+          "psi": 1.3577212064655682,
+          "severity": "severe"
+        },
+        "PAY_0": {
+          "psi": 1.283983429251039,
+          "severity": "severe"
+        },
+        "BILL_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "PAY_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        }
+      }
+    },
+    {
+      "month": 5,
+      "max_psi": 3.603040693780376,
+      "n_severe": 3,
+      "roc_auc": 0.6048105789584345,
+      "auc_drop": 0.15649790772668115,
+      "psi_by_feature": {
+        "LIMIT_BAL": {
+          "psi": 3.603040693780376,
+          "severity": "severe"
+        },
+        "SEX": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "EDUCATION": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "MARRIAGE": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "AGE": {
+          "psi": 1.8495223768571916,
+          "severity": "severe"
+        },
+        "PAY_0": {
+          "psi": 2.129991889227768,
+          "severity": "severe"
+        },
+        "BILL_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "PAY_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        }
+      }
+    },
+    {
+      "month": 6,
+      "max_psi": 4.096515945847185,
+      "n_severe": 4,
+      "roc_auc": 0.6110997303493166,
+      "auc_drop": 0.150208756335799,
+      "psi_by_feature": {
+        "LIMIT_BAL": {
+          "psi": 4.096515945847185,
+          "severity": "severe"
+        },
+        "SEX": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "EDUCATION": {
+          "psi": 1.1619540544567946,
+          "severity": "severe"
+        },
+        "MARRIAGE": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "AGE": {
+          "psi": 2.549827621552582,
+          "severity": "severe"
+        },
+        "PAY_0": {
+          "psi": 2.129991889227768,
+          "severity": "severe"
+        },
+        "BILL_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        },
+        "PAY_AMT1": {
+          "psi": 0.0,
+          "severity": "stable"
+        }
+      }
+    }
+  ],
+  "shifted_features": [
+    "LIMIT_BAL",
+    "AGE",
+    "PAY_0"
+  ],
+  "drift_types": {
+    "data_drift": true,
+    "label_drift": false,
+    "concept_drift": true,
+    "multivariate_drift": true
+  },
+  "alerts": [
+    {
+      "type": "data_drift",
+      "severity": "high",
+      "month": 3,
+      "features": [
+        "LIMIT_BAL",
+        "AGE"
+      ],
+      "windows": 1,
+      "message": "2 features com drift severo juntas no mês 3."
+    },
+    {
+      "type": "data_drift",
+      "severity": "high",
+      "month": 4,
+      "features": [
+        "LIMIT_BAL",
+        "AGE",
+        "PAY_0"
+      ],
+      "windows": 1,
+      "message": "3 features com drift severo juntas no mês 4."
+    },
+    {
+      "type": "data_drift",
+      "severity": "high",
+      "month": 5,
+      "features": [
+        "LIMIT_BAL",
+        "AGE",
+        "PAY_0"
+      ],
+      "windows": 1,
+      "message": "3 features com drift severo juntas no mês 5."
+    },
+    {
+      "type": "data_drift",
+      "severity": "high",
+      "month": 6,
+      "features": [
+        "LIMIT_BAL",
+        "EDUCATION",
+        "AGE",
+        "PAY_0"
+      ],
+      "windows": 1,
+      "message": "4 features com drift severo juntas no mês 6."
+    },
+    {
+      "type": "data_drift",
+      "severity": "critical",
+      "month": 6,
+      "features": [
+        "LIMIT_BAL"
+      ],
+      "windows": 5,
+      "message": "Feature crítica LIMIT_BAL em severidade severa por 5 meses consecutivos."
+    },
+    {
+      "type": "data_drift",
+      "severity": "critical",
+      "month": 6,
+      "features": [
+        "AGE"
+      ],
+      "windows": 4,
+      "message": "Feature crítica AGE em severidade severa por 4 meses consecutivos."
+    },
+    {
+      "type": "data_drift",
+      "severity": "critical",
+      "month": 6,
+      "features": [
+        "PAY_0"
+      ],
+      "windows": 3,
+      "message": "Feature crítica PAY_0 em severidade severa por 3 meses consecutivos."
+    },
+    {
+      "type": "model_degradation",
+      "feature": "model",
+      "severity": "high",
+      "auc_drop": 0.150208756335799
+    }
+  ],
+  "is_breach": true,
+  "auc_last_month": 0.6110997303493166,
+  "auc_drop": 0.150208756335799,
+  "report_paths": {
+    "summary_json": "reports/drift/demo/demo_summary.json",
+    "summary_md": "reports/drift/demo/demo_summary.md",
+    "statistical_report": "reports/drift/demo/statistical_report.json",
+    "performance": "reports/drift/demo/performance.json",
+    "drift_report_html": "reports/drift/demo/drift_report.html",
+    "snapshots_dir": "data/demo"
+  },
+  "generated_at": "2026-10-13T00:27:53+00:00",
+  "n_rows": 178782
+}

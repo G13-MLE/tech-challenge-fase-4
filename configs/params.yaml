@@ -89,3 +89,19 @@ fairness:
   disparate_impact_min: 0.8
   # Diferença máxima de equal opportunity (TPR) em SEX e faixas de AGE
   equal_opportunity_max: 0.10
+
+# Demo executável (US7): make demo-drift — camada de apresentação isolada.
+# NÃO é um estágio DVC; não sobrescreve artefatos canônicos.
+demo:
+  # Rótulo de exibição (apenas identificador; não seleciona presets)
+  scenario: economic_shock
+  # Número de meses (snapshots) simulados no demo
+  n_snapshots: 6
+  # Intensidade do Data Drift do demo (amplificada para um choque visível)
+  intensity: 0.8
+  # Magnitude do Concept Drift P(y|X) no demo
+  concept_drift_strength: 1.5
+  # Diretório isolado de evidência do demo
+  output_dir: reports/drift/demo
+  # Seed determinística do demo
+  seed: 42

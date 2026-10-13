@@ -23,6 +23,7 @@ __all__ = [
     "AlertsParams",
     "RetrainParams",
     "FairnessParams",
+    "DemoParams",
     "Params",
     "load_params",
 ]
@@ -191,6 +192,30 @@ class FairnessParams(BaseModel):
     equal_opportunity_max: float = Field(ge=0, le=1, default=0.10)
 
 
+class DemoParams(BaseModel):
+    """Configuração do demo executável ``make demo-drift`` (US7).
+
+    Encoda o cenário de um único demo (bloco ``demo:`` em
+    ``configs/params.yaml``), com override opcional por CLI. ``scenario`` é
+    **apenas rótulo de exibição** — não seleciona presets (FR-032).
+
+    Attributes:
+        scenario: Rótulo do cenário exibido no resumo (identificador apenas).
+        n_snapshots: Número de meses (snapshots) simulados no demo (≥ 2).
+        intensity: Intensidade do Data Drift do demo (amplificada para o choque).
+        concept_drift_strength: Magnitude do Concept Drift ``P(y|X)``.
+        output_dir: Diretório isolado de evidência do demo.
+        seed: Seed determinística (default = ``drift.seed`` se ausente).
+    """
+
+    scenario: str = Field(min_length=1, default="economic_shock")
+    n_snapshots: int = Field(ge=2, default=6)
+    intensity: float = Field(ge=0, le=1, default=0.8)
+    concept_drift_strength: float = Field(ge=0, le=2, default=1.5)
+    output_dir: str = Field(min_length=1, default="reports/drift/demo")
+    seed: int = Field(ge=0, default=42)
+
+
 class Params(BaseModel):
     """Parâmetros completos do pipeline.
 
@@ -205,6 +230,7 @@ class Params(BaseModel):
         alerts: Regras de consolidação de alertas.
         retrain: Gatilho de re-treino.
         fairness: Guardrails de fairness.
+        demo: Cenário do demo executável (US7).
     """
 
     data: DataParams
@@ -217,6 +243,7 @@ class Params(BaseModel):
     alerts: AlertsParams
     retrain: RetrainParams
     fairness: FairnessParams
+    demo: DemoParams = Field(default_factory=DemoParams)
 
 
 @lru_cache
