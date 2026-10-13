@@ -5,6 +5,12 @@ Implementa um ``Collector`` que lê, a cada scrape, os relatórios JSON
 métricas operacionais e de saúde do modelo no formato de texto Prometheus.
 Servidor HTTP dedicado via ``prometheus_client.start_http_server(8000)``,
 escrutinado por ``configs/prometheus.yml`` em ``exporter:8000``.
+
+Além da evidência canônica do pipeline, quando existir a evidência isolada do
+demo (``make demo-drift`` → ``reports/drift/demo/``) o exporter expõe um
+conjunto paralelo ``demo_*`` (mesmos nomes com prefixo), permitindo ver o
+choque econômico amplificado no Grafana **sem** sobrescrever as métricas do
+pipeline (FR-031, US7).
 """
 
 import json
@@ -16,6 +22,9 @@ from prometheus_client.core import GaugeMetricFamily
 from prometheus_client.registry import Collector
 
 from src.core.dataset import (
+    DEMO_PERFORMANCE_PATH,
+    DEMO_STATISTICAL_REPORT_PATH,
+    DEMO_SUMMARY_PATH,
     PERFORMANCE_PATH,
     RUN_SUMMARY_PATH,
     SLO_REPORT_PATH,
@@ -65,14 +74,9 @@ def _task_metrics(log_path: Path) -> dict[str, dict]:
     return metrics
 
 
-def collect_metrics() -> list:
-    """Coleta as métricas atuais a partir dos relatórios e logs.
-
-    Returns:
-        Lista de ``GaugeMetricFamily`` prontos para exposição.
-    """
+def _task_families() -> list:
+    """Famílias de métricas operacionais derivadas dos logs JSON-lines."""
     families = []
-
     task_status = GaugeMetricFamily("pipeline_task_status", "1=success, 0=failed", labels=["task"])
     task_latency = GaugeMetricFamily("pipeline_task_latency_ms", "Latência (ms)", labels=["task"])
     task_rows = GaugeMetricFamily("pipeline_rows_processed", "Linhas processadas", labels=["task"])
@@ -81,13 +85,32 @@ def collect_metrics() -> list:
         task_latency.add_metric([task], values["latency_ms"])
         task_rows.add_metric([task], values["rows"])
     families += [task_status, task_latency, task_rows]
+    return families
 
-    statistical = _load_json(STATISTICAL_REPORT_PATH)
+
+def _drift_families(statistical_path: Path, performance_path: Path, prefix: str = "") -> list:
+    """Famílias de drift/performance a partir dos relatórios informados.
+
+    Args:
+        statistical_path: Relatório estatístico (PSI/KS/χ² + ``history``).
+        performance_path: Série de performance por snapshot (ROC-AUC/Brier).
+        prefix: Prefixo opcional dos nomes (ex.: ``demo_`` para a evidência do demo).
+
+    Returns:
+        Lista de ``GaugeMetricFamily`` (vazia se os relatórios não existirem).
+    """
+    families = []
+
+    statistical = _load_json(statistical_path)
     if statistical:
-        features_total = GaugeMetricFamily("drift_features_total", "Features avaliadas")
+        features_total = GaugeMetricFamily(f"{prefix}drift_features_total", "Features avaliadas")
         features_total.add_metric([], statistical.get("n_features", 0))
+        max_psi = GaugeMetricFamily(f"{prefix}drift_max_psi", "PSI máximo entre as features")
+        max_psi.add_metric([], float(statistical.get("max_psi", 0.0)))
         drifted = GaugeMetricFamily(
-            "drift_features_drifted", "Features com drift", labels=["severity"]
+            f"{prefix}drift_features_drifted",
+            "Features com drift",
+            labels=["severity"],
         )
         by_severity: dict[str, int] = {}
         for entry in statistical.get("features", {}).values():
@@ -95,48 +118,86 @@ def collect_metrics() -> list:
             by_severity[severity] = by_severity.get(severity, 0) + 1
         for severity, count in by_severity.items():
             drifted.add_metric([severity], count)
-        families += [features_total, drifted]
+        families += [features_total, max_psi, drifted]
 
-        psi = GaugeMetricFamily("drift_psi", "PSI por feature/mês", labels=["feature", "month"])
+        psi = GaugeMetricFamily(
+            f"{prefix}drift_psi", "PSI por feature/mês", labels=["feature", "month"]
+        )
         for history in statistical.get("history", []):
             month = str(history.get("month"))
             for feature, values in history.get("features", {}).items():
                 psi.add_metric([feature, month], float(values.get("psi", 0.0)))
         families.append(psi)
 
-    performance = _load_json(PERFORMANCE_PATH)
+    performance = _load_json(performance_path)
     if isinstance(performance, list) and performance:
-        auc = GaugeMetricFamily("model_roc_auc", "ROC-AUC por snapshot", labels=["month"])
+        auc = GaugeMetricFamily(f"{prefix}model_roc_auc", "ROC-AUC por snapshot", labels=["month"])
         for entry in performance:
             auc.add_metric([str(entry.get("month"))], float(entry.get("roc_auc", 0.0)))
-        auc_drop = GaugeMetricFamily("model_auc_drop", "Queda de AUC vs baseline")
+        auc_drop = GaugeMetricFamily(f"{prefix}model_auc_drop", "Queda de AUC vs baseline")
         auc_drop.add_metric(
             [],
             float(reference_baseline(performance) - performance[-1].get("roc_auc", 0.0)),
         )
         families += [auc, auc_drop]
 
-    summary = _load_json(RUN_SUMMARY_PATH)
-    if summary:
-        alerts = GaugeMetricFamily("drift_alerts_total", "Alertas por tipo", labels=["type"])
-        by_type: dict[str, int] = {}
-        for alert in summary.get("alerts", []):
-            alert_type = alert.get("type", "unknown")
-            by_type[alert_type] = by_type.get(alert_type, 0) + 1
-        for alert_type, count in by_type.items():
-            alerts.add_metric([alert_type], count)
-        families.append(alerts)
+    return families
 
-    slo = _load_json(SLO_REPORT_PATH)
-    if slo:
-        budget = GaugeMetricFamily("slo_error_budget", "Error budget por SLO", labels=["slo"])
-        status = GaugeMetricFamily("slo_status", "1=pass, 0=breach", labels=["slo"])
-        for check in slo.get("checks", []):
-            name = check.get("slo", "unknown")
-            budget.add_metric([name], float(check.get("error_budget", 0.0)))
-            status.add_metric([name], 1 if check.get("status") == "ok" else 0)
-        families += [budget, status]
 
+def _alert_families(summary_path: Path, prefix: str = "") -> list:
+    """Família de alertas por tipo a partir de um resumo com ``alerts``."""
+    summary = _load_json(summary_path)
+    if not summary:
+        return []
+    alerts = GaugeMetricFamily(f"{prefix}drift_alerts_total", "Alertas por tipo", labels=["type"])
+    by_type: dict[str, int] = {}
+    for alert in summary.get("alerts", []):
+        alert_type = alert.get("type", "unknown")
+        by_type[alert_type] = by_type.get(alert_type, 0) + 1
+    for alert_type, count in by_type.items():
+        alerts.add_metric([alert_type], count)
+    return [alerts]
+
+
+def _slo_families(slo_path: Path) -> list:
+    """Famílias de SLO/error budget a partir do relatório de monitoramento."""
+    slo = _load_json(slo_path)
+    if not slo:
+        return []
+    budget = GaugeMetricFamily("slo_error_budget", "Error budget por SLO", labels=["slo"])
+    status = GaugeMetricFamily("slo_status", "1=pass, 0=breach", labels=["slo"])
+    for check in slo.get("checks", []):
+        name = check.get("slo", "unknown")
+        budget.add_metric([name], float(check.get("error_budget", 0.0)))
+        status.add_metric([name], 1 if check.get("status") == "ok" else 0)
+    return [budget, status]
+
+
+def _demo_families() -> list:
+    """Famílias ``demo_*`` quando a evidência isolada do demo existir.
+
+    O demo (``make demo-drift``) escreve ``reports/drift/demo/`` sem tocar os
+    artefatos canônicos; expor um conjunto paralelo permite comparar o choque
+    amplificado no Grafana mantendo o pipeline intacto.
+    """
+    if not DEMO_STATISTICAL_REPORT_PATH.exists():
+        return []
+    return _drift_families(
+        DEMO_STATISTICAL_REPORT_PATH, DEMO_PERFORMANCE_PATH, prefix="demo_"
+    ) + _alert_families(DEMO_SUMMARY_PATH, prefix="demo_")
+
+
+def collect_metrics() -> list:
+    """Coleta as métricas atuais a partir dos relatórios e logs.
+
+    Returns:
+        Lista de ``GaugeMetricFamily`` prontos para exposição.
+    """
+    families = _task_families()
+    families += _drift_families(STATISTICAL_REPORT_PATH, PERFORMANCE_PATH)
+    families += _alert_families(RUN_SUMMARY_PATH)
+    families += _slo_families(SLO_REPORT_PATH)
+    families += _demo_families()
     return families
 
 

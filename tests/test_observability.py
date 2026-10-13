@@ -180,6 +180,62 @@ def test_exporter_collects_without_reports():
     assert isinstance(families, list)
 
 
+def test_exporter_exposes_demo_metrics_when_present(tmp_path, monkeypatch):
+    """A evidência isolada do demo é exposta como métricas ``demo_*`` (US7)."""
+    import src.observability.exporter as exporter_module
+
+    statistical = {
+        "n_features": 2,
+        "max_psi": 4.1,
+        "features": {"LIMIT_BAL": {"severity": "severe"}, "AGE": {"severity": "moderate"}},
+        "history": [
+            {"month": 1, "features": {"LIMIT_BAL": {"psi": 0.6}, "AGE": {"psi": 0.2}}},
+            {"month": 2, "features": {"LIMIT_BAL": {"psi": 4.1}, "AGE": {"psi": 2.5}}},
+        ],
+    }
+    performance = [
+        {"month": 1, "roc_auc": 0.66},
+        {"month": 2, "roc_auc": 0.61, "reference_auc": 0.76},
+    ]
+    summary = {"alerts": [{"type": "data_drift"}, {"type": "model_degradation"}]}
+
+    demo_stat = tmp_path / "statistical_report.json"
+    demo_perf = tmp_path / "performance.json"
+    demo_summary = tmp_path / "demo_summary.json"
+    demo_stat.write_text(json.dumps(statistical))
+    demo_perf.write_text(json.dumps(performance))
+    demo_summary.write_text(json.dumps(summary))
+
+    monkeypatch.setattr(exporter_module, "DEMO_STATISTICAL_REPORT_PATH", demo_stat)
+    monkeypatch.setattr(exporter_module, "DEMO_PERFORMANCE_PATH", demo_perf)
+    monkeypatch.setattr(exporter_module, "DEMO_SUMMARY_PATH", demo_summary)
+
+    families = {family.name: family for family in collect_metrics()}
+    assert {
+        "demo_drift_psi",
+        "demo_drift_max_psi",
+        "demo_drift_features_total",
+        "demo_drift_features_drifted",
+        "demo_model_roc_auc",
+        "demo_model_auc_drop",
+        "demo_drift_alerts_total",
+    } <= set(families)
+
+    max_psi_values = {sample.value for sample in families["demo_drift_max_psi"].samples}
+    assert 4.1 in max_psi_values
+    alert_types = {sample.labels["type"] for sample in families["demo_drift_alerts_total"].samples}
+    assert alert_types == {"data_drift", "model_degradation"}
+
+
+def test_exporter_hides_demo_metrics_without_evidence(tmp_path, monkeypatch):
+    """Sem evidência do demo, nenhuma métrica ``demo_*`` é exposta."""
+    import src.observability.exporter as exporter_module
+
+    monkeypatch.setattr(exporter_module, "DEMO_STATISTICAL_REPORT_PATH", tmp_path / "missing.json")
+    names = {family.name for family in collect_metrics()}
+    assert not any(name.startswith("demo_") for name in names)
+
+
 def test_tracking_run_fallback_when_mlflow_unavailable(monkeypatch):
     """Sem servidor MLflow, tracking_run degrada para None sem quebrar."""
     import mlflow
