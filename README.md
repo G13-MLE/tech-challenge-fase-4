@@ -352,6 +352,10 @@ Alertas consolidados (8): [... features severas juntas + features críticas por 
 - **Determinístico**: com a mesma seed, o conteúdo de `demo_summary.json` é idêntico (apenas o campo
   `generated_at`, o instante da execução, é excluído da comparação); emite logs JSON-lines (task
   `demo_drift`) e **não** registra run no MLflow nem relatório de SLO (alertas computados em memória).
+- **No Grafana** (`make monitoring-up`, dashboard *Credit Drift Monitor*): a linha **"Demo de drift
+  (make demo-drift)"** exibe as métricas `demo_drift_psi`/`demo_drift_max_psi`, `demo_model_roc_auc`,
+  `demo_model_auc_drop` e `demo_drift_alerts_total` — o choque amplificado ao lado do pipeline canônico,
+  sem tocar os artefatos canônicos.
 
 ## Etapa 3 — Observabilidade
 

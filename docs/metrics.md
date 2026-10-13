@@ -24,11 +24,30 @@ idênticos aos expostos pelo exporter Prometheus (`src/observability/exporter.py
 | `drift_features_total` | Gauge | — | `statistical_report.json` | Nº de features avaliadas | — |
 | `drift_features_drifted` | Gauge | `severity` | `statistical_report.json` | Features por severidade (stable/moderate/severe) | severe > 0 |
 | `drift_psi` | Gauge | `feature`, `month` | `statistical_report.json` (history) | PSI por feature por mês | > 0.25 = breach |
+| `drift_max_psi` | Gauge | — | `statistical_report.json` | PSI máximo entre as features | > 0.25 = breach |
 | `model_roc_auc` | Gauge | `month` | `performance.json` | ROC-AUC por snapshot | queda > 0.05 |
 | `model_auc_drop` | Gauge | — | `performance.json` | Queda de AUC vs baseline | ≥ `auc_drop_alert` (0.05) |
 | `drift_alerts_total` | Gauge | `type` | `run_summary.json` | Nº de alertas por tipo | anti-fadiga |
 | `slo_error_budget` | Gauge | `slo` | `slo_report.json` | `valor − piso` (positivo = folga) | < 0 = breach |
 | `slo_status` | Gauge | `slo` | `slo_report.json` | 1 = pass, 0 = breach | 0 → ação |
+
+## Métricas do demo (`make demo-drift`)
+
+O dashboard Grafana expõe, **em paralelo** e sem alterar as métricas acima, um conjunto `demo_*`
+derivado da evidência isolada do demo em `reports/drift/demo/` (`statistical_report.json`,
+`performance.json`, `demo_summary.json`). Ele aparece na linha **"Demo de drift (make demo-drift)"**
+do dashboard *Credit Drift Monitor*. As métricas só existem quando o demo já foi executado; ver o
+choque econômico amplificado no Grafana não exige tocar nos artefatos canônicos (FR-031).
+
+| Métrica | Tipo (Prometheus) | Labels | Fonte | Descrição |
+| ------- | ----------------- | ------ | ----- | --------- |
+| `demo_drift_psi` | Gauge | `feature`, `month` | `reports/drift/demo/statistical_report.json` (history) | PSI do demo por feature/mês |
+| `demo_drift_max_psi` | Gauge | — | idem | PSI máximo do demo |
+| `demo_drift_features_total` | Gauge | — | idem | Features avaliadas no demo |
+| `demo_drift_features_drifted` | Gauge | `severity` | idem | Features por severidade no demo |
+| `demo_model_roc_auc` | Gauge | `month` | `reports/drift/demo/performance.json` | ROC-AUC do demo por mês |
+| `demo_model_auc_drop` | Gauge | — | idem | Queda de AUC do demo vs baseline |
+| `demo_drift_alerts_total` | Gauge | `type` | `reports/drift/demo/demo_summary.json` | Alertas consolidados do demo por tipo |
 
 ## Data SLOs e Error Budget
 
