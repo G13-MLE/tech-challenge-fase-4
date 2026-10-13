@@ -9,6 +9,7 @@ exigida pelo desafio (FR-012).
 
 import json
 import logging
+from pathlib import Path
 
 from src.core.dataset import (
     DRIFT_REPORT_PATH,
@@ -64,12 +65,16 @@ def _is_drift(method: str, value: float, threshold: float) -> bool:
     return value > threshold
 
 
-def build_evidently_report(reference, production) -> str:
+def build_evidently_report(reference, production, html_path: Path | None = None) -> str:
     """Gera o relatório HTML de drift com Evidently.
 
     Args:
         reference: DataFrame de referência.
         production: DataFrame de produção.
+        html_path: Caminho de saída do HTML. Se None, usa o relatório
+            canônico ``reports/drift/drift_report.html``. O demo (US7) passa
+            um caminho isolado; ``--no-evidently`` simplesmente não chama
+            este builder.
 
     Returns:
         Caminho do HTML gerado.
@@ -77,6 +82,7 @@ def build_evidently_report(reference, production) -> str:
     from evidently import DataDefinition, Dataset, Report
     from evidently.presets import DataDriftPreset
 
+    target_path = html_path or DRIFT_REPORT_PATH
     data_definition = DataDefinition()
     reference_ds = Dataset.from_pandas(reference, data_definition=data_definition)
     production_ds = Dataset.from_pandas(production, data_definition=data_definition)
@@ -90,11 +96,11 @@ def build_evidently_report(reference, production) -> str:
         ]
     )
     snapshot = report.run(production_ds, reference_ds)
-    with atomic_path(DRIFT_REPORT_PATH, suffix=".tmp.html") as tmp_path:
+    with atomic_path(target_path, suffix=".tmp.html") as tmp_path:
         snapshot.save_html(str(tmp_path))
         normalize_text_file(tmp_path)
-    logger.info("Relatório Evidently salvo em %s.", DRIFT_REPORT_PATH)
-    return str(DRIFT_REPORT_PATH)
+    logger.info("Relatório Evidently salvo em %s.", target_path)
+    return str(target_path)
 
 
 def _evidently_test_results(reference, production) -> dict:

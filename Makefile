@@ -11,7 +11,7 @@ PYTHON := uv run python
 	help \
 	sync setup verify \
 	test lint \
-	pipeline ingestao validacao treino drift monitoramento \
+	pipeline ingestao validacao treino drift monitoramento demo-drift \
 	data-download data-synthetic \
 	dvc-remote \
 	docker-build \
@@ -43,6 +43,7 @@ help:
 	@echo "  make treino         - Reexecutar stage de treino"
 	@echo "  make drift          - Reexecutar stage de drift"
 	@echo "  make monitoramento  - Reexecutar stage de monitoramento"
+	@echo "  make demo-drift     - Demo autocontido de drift (choque econômico + resumo no terminal)"
 	@echo ""
 	@echo "Docker:"
 	@echo "  make docker-build   - Construir imagem Docker da aplicação"
@@ -102,6 +103,10 @@ drift:
 
 monitoramento:
 	uv run dvc repro monitoramento -v
+
+demo-drift:
+	@echo "Executando demo de drift (choque econômico simulado; evidência isolada)..."
+	uv run python -m src.drift.demo $(DEMO_ARGS)
 
 dvc-remote:
 	@URL=$$(grep DVC_ONEDRIVE_REMOTE_URL .env 2>/dev/null | cut -d= -f2-); \

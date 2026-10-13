@@ -11,6 +11,7 @@ O dataset de produção é mantido **estritamente separado** da referência.
 """
 
 import logging
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -90,30 +91,63 @@ def inject_unseen_category(
     return injected
 
 
-def simulate_snapshots() -> list:
+def simulate_snapshots(
+    destination_dir: Path | None = None,
+    intensity: float | None = None,
+    concept_drift_strength: float | None = None,
+    n_snapshots: int | None = None,
+    seed: int | None = None,
+    reference: pd.DataFrame | None = None,
+) -> list[Path]:
     """Gera snapshots mensais de produção com Data + Concept Drift.
+
+    Parâmetros opcionais têm como default o comportamento atual do pipeline
+    (``params.drift.*`` e ``data/production/``), de modo que a assinatura
+    permanece retrocompatível. O demo executável (US7) usa esses overrides
+    para escrever snapshots isolados em ``data/demo/`` reutilizando **um
+    único** caminho de simulação.
+
+    Args:
+        destination_dir: Diretório dos snapshots (default
+            ``data/production/``).
+        intensity: Intensidade global do Data Drift (default
+            ``drift.intensity``).
+        concept_drift_strength: Magnitude do Concept Drift (default
+            ``drift.concept_drift_strength``).
+        n_snapshots: Número de meses simulados (default ``drift.n_snapshots``).
+        seed: Seed determinística (default ``drift.seed``).
+        reference: DataFrame de referência; se None, carrega o artefato.
 
     Returns:
         Lista de caminhos dos snapshots gravados (ordem temporal).
     """
     params = load_params()
-    reference = load_parquet(REFERENCE_DATA_PATH)
-    rng = np.random.default_rng(params.drift.seed)
+    if reference is None:
+        reference = load_parquet(REFERENCE_DATA_PATH)
+    seed_value = params.drift.seed if seed is None else seed
+    n_months = params.drift.n_snapshots if n_snapshots is None else n_snapshots
+    drift_intensity = params.drift.intensity if intensity is None else intensity
+    concept_strength = (
+        params.drift.concept_drift_strength
+        if concept_drift_strength is None
+        else concept_drift_strength
+    )
+    destination = destination_dir or PRODUCTION_DIR
+    rng = np.random.default_rng(seed_value)
     target = params.data.target_column
-    n_snapshots = params.drift.n_snapshots
     concept_model = fit_concept_model(reference, target)
-    PRODUCTION_DIR.mkdir(parents=True, exist_ok=True)
-    paths = []
-    for month in range(1, n_snapshots + 1):
+    destination.mkdir(parents=True, exist_ok=True)
+    paths: list[Path] = []
+    for month in range(1, n_months + 1):
         snapshot = reference.copy()
-        progress = month / n_snapshots
-        amount = params.drift.intensity * progress
+        progress = month / n_months
+        amount = drift_intensity * progress
         for column, direction in params.drift.shifted_features.items():
             if column in snapshot.columns:
                 snapshot[column] = _shift_column(snapshot[column], direction, amount, rng)
         # Data drift categórico: categoria nunca antes vista no último snapshot.
-        if month == n_snapshots:
-            snapshot = inject_unseen_category(snapshot, seed=params.drift.seed + month)
+        if month == n_months:
+            snapshot = inject_unseen_category(snapshot, seed=seed_value + month)
             # Inversão de correlação (LIMIT_BAL × AGE): preserva as marginais
             # (invisível ao PSI/KS) mas detectável multivaridamente (MMD²).
             snapshot = invert_correlation(snapshot, "LIMIT_BAL", "AGE")
@@ -122,10 +156,10 @@ def simulate_snapshots() -> list:
             snapshot,
             concept_model,
             progress=progress,
-            strength=params.drift.concept_drift_strength,
+            strength=concept_strength,
             target=target,
         )
-        path = PRODUCTION_DIR / f"prod_month_{month:02d}.parquet"
+        path = destination / f"prod_month_{month:02d}.parquet"
         save_parquet(snapshot, path)
         paths.append(path)
         drift = prior_label_drift(reference, snapshot, target)

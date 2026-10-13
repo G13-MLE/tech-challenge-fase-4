@@ -23,10 +23,10 @@
     "model_auc_drop": 0.15257132266717244,
     "is_breach": true,
     "tasks": {
-      "n_events": 426,
-      "n_failed": 92,
-      "total_latency_ms": 461659.94,
-      "rows_processed": 3895622
+      "n_events": 500,
+      "n_failed": 98,
+      "total_latency_ms": 489850.81,
+      "rows_processed": 6162594
     },
     "slo_status": "critical"
   },
@@ -199,8 +199,8 @@
   "fairness_passed": false,
   "tracking": {
     "tracked": true,
-    "model_version": "6",
-    "uri": "models:/m-035d76dda1ed458bafe05238ed9be9e5",
+    "model_version": "7",
+    "uri": "models:/m-ef2dddab27044fd4a9a10675683fb762",
     "gates": {
       "passed": true,
       "missing": []
