@@ -63,6 +63,10 @@ drift_thresholds:
   multivariate_n_bootstrap: 200
   # Quantil do limiar nulo calibrado por bootstrap (p95)
   multivariate_bootstrap_quantile: 0.95
+  # Fração de colunas com drift para o Evidently marcar o dataset como
+  # "drift detectado". Alinhado ao critério por feature (qualquer feature com
+  # PSI > 0.25 é breach); o default do Evidently é 0.5 (contraditório aqui).
+  evidently_drift_share: 0.1
 
 # Data SLOs e Error Budget (FR-015)
 slo:

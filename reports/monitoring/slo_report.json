@@ -60,7 +60,8 @@
       "type": "model_degradation",
       "feature": "model",
       "severity": "high",
-      "auc_drop": 0.15257132266717244
+      "auc_drop": 0.15257132266717244,
+      "message": "Queda de ROC-AUC de 0.1526 vs baseline (limiar 0.05)."
     }
   ],
   "checks": [

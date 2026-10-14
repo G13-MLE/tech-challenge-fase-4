@@ -69,6 +69,7 @@ stages:
       - src/drift/multivariate.py
       - src/drift/detect.py
       - src/drift/concept.py
+      - src/drift/report.py
       - src/model/predict.py
       - src/model/evaluate.py
       - src/core/dataset.py
@@ -77,6 +78,8 @@ stages:
     outs:
       - data/production
       - reports/drift/drift_report.html:
+          cache: false
+      - reports/drift/statistical_summary.md:
           cache: false
     metrics:
       - reports/drift/statistical_report.json:

@@ -113,6 +113,10 @@ def build_alerts(
                 "feature": "model",
                 "severity": "high",
                 "auc_drop": health["model_auc_drop"],
+                "message": (
+                    f"Queda de ROC-AUC de {health['model_auc_drop']:.4f} vs baseline "
+                    f"(limiar {thresholds.auc_drop_alert})."
+                ),
             }
         )
     logger.info("Alertas consolidados: %d.", len(alerts))

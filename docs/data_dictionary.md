@@ -8,7 +8,7 @@ verdade para validação; aqui documentamos semântica, tipo e sensibilidade.
 | Campo | Tipo | Domínio/Regra | Semântica | PII | Uso |
 | ----- | ---- | ------------- | --------- | --- | --- |
 | `ID` | int | único | Identificador da linha | **Direto** | Removido na ingestão |
-| `LIMIT_BAL` | float | `> 0`, não nulo | Limite de crédito concedido (NT$) | Financeiro | Feature |
+| `LIMIT_BAL` | float | `[10 000, 1 000 000]`, não nulo | Limite de crédito concedido (NT$) — proxy de limite de renda | Financeiro | Feature |
 | `SEX` | int | `{1, 2}` | Sexo (1=masc, 2=fem) | Quasi | Feature + fairness |
 | `EDUCATION` | int | `{1,2,3,4}` | Escolaridade | Quasi | Feature + fairness |
 | `MARRIAGE` | int | `{1,2,3}` | Estado civil | Quasi | Feature |

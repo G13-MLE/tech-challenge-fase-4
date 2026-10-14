@@ -23,10 +23,10 @@
     "model_auc_drop": 0.15257132266717244,
     "is_breach": true,
     "tasks": {
-      "n_events": 500,
-      "n_failed": 98,
-      "total_latency_ms": 489850.81,
-      "rows_processed": 6162594
+      "n_events": 572,
+      "n_failed": 113,
+      "total_latency_ms": 518302.62,
+      "rows_processed": 7479463
     },
     "slo_status": "critical"
   },
@@ -90,7 +90,8 @@
       "type": "model_degradation",
       "feature": "model",
       "severity": "high",
-      "auc_drop": 0.15257132266717244
+      "auc_drop": 0.15257132266717244,
+      "message": "Queda de ROC-AUC de 0.1526 vs baseline (limiar 0.05)."
     }
   ],
   "n_alerts": 6,
@@ -156,7 +157,8 @@
         "type": "model_degradation",
         "feature": "model",
         "severity": "high",
-        "auc_drop": 0.15257132266717244
+        "auc_drop": 0.15257132266717244,
+        "message": "Queda de ROC-AUC de 0.1526 vs baseline (limiar 0.05)."
       }
     ],
     "checks": [
@@ -198,9 +200,9 @@
   "challenger_auc": 0.629590019220014,
   "fairness_passed": false,
   "tracking": {
-    "tracked": true,
-    "model_version": "7",
-    "uri": "models:/m-ef2dddab27044fd4a9a10675683fb762",
+    "tracked": false,
+    "model_version": null,
+    "uri": null,
     "gates": {
       "passed": true,
       "missing": []

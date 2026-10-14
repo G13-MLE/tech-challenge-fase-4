@@ -29,6 +29,8 @@ __all__ = [
     "validate_typed",
     "AGE_MIN",
     "AGE_MAX",
+    "LIMIT_BAL_MIN",
+    "LIMIT_BAL_MAX",
     "SEX_ALLOWED",
     "EDUCATION_ALLOWED",
     "MARRIAGE_ALLOWED",
@@ -37,6 +39,11 @@ __all__ = [
 
 AGE_MIN = 18
 AGE_MAX = 100
+# Limites de crédito/renda (NT$): o UCI 350 "Default of Credit Card Clients"
+# define LIMIT_BAL no intervalo [10_000, 1_000_000]. A regra de limite de renda
+# é um intervalo fechado (não apenas positividade), conforme pedido pelo edital.
+LIMIT_BAL_MIN = 10_000.0
+LIMIT_BAL_MAX = 1_000_000.0
 SEX_ALLOWED = {1, 2}
 EDUCATION_ALLOWED = {1, 2, 3, 4}
 MARRIAGE_ALLOWED = {1, 2, 3}
@@ -45,7 +52,9 @@ PAY_ALLOWED = {-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8}
 
 CREDIT_CONTRACT = pa.DataFrameSchema(
     {
-        "LIMIT_BAL": pa.Column(float, pa.Check.gt(0), nullable=False),
+        "LIMIT_BAL": pa.Column(
+            float, pa.Check.in_range(LIMIT_BAL_MIN, LIMIT_BAL_MAX), nullable=False
+        ),
         "SEX": pa.Column(int, pa.Check.isin(sorted(SEX_ALLOWED)), nullable=False),
         "EDUCATION": pa.Column(int, pa.Check.isin(sorted(EDUCATION_ALLOWED)), nullable=False),
         "MARRIAGE": pa.Column(int, pa.Check.isin(sorted(MARRIAGE_ALLOWED)), nullable=False),
@@ -68,7 +77,9 @@ class CreditSchema(pa.DataFrameModel):
     estrito com colunas desconhecidas, espelhando o contrato em runtime.
     """
 
-    LIMIT_BAL: Series[float] = pa.Field(gt=0, nullable=False)
+    LIMIT_BAL: Series[float] = pa.Field(
+        in_range={"min_value": LIMIT_BAL_MIN, "max_value": LIMIT_BAL_MAX}, nullable=False
+    )
     SEX: Series[int] = pa.Field(isin=sorted(SEX_ALLOWED), nullable=False)
     EDUCATION: Series[int] = pa.Field(isin=sorted(EDUCATION_ALLOWED), nullable=False)
     MARRIAGE: Series[int] = pa.Field(isin=sorted(MARRIAGE_ALLOWED), nullable=False)

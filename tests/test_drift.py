@@ -1,5 +1,7 @@
 """Testes dos testes estatísticos de drift (Etapa 2)."""
 
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
@@ -13,6 +15,7 @@ from src.drift.stats import (
     compute_psi,
     compute_psi_categorical,
 )
+from tests.conftest import make_credit_frame
 
 
 def test_psi_low_for_same_distribution():
@@ -145,4 +148,74 @@ def test_build_test_suite_result_preserves_suite_verdict(tmp_path, monkeypatch):
     assert result["suite_n_failed"] == 1
     assert result["is_breach"] is True
     assert result["passed"] is False
+    assert "psi_provenance" in result
     assert (tmp_path / "drift.json").exists()
+
+
+def test_evidently_html_flags_dataset_drift(tmp_path):
+    """O HTML do Evidently marca o dataset como drift (não contradiz o PSI)."""
+    from src.drift.detect import build_evidently_report
+
+    reference = make_credit_frame(n_rows=300, seed=1)
+    production = reference.copy()
+    production["LIMIT_BAL"] = production["LIMIT_BAL"] * 3.0
+
+    html_path = build_evidently_report(reference, production, html_path=tmp_path / "drift.html")
+    content = Path(html_path).read_text(encoding="utf-8")
+
+    assert "Drift is detected for" in content
+    assert "Dataset Drift is NOT detected" not in content
+    assert "LIMIT_BAL" in content
+
+
+def test_render_statistical_summary_is_readable():
+    """O resumo estatístico em Markdown evidencia a mudança por PSI/KS."""
+    from src.drift.report import render_statistical_summary
+
+    report = {
+        "month": 2,
+        "is_breach": True,
+        "n_drifted": 1,
+        "max_psi": 1.29,
+        "psi_bands": {"stable": 0.1, "moderate": 0.25},
+        "history": [
+            {
+                "month": 1,
+                "features": {"LIMIT_BAL": {"psi": 0.05, "severity": "stable"}},
+            },
+            {
+                "month": 2,
+                "features": {"LIMIT_BAL": {"psi": 1.29, "severity": "severe"}},
+            },
+        ],
+        "features": {
+            "LIMIT_BAL": {
+                "type": "numeric",
+                "psi": 1.29,
+                "severity": "severe",
+                "ks": {"statistic": 0.22, "pvalue": 0.0},
+            }
+        },
+        "multivariate": {
+            "mmd2": 0.07,
+            "mmd2_threshold": 0.004,
+            "energy": 0.3,
+            "energy_threshold": 0.04,
+            "drifted": True,
+        },
+        "drift_types": {"data_drift": True, "concept_drift": True},
+    }
+    performance = [
+        {"month": 1, "roc_auc": 0.66, "reference_auc": 0.76, "concept_drift": 0.10},
+        {"month": 2, "roc_auc": 0.61, "reference_auc": 0.76, "concept_drift": 0.15},
+    ]
+
+    markdown = render_statistical_summary(report, performance)
+
+    assert markdown.startswith("# Relatório estatístico")
+    assert "| LIMIT_BAL |" in markdown
+    assert "severe" in markdown
+    assert "KS=" in markdown
+    assert "MMD²" in markdown
+    assert "| M2 |" in markdown
+    assert "concept drift" in markdown
