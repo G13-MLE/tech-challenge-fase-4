@@ -8,7 +8,13 @@ import pandera.errors as pa_errors
 import pytest
 
 import src.contracts.validate as validate_module
-from src.contracts.schema import CREDIT_CONTRACT, CreditSchema, validate_typed
+from src.contracts.schema import (
+    CREDIT_CONTRACT,
+    LIMIT_BAL_MAX,
+    LIMIT_BAL_MIN,
+    CreditSchema,
+    validate_typed,
+)
 
 
 def test_valid_batch_passes(credit_frame):
@@ -28,6 +34,18 @@ def test_bad_batch_is_blocked(bad_frame):
     with pytest.raises(pa_errors.SchemaErrors) as err:
         CREDIT_CONTRACT.validate(bad_frame, lazy=True)
     assert len(err.value.failure_cases) > 0
+
+
+def test_limit_bal_outside_range_is_blocked(credit_frame):
+    """O limite de crédito é um intervalo fechado (abaixo do mínimo e acima do máximo)."""
+    frame = credit_frame.copy()
+    frame.loc[0, "LIMIT_BAL"] = LIMIT_BAL_MAX + 1.0
+    frame.loc[1, "LIMIT_BAL"] = LIMIT_BAL_MIN - 1.0
+    with pytest.raises(pa_errors.SchemaErrors) as err:
+        CREDIT_CONTRACT.validate(frame, lazy=True)
+    checks = set(err.value.failure_cases["check"])
+    assert any("in_range" in check for check in checks)
+    assert int((err.value.failure_cases["check"].str.contains("in_range")).sum()) == 2
 
 
 def test_validate_batch_reports_quality(tmp_path, monkeypatch, credit_frame):

@@ -109,6 +109,8 @@ def test_build_alerts_with_history_and_degradation():
     alerts = build_alerts({"features": {}}, health, history=history)
     assert any(alert["type"] == "model_degradation" for alert in alerts)
     assert any(alert["type"] == "data_drift" for alert in alerts)
+    degradation = next(alert for alert in alerts if alert["type"] == "model_degradation")
+    assert degradation["message"]
 
 
 def test_retrain_trigger_and_guardrails(tmp_path, monkeypatch):

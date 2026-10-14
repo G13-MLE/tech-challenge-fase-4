@@ -5,20 +5,20 @@ stages:
     deps:
     - path: configs/params.yaml
       hash: md5
-      md5: b05310debbeb1bf70ae7fc50c3f65c80
-      size: 3746
+      md5: f9dc7fbb14f36f26fedcb84509c0553e
+      size: 4007
     - path: data/raw/reference.csv
       hash: md5
       md5: b4bf11c60a1b7b3298a1bb20d7f5ae05
       size: 2867208
     - path: src/core/dataset.py
       hash: md5
-      md5: 86eae2abbdd1267429cd62c15d664e1a
-      size: 8427
+      md5: f5ff42b7ea35dad7f7dcee9311057dbc
+      size: 8754
     - path: src/core/params.py
       hash: md5
-      md5: 33f41c0b3111c72f056af0b3aa3bf0ee
-      size: 9875
+      md5: 8dcba6773a35f0e151a6c9af6a014488
+      size: 10323
     - path: src/data/dedup.py
       hash: md5
       md5: 3c12ea29ac1469c36dbac09c87f10035
@@ -50,8 +50,8 @@ stages:
     deps:
     - path: configs/params.yaml
       hash: md5
-      md5: b05310debbeb1bf70ae7fc50c3f65c80
-      size: 3746
+      md5: f9dc7fbb14f36f26fedcb84509c0553e
+      size: 4007
     - path: data/reference/reference.parquet
       hash: md5
       md5: 55a2dc62e6881a77b3918c3b909cb5e8
@@ -74,16 +74,16 @@ stages:
       size: 6086
     - path: src/contracts/schema.py
       hash: md5
-      md5: 2265700f13be5163528ae1b0954cfb5a
-      size: 3913
+      md5: 1b58c3b8db9a98362d5a61ce038c4cfd
+      size: 4379
     - path: src/contracts/validate.py
       hash: md5
       md5: 9b7593d87677e06128f6b0e6144950d7
       size: 4569
     - path: src/core/dataset.py
       hash: md5
-      md5: 86eae2abbdd1267429cd62c15d664e1a
-      size: 8427
+      md5: f5ff42b7ea35dad7f7dcee9311057dbc
+      size: 8754
     - path: src/data/missingness.py
       hash: md5
       md5: 16ebcd5940baf6731fcdf7b6f4fc8efe
@@ -95,7 +95,7 @@ stages:
     outs:
     - path: reports/validation/profile.html
       hash: md5
-      md5: 60f0480dc2b5e3e77fd75329e8974ae5
+      md5: b04b735892b9dce0ccfa3be24ea13a40
       size: 3743743
     - path: reports/validation/result.json
       hash: md5
@@ -106,20 +106,20 @@ stages:
     deps:
     - path: configs/params.yaml
       hash: md5
-      md5: b05310debbeb1bf70ae7fc50c3f65c80
-      size: 3746
+      md5: f9dc7fbb14f36f26fedcb84509c0553e
+      size: 4007
     - path: data/reference/reference.parquet
       hash: md5
       md5: 55a2dc62e6881a77b3918c3b909cb5e8
       size: 344150
     - path: src/core/dataset.py
       hash: md5
-      md5: 86eae2abbdd1267429cd62c15d664e1a
-      size: 8427
+      md5: f5ff42b7ea35dad7f7dcee9311057dbc
+      size: 8754
     - path: src/core/params.py
       hash: md5
-      md5: 33f41c0b3111c72f056af0b3aa3bf0ee
-      size: 9875
+      md5: 8dcba6773a35f0e151a6c9af6a014488
+      size: 10323
     - path: src/model/evaluate.py
       hash: md5
       md5: 5d5421e4bb9c0249e0b22a75dad83a08
@@ -142,8 +142,8 @@ stages:
     deps:
     - path: configs/params.yaml
       hash: md5
-      md5: b05310debbeb1bf70ae7fc50c3f65c80
-      size: 3746
+      md5: f9dc7fbb14f36f26fedcb84509c0553e
+      size: 4007
     - path: data/reference/reference.parquet
       hash: md5
       md5: 55a2dc62e6881a77b3918c3b909cb5e8
@@ -158,28 +158,32 @@ stages:
       size: 1678
     - path: src/core/dataset.py
       hash: md5
-      md5: 86eae2abbdd1267429cd62c15d664e1a
-      size: 8427
+      md5: f5ff42b7ea35dad7f7dcee9311057dbc
+      size: 8754
     - path: src/core/params.py
       hash: md5
-      md5: 33f41c0b3111c72f056af0b3aa3bf0ee
-      size: 9875
+      md5: 8dcba6773a35f0e151a6c9af6a014488
+      size: 10323
     - path: src/drift/concept.py
       hash: md5
       md5: a585cd90ece794b8248f8c2ccffa2585
       size: 7934
     - path: src/drift/detect.py
       hash: md5
-      md5: 7dadcee873043c0083bb552912c924fd
-      size: 7260
+      md5: a6597f94b1ac7fb062e31c9ce2e44e9f
+      size: 8592
     - path: src/drift/multivariate.py
       hash: md5
       md5: 5163f2c3f651c4aec8bf4b98cc9d0ab6
       size: 9886
+    - path: src/drift/report.py
+      hash: md5
+      md5: 77f1ac1379f05d47bc06de5a7eb57d3f
+      size: 7799
     - path: src/drift/run.py
       hash: md5
-      md5: d1b74e3e2f89e7ca5e866f75e5f00d41
-      size: 4342
+      md5: d0c16a46473c165052da37fd67f2af76
+      size: 4606
     - path: src/drift/simulate.py
       hash: md5
       md5: 8c7a64130345dd6f1dbb56dae8398abc
@@ -204,12 +208,12 @@ stages:
       nfiles: 6
     - path: reports/drift/drift_report.html
       hash: md5
-      md5: 07d9bb39111133602c1ed7db17764587
-      size: 4082148
+      md5: 6d83221653679872f4af95f3687989c4
+      size: 4082144
     - path: reports/drift/drift_test_result.json
       hash: md5
-      md5: ed6ef7ca7721f77933bc364f987f3cd3
-      size: 2151
+      md5: 946e21c72c69bbef4684941947e97524
+      size: 2467
     - path: reports/drift/performance.json
       hash: md5
       md5: e7ab695092520e7fc84eda7630cfe86e
@@ -218,13 +222,17 @@ stages:
       hash: md5
       md5: c6bc5a4ab9d86e8c3394c84195dd099c
       size: 8803
+    - path: reports/drift/statistical_summary.md
+      hash: md5
+      md5: 985bee2b28f2f42400aba1e1ee26ec73
+      size: 3050
   monitoramento:
     cmd: uv run python -m src.observability.run
     deps:
     - path: configs/params.yaml
       hash: md5
-      md5: b05310debbeb1bf70ae7fc50c3f65c80
-      size: 3746
+      md5: f9dc7fbb14f36f26fedcb84509c0553e
+      size: 4007
     - path: data/production
       hash: md5
       md5: 7f62ba6950e61579e5c4d1d8fc9ef108.dir
@@ -256,16 +264,16 @@ stages:
       size: 5399
     - path: src/core/dataset.py
       hash: md5
-      md5: 86eae2abbdd1267429cd62c15d664e1a
-      size: 8427
+      md5: f5ff42b7ea35dad7f7dcee9311057dbc
+      size: 8754
     - path: src/model/predict.py
       hash: md5
       md5: ca5045bea2a852cbd647f68bc89d0a43
       size: 1748
     - path: src/observability
       hash: md5
-      md5: cfe46967dc1d604e5c0e73a0aba43060.dir
-      size: 52750
+      md5: 18976a8a180d860b9aa1b1027373ac8e.dir
+      size: 55355
       nfiles: 10
     outs:
     - path: reports/fairness
@@ -279,9 +287,9 @@ stages:
       size: 614
     - path: reports/monitoring/run_summary.json
       hash: md5
-      md5: 0cb0ada791aff5720c79b040cb257bbc
-      size: 4902
+      md5: 2bd5ec40da6c81ec074d802abad63d61
+      size: 5015
     - path: reports/monitoring/slo_report.json
       hash: md5
-      md5: 651eab67629c08657bc9111551408a2d
-      size: 2181
+      md5: 15387a3f38472b86cce5e17fd5df4321
+      size: 2255

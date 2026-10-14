@@ -14,6 +14,7 @@ from src.core.dataset import (
     PERFORMANCE_PATH,
     REFERENCE_DATA_PATH,
     STATISTICAL_REPORT_PATH,
+    STATISTICAL_SUMMARY_PATH,
     TRAIN_METRICS_PATH,
     atomic_write_text,
     load_parquet,
@@ -21,6 +22,7 @@ from src.core.dataset import (
 from src.drift.concept import evaluate_snapshots, prior_label_drift
 from src.drift.detect import build_evidently_report, build_test_suite_result
 from src.drift.multivariate import build_multivariate_report
+from src.drift.report import render_statistical_summary
 from src.drift.simulate import simulate_snapshots
 from src.drift.stats import build_statistical_report
 
@@ -91,6 +93,9 @@ def run() -> dict:
     }
     atomic_write_text(STATISTICAL_REPORT_PATH, json.dumps(last_report, indent=2))
     atomic_write_text(PERFORMANCE_PATH, json.dumps(performance, indent=2))
+    atomic_write_text(
+        STATISTICAL_SUMMARY_PATH, render_statistical_summary(last_report, performance)
+    )
 
     build_evidently_report(reference, last_snapshot)
     build_test_suite_result(reference, last_snapshot, last_report)
@@ -99,6 +104,7 @@ def run() -> dict:
         "n_snapshots": len(snapshots),
         "n_rows": int(sum(len(snapshot) for snapshot in snapshots)),
         "statistical_report": str(STATISTICAL_REPORT_PATH),
+        "statistical_summary": str(STATISTICAL_SUMMARY_PATH),
         "performance_report": str(PERFORMANCE_PATH),
         "is_breach": last_report["is_breach"],
         "auc_last_month": performance[-1]["roc_auc"],

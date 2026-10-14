@@ -84,5 +84,10 @@
   "n_failed": 4,
   "passed": false,
   "suite_passed": false,
-  "suite_n_failed": 4
+  "suite_n_failed": 4,
+  "psi_provenance": {
+    "max_psi": "statistical_report.json (PSI do projeto, decis\u00e3o)",
+    "tests_value": "evidently stattest score (binning pr\u00f3prio, evid\u00eancia)",
+    "note": "Os dois PSI divergem porque usam binning diferente; a decis\u00e3o de breach usa sempre o PSI do projeto (max_psi)."
+  }
 }

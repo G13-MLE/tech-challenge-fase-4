@@ -61,7 +61,7 @@ documenta governança (**LGPD**), análise **causal** e **fairness** — tudo co
 | Container | Docker multi-stage (`python:3.12-slim`), compose com perfis (`train`, `mlflow`, `dashboard`, `monitoring`) |
 | Build | uv + `pyproject.toml` com deps prod/dev separadas |
 | Lint | ruff + pre-commit |
-| Testes | pytest (61 testes) |
+| Testes | pytest (70 testes) |
 
 ## Arquitetura
 
@@ -95,8 +95,8 @@ Design patterns aplicados:
 | 1 | Qualidade de dados (dimensões, dedup, missingness, outliers, profiling) | ✔ Concluído | `src/data/`, `reports/validation/result.json`, `reports/validation/profile.html` |
 | 1 | Modelo baseline treinado | ✔ Concluído | `src/model/train.py`, `models/model.joblib`, `reports/train_metrics.json` |
 | 2 | Simulação de Data + Concept Drift em snapshots mensais | ✔ Concluído | `src/drift/simulate.py`, `src/drift/concept.py`, `data/production/` |
-| 2 | Detecção PSI-first + KS/χ² (com correção) + multivariado (MMD²/Energy) | ✔ Concluído | `src/drift/stats.py`, `src/drift/multivariate.py`, `reports/drift/statistical_report.json` |
-| 2 | Relatório Evidently AI | ✔ Concluído | `src/drift/detect.py`, `reports/drift/drift_report.html` |
+| 2 | Detecção PSI-first + KS/χ² (com correção) + multivariado (MMD²/Energy) | ✔ Concluído | `src/drift/stats.py`, `src/drift/multivariate.py`, `reports/drift/statistical_report.json`, `reports/drift/statistical_summary.md` |
+| 2 | Relatório Evidently AI (veredito "drift detectado" alinhado ao PSI) | ✔ Concluído | `src/drift/detect.py`, `reports/drift/drift_report.html` |
 | 3 | Logs centralizados e correlacionados (`run_id`/`trace_id`) | ✔ Concluído | `src/observability/logging.py`, `logs/pipeline.ndjson` |
 | 3 | Métricas de saúde, SLO/Error Budget e alertas anti-fadiga | ✔ Concluído | `src/observability/slo.py`, `src/observability/alerts.py`, `reports/monitoring/` |
 | 3 | Tracking MLflow e dashboard | ✔ Concluído | `src/observability/tracking.py`, `dashboard/app.py` |
@@ -111,7 +111,7 @@ Design patterns aplicados:
 
 | Critério | Peso | Status | Evidência |
 |---|---|---|---|
-| Validação de Dados / Contratos | 25% | ✔ Concluído | Contrato Pandera bloqueia lote corrompido com exit 1 (22 violações); dedup 30.000 → 29.797; profile HTML; `reports/validation/` |
+| Validação de Dados / Contratos | 25% | ✔ Concluído | 7 regras rígidas (sem nulos, idade, limite de renda, domínios, alvo); contrato Pandera bloqueia lote corrompido com exit 1 (25 violações); dedup 30.000 → 29.797; profile HTML; `reports/validation/` |
 | Detecção de Drift | 25% | ✔ Concluído | 6 snapshots Data + Concept Drift; PSI máx. 2.221 (`LIMIT_BAL`); MMD² 0.076 > limiar 0.0039; queda de ROC-AUC 0.761 → 0.609; Evidently |
 | Observabilidade e Logs | 20% | ✔ Concluído | Logs com `run_id`, SLO/Error Budget (`critical`), alertas anti-fadiga, MLflow Registry, dashboard e `/metrics` |
 | Governança / LGPD | 15% | ✔ Concluído | PII/Privacy by Design, DAG causal, fairness com guardrails, Model Card e DPIA |
@@ -153,7 +153,7 @@ Design patterns aplicados:
 │   └── observability/   # logging (run_id/trace_id), metrics, alerts, slo, retrain,
 │                        #   fairness, tracking (MLflow), exporter (Prometheus), run
 ├── dashboard/app.py     # dashboard Streamlit (SLO, PSI heatmap, alertas, Evidently)
-├── tests/               # 61 testes pytest
+├── tests/               # 70 testes pytest
 ├── docker/              # Dockerfile, docker-compose.yml, Grafana provisioning as-code
 ├── configs/             # params.yaml, prometheus.yml
 ├── scripts/             # download_data, generate_synthetic_data, make_bad_batch, drift_gate, validate_env
@@ -273,10 +273,15 @@ com produção.
 O contrato rígido é a **fonte única de verdade** (`src/contracts/schema.py`). A validação
 **bloqueia a ingestão** (`exit 1`) quando um lote viola o contrato e grava o relatório de violações.
 
+**Regras rígidas (≥ 3 exigidas pelo edital):** sem nulos (`nullable=False` em todas as 9 colunas),
+**range de idade** (`AGE ∈ [18, 100]`), **limites de renda/crédito** (`LIMIT_BAL ∈ [10 000, 1 000 000]`,
+intervalo fechado — o UCI 350 usa `LIMIT_BAL` como limite de crédito), `PAY_AMT1 ≥ 0`, domínios de
+`SEX/EDUCATION/MARRIAGE/PAY_0` e alvo `∈ {0, 1}`. `BILL_AMT` pode ser negativo (saldo credor).
+
 | Evidência | Resultado |
 |---|---|
 | `data/reference/reference.parquet` | 29.797 linhas × 9 colunas, 0 violações (`reports/validation/result.json`) |
-| Lote corrompido (`make_bad_batch.py`) | **22 violações** — bloqueado com exit 1 (`reports/validation/bad_batch_result.json`) |
+| Lote corrompido (`make_bad_batch.py`) | **25 violações** em 7 regras — bloqueado com exit 1 (`reports/validation/bad_batch_result.json`) |
 | Deduplicação | 30.000 → 29.797 (120 exatos + 83 near-duplicates; MinHash/LSH, limiar 0.9) |
 | Qualidade | completeness/uniqueness/consistency/validity = 1.0; `timeliness` = N/A (lote sem coluna temporal) |
 | Profiling | `reports/validation/profile.html` |
@@ -314,7 +319,14 @@ Bandas PSI: `stable < 0.1` · `moderate ≤ 0.25` · **`severe > 0.25`** (breach
 | Label drift `P(Y)` | ≈ 0 (`P` preservado — só `P(y|X)` muda) |
 
 > Relatório interativo: `reports/drift/drift_report.html` (Evidently). Evidências JSON:
-> `statistical_report.json`, `performance.json`, `drift_test_result.json`.
+> `statistical_report.json`, `performance.json`, `drift_test_result.json`. Relatório estatístico
+> **legível** (PSI/KS/χ² por mês): `reports/drift/statistical_summary.md`.
+>
+> **Veredito sem ambiguidade:** o Evidently é configurado com `drift_share=0.1`
+> (`drift_thresholds.evidently_drift_share`), alinhado ao critério **por feature** (qualquer feature
+> com PSI > 0.25 é breach), de modo que o HTML marca *"Dataset drift is detected"* em vez de
+> contradizer o `statistical_report.json` com o default 0.5. O PSI do Evidently (binning próprio) é
+> **evidência**; o PSI do projeto é a **decisão** (`drift_test_result.json.psi_provenance`).
 
 ### Demonstração executável — `make demo-drift`
 
@@ -476,7 +488,7 @@ Workflow GitHub Actions (`.github/workflows/ci.yml`) com 5 jobs:
 push/PR → main
     │
     ├── lint           ── ruff check + ruff format --check
-    ├── test           ── pytest (61 testes)
+    ├── test           ── pytest (70 testes)
     ├── contract-gate  ── contrato DEVE bloquear lote corrompido (exit != 0)
     ├── drift-gate     ── self-check (sem falso positivo) + expect-breach (PSI > 0.25)
     └── docker-build   ── build da imagem (após lint+test)
@@ -567,7 +579,7 @@ Todos os hiperparâmetros ficam em [`configs/params.yaml`](configs/params.yaml) 
 ## Testes e lint
 
 ```bash
-make test      # uv run pytest (61 testes)
+make test      # uv run pytest (70 testes)
 make lint      # uv run ruff check . + ruff format --check .
 ```
 

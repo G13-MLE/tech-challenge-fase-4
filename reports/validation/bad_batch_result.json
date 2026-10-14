@@ -2,7 +2,7 @@
   "status": "failed",
   "file": "data/corrupted/bad_batch.parquet",
   "n_rows": 201,
-  "n_violations": 22,
+  "n_violations": 25,
   "violations": [
     {
       "schema_context": "Column",
@@ -31,7 +31,7 @@
     {
       "schema_context": "Column",
       "column": "LIMIT_BAL",
-      "check": "greater_than(0)",
+      "check": "in_range(10000.0, 1000000.0)",
       "check_number": 0,
       "failure_case": -100.0,
       "index": 5
@@ -39,7 +39,7 @@
     {
       "schema_context": "Column",
       "column": "LIMIT_BAL",
-      "check": "greater_than(0)",
+      "check": "in_range(10000.0, 1000000.0)",
       "check_number": 0,
       "failure_case": -100.0,
       "index": 6
@@ -47,7 +47,7 @@
     {
       "schema_context": "Column",
       "column": "LIMIT_BAL",
-      "check": "greater_than(0)",
+      "check": "in_range(10000.0, 1000000.0)",
       "check_number": 0,
       "failure_case": -100.0,
       "index": 7
@@ -55,7 +55,7 @@
     {
       "schema_context": "Column",
       "column": "LIMIT_BAL",
-      "check": "greater_than(0)",
+      "check": "in_range(10000.0, 1000000.0)",
       "check_number": 0,
       "failure_case": -100.0,
       "index": 8
@@ -63,10 +63,34 @@
     {
       "schema_context": "Column",
       "column": "LIMIT_BAL",
-      "check": "greater_than(0)",
+      "check": "in_range(10000.0, 1000000.0)",
       "check_number": 0,
       "failure_case": -100.0,
       "index": 9
+    },
+    {
+      "schema_context": "Column",
+      "column": "LIMIT_BAL",
+      "check": "in_range(10000.0, 1000000.0)",
+      "check_number": 0,
+      "failure_case": 5000000.0,
+      "index": 20
+    },
+    {
+      "schema_context": "Column",
+      "column": "LIMIT_BAL",
+      "check": "in_range(10000.0, 1000000.0)",
+      "check_number": 0,
+      "failure_case": 5000000.0,
+      "index": 21
+    },
+    {
+      "schema_context": "Column",
+      "column": "LIMIT_BAL",
+      "check": "in_range(10000.0, 1000000.0)",
+      "check_number": 0,
+      "failure_case": 5000000.0,
+      "index": 22
     },
     {
       "schema_context": "Column",
@@ -189,11 +213,11 @@
       "reason": "lote sem coluna temporal; frescor garantido por DVC/snapshots mensais"
     },
     "consistency": 0.88115,
-    "validity": 0.895522,
+    "validity": 0.880597,
     "n_rows": 201,
     "n_columns": 9,
     "n_duplicate_rows": 1,
-    "n_invalid_rows": 21,
+    "n_invalid_rows": 24,
     "missingness": {
       "n_rows": 201,
       "target_column": "default_next_month",
@@ -286,10 +310,10 @@
       ],
       "columns": {
         "LIMIT_BAL": {
-          "n_outliers_zscore": 1,
-          "n_outliers_iqr": 1,
-          "rate_zscore": 0.004975,
-          "rate_iqr": 0.004975
+          "n_outliers_zscore": 3,
+          "n_outliers_iqr": 4,
+          "rate_zscore": 0.014925,
+          "rate_iqr": 0.0199
         },
         "SEX": {
           "n_outliers_zscore": 0,
@@ -335,10 +359,10 @@
         }
       },
       "multivariate": {
-        "n_outliers_lof": 16,
-        "n_outliers_isolation_forest": 32,
-        "rate_lof": 0.081218,
-        "rate_isolation_forest": 0.162437
+        "n_outliers_lof": 22,
+        "n_outliers_isolation_forest": 27,
+        "rate_lof": 0.111675,
+        "rate_isolation_forest": 0.137056
       },
       "decisions": {
         "LIMIT_BAL": "keep",

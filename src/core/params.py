@@ -132,6 +132,11 @@ class DriftThresholds(BaseModel):
         auc_drop_alert: Queda de ROC-AUC que dispara alerta de degradação.
         multivariate_n_bootstrap: Reamostragens bootstrap do limiar nulo multivariado.
         multivariate_bootstrap_quantile: Quantil do limiar nulo (ex.: 0.95 = p95).
+        evidently_drift_share: Fração de colunas com drift a partir da qual o
+            Evidently marca o dataset inteiro como "drift detectado". Alinhado
+            ao critério por feature (FR-010: qualquer feature isolada com
+            PSI > 0.25 é breach); o default do Evidently (0.5) contradiz o
+            veredito do projeto quando só parte das colunas tem drift.
     """
 
     psi_stable: float = Field(gt=0, default=0.1)
@@ -139,6 +144,7 @@ class DriftThresholds(BaseModel):
     auc_drop_alert: float = Field(gt=0, le=1, default=0.05)
     multivariate_n_bootstrap: int = Field(ge=1, default=200)
     multivariate_bootstrap_quantile: float = Field(gt=0, lt=1, default=0.95)
+    evidently_drift_share: float = Field(gt=0, le=1, default=0.1)
 
 
 class SLOParams(BaseModel):

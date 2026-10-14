@@ -18,6 +18,7 @@ from src.core.dataset import (
     atomic_write_text,
     normalize_text_file,
 )
+from src.core.params import load_params
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +66,18 @@ def _is_drift(method: str, value: float, threshold: float) -> bool:
     return value > threshold
 
 
+def _drift_share() -> float:
+    """Fração de colunas com drift para o Evidently marcar o dataset.
+
+    O default do Evidently (``0.5``) contradiz o critério por feature do
+    desafio (FR-010) quando apenas parte das colunas sofre drift, fazendo o
+    HTML do relatório dizer "Dataset Drift is NOT detected" enquanto o
+    ``statistical_report.json`` aponta um breach. O valor é configurável em
+    ``drift_thresholds.evidently_drift_share`` (default ``0.1``).
+    """
+    return float(load_params().drift_thresholds.evidently_drift_share)
+
+
 def build_evidently_report(reference, production, html_path: Path | None = None) -> str:
     """Gera o relatório HTML de drift com Evidently.
 
@@ -92,6 +105,7 @@ def build_evidently_report(reference, production, html_path: Path | None = None)
                 num_method=_EVIDENTLY_NUM_METHOD,
                 cat_method=_EVIDENTLY_CAT_METHOD,
                 include_tests=True,
+                drift_share=_drift_share(),
             )
         ]
     )
@@ -123,6 +137,7 @@ def _evidently_test_results(reference, production) -> dict:
                 num_method=_EVIDENTLY_NUM_METHOD,
                 cat_method=_EVIDENTLY_CAT_METHOD,
                 include_tests=True,
+                drift_share=_drift_share(),
             )
         ]
     )
@@ -195,6 +210,18 @@ def build_test_suite_result(reference, production, statistical_report: dict | No
         result["passed"] = not result["is_breach"]
     else:
         result["passed"] = bool(result.get("suite_passed", True))
+    # Proveniência: ``tests[].value`` é o score do stattest do Evidently
+    # (binning próprio, não comparável 1:1 com o PSI do projeto);
+    # ``max_psi``/``drifted_features`` vêm do ``statistical_report.json``
+    # (PSI do projeto, binning quantílico) — a métrica de decisão.
+    result["psi_provenance"] = {
+        "max_psi": "statistical_report.json (PSI do projeto, decisão)",
+        "tests_value": "evidently stattest score (binning próprio, evidência)",
+        "note": (
+            "Os dois PSI divergem porque usam binning diferente; a decisão de "
+            "breach usa sempre o PSI do projeto (max_psi)."
+        ),
+    }
     atomic_write_text(DRIFT_TEST_RESULT_PATH, json.dumps(result, indent=2))
     logger.info("Gate de drift: passed=%s, breach=%s.", result["passed"], result["is_breach"])
     return result

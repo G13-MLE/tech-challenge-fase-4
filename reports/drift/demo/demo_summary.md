@@ -42,7 +42,7 @@ Baseline de referência: **0.7613**.
 - **[critical] data_drift** — Feature crítica LIMIT_BAL em severidade severa por 5 meses consecutivos.
 - **[critical] data_drift** — Feature crítica AGE em severidade severa por 4 meses consecutivos.
 - **[critical] data_drift** — Feature crítica PAY_0 em severidade severa por 3 meses consecutivos.
-- **[high] model_degradation** —
+- **[high] model_degradation** — Queda de ROC-AUC de 0.1502 vs baseline (limiar 0.05).
 
 ## Evidência isolada
 
