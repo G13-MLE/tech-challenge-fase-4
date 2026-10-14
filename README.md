@@ -95,7 +95,7 @@ Design patterns aplicados:
 | 1 | Qualidade de dados (dimensões, dedup, missingness, outliers, profiling) | ✔ Concluído | `src/data/`, `reports/validation/result.json`, `reports/validation/profile.html` |
 | 1 | Modelo baseline treinado | ✔ Concluído | `src/model/train.py`, `models/model.joblib`, `reports/train_metrics.json` |
 | 2 | Simulação de Data + Concept Drift em snapshots mensais | ✔ Concluído | `src/drift/simulate.py`, `src/drift/concept.py`, `data/production/` |
-| 2 | Detecção PSI-first + KS/χ² (com correção) + multivariado (MMD²/Energy) | ✔ Concluído | `src/drift/stats.py`, `src/drift/multivariate.py`, `reports/drift/statistical_report.json`, `reports/drift/statistical_summary.md` |
+| 2 | Detecção PSI-first + KS/χ² (com correção) + multivariado (MMD²/Energy) | ✔ Concluído | `src/drift/stats.py`, `src/drift/multivariate.py`, `reports/drift/statistical_report.json`, [`reports/drift/statistical_summary.md`](reports/drift/statistical_summary.md) |
 | 2 | Relatório Evidently AI (veredito "drift detectado" alinhado ao PSI) | ✔ Concluído | `src/drift/detect.py`, `reports/drift/drift_report.html` |
 | 3 | Logs centralizados e correlacionados (`run_id`/`trace_id`) | ✔ Concluído | `src/observability/logging.py`, `logs/pipeline.ndjson` |
 | 3 | Métricas de saúde, SLO/Error Budget e alertas anti-fadiga | ✔ Concluído | `src/observability/slo.py`, `src/observability/alerts.py`, `reports/monitoring/` |
@@ -318,9 +318,10 @@ Bandas PSI: `stable < 0.1` · `moderate ≤ 0.25` · **`severe > 0.25`** (breach
 | Concept drift | ~0.105 → ~0.153 (crescente até o mês 5; estabiliza no mês 6) |
 | Label drift `P(Y)` | ≈ 0 (`P` preservado — só `P(y|X)` muda) |
 
-> Relatório interativo: `reports/drift/drift_report.html` (Evidently). Evidências JSON:
-> `statistical_report.json`, `performance.json`, `drift_test_result.json`. Relatório estatístico
-> **legível** (PSI/KS/χ² por mês): `reports/drift/statistical_summary.md`.
+> Relatório interativo: [`reports/drift/drift_report.html`](reports/drift/drift_report.html) (Evidently).
+> Evidências JSON: `statistical_report.json`, `performance.json`, `drift_test_result.json`.
+> Relatório estatístico **legível** (PSI/KS/χ² por mês):
+> [`reports/drift/statistical_summary.md`](reports/drift/statistical_summary.md).
 >
 > **Veredito sem ambiguidade:** o Evidently é configurado com `drift_share=0.1`
 > (`drift_thresholds.evidently_drift_share`), alinhado ao critério **por feature** (qualquer feature
@@ -356,8 +357,10 @@ Tipos de drift: data_drift=True  label_drift=False  concept_drift=True  multivar
 Alertas consolidados (8): [... features severas juntas + features críticas por ≥3 meses + model_degradation ...]
 ```
 
-- **Evidência isolada** em `reports/drift/demo/` (`demo_summary.json`, `demo_summary.md`, o
-  `statistical_report.json`/`performance.json` do demo e o `drift_report.html`); snapshots em
+- **Evidência isolada** em `reports/drift/demo/` ([`demo_summary.json`](reports/drift/demo/demo_summary.json),
+  [`demo_summary.md`](reports/drift/demo/demo_summary.md), o
+  [`statistical_report.json`](reports/drift/demo/statistical_report.json)/`performance.json` do demo
+  e o [`drift_report.html`](reports/drift/demo/drift_report.html)); snapshots em
   `data/demo/`. Os artefatos canônicos `reports/drift/*` e `data/production/` **não** são tocados.
 - Configurável pelo bloco `demo:` de `configs/params.yaml` (rótulo, meses, intensidade, força do
   Concept Drift, diretório de saída, seed) com overrides opcionais por CLI — `scenario` é apenas rótulo.
