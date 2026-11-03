@@ -19,7 +19,13 @@ from src.core.dataset import (
     atomic_write_text,
     load_parquet,
 )
-from src.drift.concept import evaluate_snapshots, prior_label_drift
+from src.core.params import load_params
+from src.drift.concept import (
+    evaluate_concept_control,
+    evaluate_snapshots,
+    fit_concept_model,
+    prior_label_drift,
+)
 from src.drift.detect import build_evidently_report, build_test_suite_result
 from src.drift.multivariate import build_multivariate_report
 from src.drift.report import render_statistical_summary
@@ -77,18 +83,28 @@ def run() -> dict:
     # Discrimina os três tipos de drift.
     label = prior_label_drift(reference, last_snapshot)
     performance = evaluate_snapshots(snapshots, baseline_auc=baseline_auc)
+    # Controle do gerador de rótulos: isola o Concept Drift real do custo de
+    # substituir os rótulos originais pelo substituto logístico (progress=0).
+    params = load_params()
+    concept_control = evaluate_concept_control(
+        snapshots,
+        fit_concept_model(reference),
+        strength=params.drift.concept_drift_strength,
+    )
     label_by_month = {
         month: prior_label_drift(reference, snapshot)
         for month, snapshot in enumerate(snapshots, start=1)
     }
-    for entry in performance:
+    for entry, control_auc in zip(performance, concept_control, strict=True):
         drift = label_by_month[entry["month"]]
         entry["p_positive"] = drift["production_positive_rate"]
         entry["label_drift"] = drift["label_drift"]
+        entry["control_auc"] = control_auc
+        entry["concept_drift_adjusted"] = float(control_auc - entry["roc_auc"])
     last_report["drift_types"] = {
         "data_drift": bool(last_report["n_drifted"] > 0),
         "label_drift": bool(abs(label["label_drift"]) > 0.02),
-        "concept_drift": bool(performance[-1]["concept_drift"] > 0.0),
+        "concept_drift": bool(performance[-1]["concept_drift_adjusted"] > 0.0),
         "multivariate_drift": bool(last_report["multivariate"]["drifted"]),
     }
     atomic_write_text(STATISTICAL_REPORT_PATH, json.dumps(last_report, indent=2))
@@ -109,6 +125,7 @@ def run() -> dict:
         "is_breach": last_report["is_breach"],
         "auc_last_month": performance[-1]["roc_auc"],
         "auc_drop": performance[-1]["concept_drift"],
+        "auc_drop_adjusted": performance[-1]["concept_drift_adjusted"],
     }
     logger.info("Drift concluído com %d snapshots.", len(snapshots))
     return summary
@@ -118,8 +135,9 @@ def main() -> None:
     """Ponto de entrada do estágio de drift."""
     from src.observability.logging import TaskTimer
 
-    with TaskTimer("drift"):
-        run()
+    with TaskTimer("drift") as timer:
+        summary = run()
+        timer.record(n_rows=summary.get("n_rows"))
 
 
 if __name__ == "__main__":

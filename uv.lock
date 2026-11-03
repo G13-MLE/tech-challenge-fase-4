@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = "==3.12.*"
 resolution-markers = [
     "sys_platform == 'win32'",
@@ -2715,7 +2715,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "datasketch", specifier = ">=1.6.0" },
-    { name = "evidently", specifier = ">=0.4.0" },
+    { name = "evidently", specifier = ">=0.7.23,<0.8" },
     { name = "jinja2", specifier = ">=3.1.0" },
     { name = "joblib", specifier = ">=1.4.0" },
     { name = "kagglehub", specifier = ">=0.3.0" },

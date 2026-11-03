@@ -77,3 +77,31 @@ def test_concept_drift_is_deterministic(tmp_path):
     first = apply_concept_drift(reference, concept_model, 1.0, 0.5, TARGET)
     second = apply_concept_drift(reference, concept_model, 1.0, 0.5, TARGET)
     pd.testing.assert_series_equal(first[TARGET], second[TARGET])
+
+
+def test_concept_control_isolates_generator_offset(tmp_path):
+    """O controle (progress=0) separa o custo do gerador do Concept Drift real.
+
+    Sem esse controle, a queda bruta de AUC atribui ao Concept Drift o custo
+    de substituir os rótulos originais pelo substituto logístico.
+    """
+    reference = _reference_frame(tmp_path)
+    model, mean, std = _fit_baseline(reference)
+    features = reference.drop(columns=[TARGET])
+    standardized = (features.to_numpy(dtype=float) - mean) / std
+    original_auc = roc_auc_score(reference[TARGET], model.predict_proba(standardized)[:, 1])
+
+    concept_model = fit_concept_model(reference, TARGET)
+    control = apply_concept_drift(reference, concept_model, 0.0, 0.5, TARGET)
+    drifted = apply_concept_drift(reference, concept_model, 1.0, 0.5, TARGET)
+    control_auc = roc_auc_score(control[TARGET], model.predict_proba(standardized)[:, 1])
+    drifted_auc = roc_auc_score(drifted[TARGET], model.predict_proba(standardized)[:, 1])
+
+    assert control_auc != original_auc
+    # O gerador de rótulos tem custo próprio: ignorá-lo enviesa a estimativa
+    # de Concept Drift. A correção desloca a queda exatamente por esse custo.
+    generator_offset = control_auc - original_auc
+    raw_drop = original_auc - drifted_auc
+    adjusted_drop = control_auc - drifted_auc
+    assert abs(generator_offset) > 0.005
+    assert abs(adjusted_drop - raw_drop) > 0.005

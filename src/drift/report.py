@@ -167,17 +167,25 @@ def render_statistical_summary(report: dict, performance: list[dict] | None = No
         perf_rows: list[list[str]] = []
         for entry in performance:
             auc_drop = entry.get("reference_auc", 0.0) - entry.get("roc_auc", 0.0)
+            adjusted = entry.get("concept_drift_adjusted")
             perf_rows.append(
                 [
                     f"M{entry.get('month', '?')}",
                     f"{float(entry.get('roc_auc', 0.0)):.4f}",
                     f"{auc_drop:.4f}",
+                    f"{float(adjusted):.4f}" if adjusted is not None else "—",
                     f"{float(entry.get('label_drift', 0.0)):.4f}",
                 ]
             )
         lines.extend(
             _markdown_table(
-                ["Mês", "ROC-AUC", "Queda vs baseline (concept drift)", "Label drift P(Y)"],
+                [
+                    "Mês",
+                    "ROC-AUC",
+                    "Queda vs baseline (concept drift)",
+                    "Concept drift ajustado",
+                    "Label drift P(Y)",
+                ],
                 perf_rows,
             )
         )

@@ -23,10 +23,20 @@
     "model_auc_drop": 0.15257132266717244,
     "is_breach": true,
     "tasks": {
-      "n_events": 572,
-      "n_failed": 113,
-      "total_latency_ms": 518302.62,
-      "rows_processed": 7479463
+      "n_events": 672,
+      "n_failed": 120,
+      "total_latency_ms": 559337.31,
+      "rows_processed": 10223388,
+      "last_status": {
+        "monitoramento": "success",
+        "validacao": "success",
+        "ingestao": "success",
+        "treino": "success",
+        "drift": "success",
+        "inferencia": "success",
+        "demo_drift": "success"
+      },
+      "failed_tasks": []
     },
     "slo_status": "critical"
   },
@@ -199,10 +209,15 @@
   "retrain_decision": "retrain",
   "challenger_auc": 0.629590019220014,
   "fairness_passed": false,
+  "fairness_mitigation": {
+    "strategy": "equal_opportunity_group_thresholds",
+    "passes_before": false,
+    "passes_after": true
+  },
   "tracking": {
-    "tracked": false,
-    "model_version": null,
-    "uri": null,
+    "tracked": true,
+    "model_version": "9",
+    "uri": "models:/m-318a8aed4bbf4e0a8e530b48f6debb7c",
     "gates": {
       "passed": true,
       "missing": []

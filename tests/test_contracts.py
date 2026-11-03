@@ -8,6 +8,8 @@ import pandera.errors as pa_errors
 import pytest
 
 import src.contracts.validate as validate_module
+import src.observability.logging as logging_module
+from src.contracts.payload import CreditScoreRequest
 from src.contracts.schema import (
     CREDIT_CONTRACT,
     LIMIT_BAL_MAX,
@@ -48,6 +50,44 @@ def test_limit_bal_outside_range_is_blocked(credit_frame):
     assert int((err.value.failure_cases["check"].str.contains("in_range")).sum()) == 2
 
 
+def test_duplicate_only_batch_is_blocked(credit_frame):
+    """Um lote só com duplicatas é bloqueado (edital: "sem duplicatas")."""
+    import pandas as pd
+
+    frame = pd.concat([credit_frame, credit_frame.head(5)], ignore_index=True)
+    with pytest.raises(pa_errors.SchemaErrors) as err:
+        CREDIT_CONTRACT.validate(frame, lazy=True)
+    checks = " ".join(str(value) for value in err.value.failure_cases["check"])
+    assert "duplicad" in checks.lower()
+
+    with pytest.raises(pa_errors.SchemaErrors):
+        CreditSchema.validate(frame, lazy=True)
+
+
+def test_duplicate_quality_marks_batch_invalid(credit_frame):
+    """A dimensão de validade acompanha a regra de tabela (lote inválido)."""
+    import pandas as pd
+
+    from src.contracts.quality import compute_quality
+
+    frame = pd.concat([credit_frame, credit_frame.head(3)], ignore_index=True)
+    quality = compute_quality(frame)
+    assert quality["n_duplicate_rows"] == 3
+    assert quality["validity"] == 0.0
+    assert quality["n_invalid_rows"] == len(frame)
+
+
+def test_payload_enforces_contract_limit_bal(credit_frame):
+    """O payload de inferência espelha o intervalo de LIMIT_BAL do contrato."""
+    record = credit_frame.iloc[0].drop(labels=["default_next_month"]).to_dict()
+    assert CreditScoreRequest(**record).LIMIT_BAL >= LIMIT_BAL_MIN
+
+    with pytest.raises(ValueError):
+        CreditScoreRequest(**{**record, "LIMIT_BAL": LIMIT_BAL_MIN - 1.0})
+    with pytest.raises(ValueError):
+        CreditScoreRequest(**{**record, "LIMIT_BAL": LIMIT_BAL_MAX + 1.0})
+
+
 def test_validate_batch_reports_quality(tmp_path, monkeypatch, credit_frame):
     """O relatório de um lote válido inclui as dimensões de qualidade."""
     batch_path = tmp_path / "valid.parquet"
@@ -73,6 +113,7 @@ def test_corrupted_batch_exits_with_code_1(tmp_path, monkeypatch, bad_frame):
     result_path = tmp_path / "validation" / "result.json"
     monkeypatch.setattr(validate_module, "REFERENCE_DATA_PATH", batch_path)
     monkeypatch.setattr(validate_module, "VALIDATION_RESULT_PATH", result_path)
+    monkeypatch.setattr(logging_module, "LOG_PATH", tmp_path / "pipeline.ndjson")
 
     report = validate_module.validate_batch()
     assert report["status"] == "failed"
@@ -89,6 +130,7 @@ def test_main_accepts_path_argument(tmp_path, monkeypatch, bad_frame):
     batch_path = tmp_path / "bad.parquet"
     bad_frame.to_parquet(batch_path, index=False)
     monkeypatch.setattr(validate_module, "VALIDATION_RESULT_PATH", tmp_path / "result.json")
+    monkeypatch.setattr(logging_module, "LOG_PATH", tmp_path / "pipeline.ndjson")
 
     with pytest.raises(SystemExit) as excinfo:
         validate_module.main([str(batch_path)])

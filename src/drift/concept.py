@@ -30,6 +30,7 @@ __all__ = [
     "apply_concept_drift",
     "prior_label_drift",
     "evaluate_snapshots",
+    "evaluate_concept_control",
 ]
 
 # Direções "espúrias" (não-direcionais do risco real) usadas na rotação.
@@ -219,3 +220,38 @@ def evaluate_snapshots(
         metrics["concept_drift"] = float(reference_auc - metrics["roc_auc"])
         results.append(metrics)
     return results
+
+
+def evaluate_concept_control(
+    snapshots: list[pd.DataFrame],
+    model: ConceptModel,
+    strength: float,
+    target: str = TARGET_COLUMN,
+) -> list[float]:
+    """ROC-AUC de controle com rótulos sintéticos **sem** rotação (``progress=0``).
+
+    O simulador substitui os rótulos originais por um substituto logístico
+    ajustado na referência. Esse substituto tem um custo de AUC próprio, que
+    não é Concept Drift. Rodando o mesmo gerador com ``progress=0`` medimos
+    esse piso e isolamos a mudança real de ``P(y|X)``::
+
+        concept_drift_adjusted = auc_controle(mês) - auc_real(mês)
+
+    Args:
+        snapshots: Snapshots de produção em ordem temporal.
+        model: Modelo latente ajustado na referência.
+        strength: Força do Concept Drift configurada (constante no controle).
+        target: Nome da coluna alvo.
+
+    Returns:
+        ROC-AUC do modelo campeão em cada snapshot de controle.
+    """
+    bundle = load_model()
+    aucs: list[float] = []
+    for snapshot in snapshots:
+        control = apply_concept_drift(
+            snapshot, model, progress=0.0, strength=strength, target=target
+        )
+        probabilities = predict_proba(control, bundle)
+        aucs.append(float(evaluate_frame(control, probabilities, target)["roc_auc"]))
+    return aucs

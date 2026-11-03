@@ -11,11 +11,11 @@ PYTHON := uv run python
 	help \
 	sync setup verify \
 	test lint \
-	pipeline ingestao validacao treino drift monitoramento demo-drift \
+	pipeline ingestao validacao treino drift monitoramento demo-drift bad-batch \
 	data-download data-synthetic \
 	dvc-remote \
 	docker-build \
-	mlflow-up mlflow-down \
+	mlflow-up mlflow-down mlflow-export \
 	dashboard-up dashboard-down \
 	monitoring-up monitoring-down
 
@@ -44,10 +44,12 @@ help:
 	@echo "  make drift          - Reexecutar stage de drift"
 	@echo "  make monitoramento  - Reexecutar stage de monitoramento"
 	@echo "  make demo-drift     - Demo autocontido de drift (choque econômico + resumo no terminal)"
+	@echo "  make bad-batch      - Prova que o contrato BLOQUEIA um lote corrompido (exit != 0)"
 	@echo ""
 	@echo "Docker:"
 	@echo "  make docker-build   - Construir imagem Docker da aplicação"
 	@echo "  make mlflow-up      - Subir MLflow tracking server (Docker)"
+	@echo "  make mlflow-export  - Exportar Registry (versões/aliases) para reports/monitoring/"
 	@echo "  make mlflow-down    - Parar MLflow"
 	@echo "  make dashboard-up   - Subir dashboard Streamlit (Docker)"
 	@echo "  make dashboard-down - Parar dashboard"
@@ -108,6 +110,22 @@ demo-drift:
 	@echo "Executando demo de drift (choque econômico simulado; evidência isolada)..."
 	uv run python -m src.drift.demo $(DEMO_ARGS)
 
+# Etapa 1: gera um lote com violações e EXIGE que a validação falhe (exit != 0).
+# O log vai para um arquivo próprio: uma falha *intencional* de demonstração não
+# deve contaminar a saúde operacional do pipeline (logs/pipeline.ndjson).
+bad-batch:
+	@echo "Gerando lote corrompido..."
+	PYTHONPATH=. uv run python scripts/make_bad_batch.py
+	@set +e; \
+	PIPELINE_LOG_PATH=reports/validation/bad_batch_pipeline.ndjson \
+	uv run python -m src.contracts.validate data/corrupted/bad_batch.parquet reports/validation/bad_batch_result.json; \
+	code=$$?; \
+	if [ $$code -eq 0 ]; then \
+		echo "[FAIL] O contrato NÃO bloqueou o lote corrompido."; \
+		exit 1; \
+	fi; \
+	echo "[OK] Contrato bloqueou o lote corrompido (exit $$code). Evidência: reports/validation/bad_batch_result.json"
+
 dvc-remote:
 	@URL=$$(grep DVC_ONEDRIVE_REMOTE_URL .env 2>/dev/null | cut -d= -f2-); \
 	if [ -n "$$URL" ]; then \
@@ -152,6 +170,10 @@ mlflow-up:
 
 mlflow-down:
 	docker compose -f docker/docker-compose.yml --profile mlflow down
+
+mlflow-export:
+	@echo "Exportando Registry do MLflow para reports/monitoring/mlflow_registry.json..."
+	PYTHONPATH=. uv run python scripts/export_mlflow_registry.py
 
 dashboard-up:
 	@echo "Subindo dashboard Streamlit..."

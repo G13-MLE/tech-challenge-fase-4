@@ -1,0 +1,93 @@
+{
+  "tracking_uri": "http://localhost:5001",
+  "model_name": "credit_scoring",
+  "aliases": {
+    "champion": "1",
+    "challenger": "9"
+  },
+  "n_versions": 9,
+  "latest_version": "9",
+  "latest_run_id": "3faf077fa07141ce9e4d29b2a4780f1e",
+  "latest_metrics": {
+    "roc_auc": 0.7613084866851156,
+    "precision": 0.6926829268292682,
+    "recall": 0.3219954648526077,
+    "brier": 0.13846991956233978,
+    "n_train": 23837.0,
+    "n_test": 5960.0
+  },
+  "versions": [
+    {
+      "version": "1",
+      "run_id": "e667673e52034e92804fea89870c3d88",
+      "status": "READY",
+      "creation_timestamp": 1791674463235,
+      "current_stage": "None",
+      "aliases": []
+    },
+    {
+      "version": "2",
+      "run_id": "629c7502bf764ad393d014f0ff4d8a8d",
+      "status": "READY",
+      "creation_timestamp": 1791760761081,
+      "current_stage": "None",
+      "aliases": []
+    },
+    {
+      "version": "3",
+      "run_id": "40dfce9fd7f84bd787dc216628d6e81c",
+      "status": "READY",
+      "creation_timestamp": 1791760897419,
+      "current_stage": "None",
+      "aliases": []
+    },
+    {
+      "version": "4",
+      "run_id": "f77211d828104be78b76818f3d0178ac",
+      "status": "READY",
+      "creation_timestamp": 1791805225444,
+      "current_stage": "None",
+      "aliases": []
+    },
+    {
+      "version": "5",
+      "run_id": "d94989ec979e4d69ac9556cf0105456b",
+      "status": "READY",
+      "creation_timestamp": 1791811047898,
+      "current_stage": "None",
+      "aliases": []
+    },
+    {
+      "version": "6",
+      "run_id": "f6b72c86a2eb4238b9412f53cd6854c3",
+      "status": "READY",
+      "creation_timestamp": 1791830608774,
+      "current_stage": "None",
+      "aliases": []
+    },
+    {
+      "version": "7",
+      "run_id": "26d01770a4dd47b2845173ee7b118fd5",
+      "status": "READY",
+      "creation_timestamp": 1791851206463,
+      "current_stage": "None",
+      "aliases": []
+    },
+    {
+      "version": "8",
+      "run_id": "ccce2ee81a0d47d2a0626dccbd7bca1b",
+      "status": "READY",
+      "creation_timestamp": 1793734660501,
+      "current_stage": "None",
+      "aliases": []
+    },
+    {
+      "version": "9",
+      "run_id": "3faf077fa07141ce9e4d29b2a4780f1e",
+      "status": "READY",
+      "creation_timestamp": 1793734717462,
+      "current_stage": "None",
+      "aliases": []
+    }
+  ]
+}

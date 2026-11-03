@@ -13,6 +13,7 @@ import logging
 from src.core.dataset import (
     DRIFT_REPORT_PATH,
     FAIRNESS_DIR,
+    HEALTH_HTML_PATH,
     MODEL_PATH,
     PERFORMANCE_PATH,
     PRODUCTION_DIR,
@@ -39,6 +40,7 @@ from src.observability.fairness import (
 )
 from src.observability.logging import LOG_PATH, TaskTimer
 from src.observability.metrics import aggregate_health
+from src.observability.report_html import render_health_html
 from src.observability.retrain import decide_retrain
 from src.observability.slo import MonitoringPipeline
 from src.observability.tracking import MODEL_NAME, log_model_run
@@ -143,10 +145,21 @@ def run() -> dict:
         "retrain_decision": retrain["decision"],
         "challenger_auc": challenger_auc,
         "fairness_passed": fairness.get("passes"),
+        "fairness_mitigation": {
+            "strategy": fairness.get("mitigation", {}).get("strategy"),
+            "passes_before": fairness.get("mitigation", {}).get("passes_before"),
+            "passes_after": fairness.get("mitigation", {}).get("passes_after"),
+        },
         "tracking": tracking,
         "n_rows": int(n_rows),
     }
     atomic_write_text(RUN_SUMMARY_PATH, json.dumps(summary, indent=2))
+    fairness_path = FAIRNESS_DIR / "fairness_report.json"
+    fairness_evidence = _load_json(fairness_path)
+    atomic_write_text(
+        HEALTH_HTML_PATH,
+        render_health_html(summary, statistical, performance, slo_report, fairness_evidence),
+    )
     logger.info(
         "Observabilidade consolidada: %d alertas, SLO=%s, retrain=%s.",
         len(alerts),

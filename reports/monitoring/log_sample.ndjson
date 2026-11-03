@@ -1,0 +1,24 @@
+{"latency_ms": 0.0, "n_rows": 0, "run_id": "aae78c87446e", "status": "started", "task": "ingestao", "timestamp": 1793734695.4759831, "trace_id": "6a1d671339e3"}
+{"latency_ms": 6104.65, "n_rows": 29797, "run_id": "aae78c87446e", "status": "success", "task": "ingestao", "timestamp": 1793734701.580656, "trace_id": "6a1d671339e3"}
+{"latency_ms": 0.0, "n_rows": 0, "run_id": "aae78c87446e", "status": "started", "task": "validacao", "timestamp": 1793734702.805145, "trace_id": "6b8c48d29c41"}
+{"latency_ms": 1115.02, "n_rows": 29797, "run_id": "aae78c87446e", "status": "success", "task": "validacao", "timestamp": 1793734703.920167, "trace_id": "6b8c48d29c41"}
+{"latency_ms": 0.0, "n_rows": 0, "run_id": "aae78c87446e", "status": "started", "task": "treino", "timestamp": 1793734707.623361, "trace_id": "966a41b4268c"}
+{"latency_ms": 550.47, "n_rows": 29797, "run_id": "aae78c87446e", "status": "success", "task": "treino", "timestamp": 1793734708.1738272, "trace_id": "966a41b4268c"}
+{"latency_ms": 0.0, "n_rows": 0, "run_id": "aae78c87446e", "status": "started", "task": "drift", "timestamp": 1793734709.218285, "trace_id": "64545a4a7361"}
+{"model_name": "xgboost", "model_version": "1cf1dca3bcec", "n_rows": 29797, "run_id": "aae78c87446e", "status": "success", "task": "inferencia", "timestamp": 1793734710.987316, "trace_id": "64545a4a7361"}
+{"model_name": "xgboost", "model_version": "1cf1dca3bcec", "n_rows": 29797, "run_id": "aae78c87446e", "status": "success", "task": "inferencia", "timestamp": 1793734711.007349, "trace_id": "64545a4a7361"}
+{"model_name": "xgboost", "model_version": "1cf1dca3bcec", "n_rows": 29797, "run_id": "aae78c87446e", "status": "success", "task": "inferencia", "timestamp": 1793734711.026612, "trace_id": "64545a4a7361"}
+{"model_name": "xgboost", "model_version": "1cf1dca3bcec", "n_rows": 29797, "run_id": "aae78c87446e", "status": "success", "task": "inferencia", "timestamp": 1793734711.04645, "trace_id": "64545a4a7361"}
+{"model_name": "xgboost", "model_version": "1cf1dca3bcec", "n_rows": 29797, "run_id": "aae78c87446e", "status": "success", "task": "inferencia", "timestamp": 1793734711.066924, "trace_id": "64545a4a7361"}
+{"model_name": "xgboost", "model_version": "1cf1dca3bcec", "n_rows": 29797, "run_id": "aae78c87446e", "status": "success", "task": "inferencia", "timestamp": 1793734711.087978, "trace_id": "64545a4a7361"}
+{"model_name": "xgboost", "model_version": "1cf1dca3bcec", "n_rows": 29797, "run_id": "aae78c87446e", "status": "success", "task": "inferencia", "timestamp": 1793734711.127876, "trace_id": "64545a4a7361"}
+{"model_name": "xgboost", "model_version": "1cf1dca3bcec", "n_rows": 29797, "run_id": "aae78c87446e", "status": "success", "task": "inferencia", "timestamp": 1793734711.157595, "trace_id": "64545a4a7361"}
+{"model_name": "xgboost", "model_version": "1cf1dca3bcec", "n_rows": 29797, "run_id": "aae78c87446e", "status": "success", "task": "inferencia", "timestamp": 1793734711.1888928, "trace_id": "64545a4a7361"}
+{"model_name": "xgboost", "model_version": "1cf1dca3bcec", "n_rows": 29797, "run_id": "aae78c87446e", "status": "success", "task": "inferencia", "timestamp": 1793734711.218984, "trace_id": "64545a4a7361"}
+{"model_name": "xgboost", "model_version": "1cf1dca3bcec", "n_rows": 29797, "run_id": "aae78c87446e", "status": "success", "task": "inferencia", "timestamp": 1793734711.249017, "trace_id": "64545a4a7361"}
+{"model_name": "xgboost", "model_version": "1cf1dca3bcec", "n_rows": 29797, "run_id": "aae78c87446e", "status": "success", "task": "inferencia", "timestamp": 1793734711.2786372, "trace_id": "64545a4a7361"}
+{"latency_ms": 3846.05, "n_rows": 178782, "run_id": "aae78c87446e", "status": "success", "task": "drift", "timestamp": 1793734713.0643442, "trace_id": "64545a4a7361"}
+{"latency_ms": 0.0, "n_rows": 0, "run_id": "aae78c87446e", "status": "started", "task": "monitoramento", "timestamp": 1793734713.759094, "trace_id": "0201743684b7"}
+{"model_name": "xgboost", "model_version": "1cf1dca3bcec", "n_rows": 29797, "run_id": "aae78c87446e", "status": "success", "task": "inferencia", "timestamp": 1793734714.4301429, "trace_id": "0201743684b7"}
+{"model_name": "xgboost", "model_version": "1cf1dca3bcec", "n_rows": 29797, "run_id": "aae78c87446e", "status": "success", "task": "inferencia", "timestamp": 1793734714.439293, "trace_id": "0201743684b7"}
+{"model_name": "xgboost", "model_version": "1cf1dca3bcec", "n_rows": 29797, "run_id": "aae78c87446e", "status": "success", "task": "inferencia", "timestamp": 1793734714.447978, "trace_id": "0201743684b7"}

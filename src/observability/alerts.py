@@ -14,7 +14,7 @@ from src.core.params import load_params
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["build_alerts", "consolidate_history_alerts"]
+__all__ = ["build_alerts", "build_task_failure_alerts", "consolidate_history_alerts"]
 
 
 def _severity_by_feature(history: list[dict]) -> dict[str, list[str]]:
@@ -119,5 +119,32 @@ def build_alerts(
                 ),
             }
         )
+    alerts.extend(build_task_failure_alerts(health))
     logger.info("Alertas consolidados: %d.", len(alerts))
     return alerts
+
+
+def build_task_failure_alerts(health: dict) -> list[dict]:
+    """Emite um alerta por estágio cuja última execução falhou (Etapa 3).
+
+    Diferente de ``health["tasks"]["n_failed"]`` (contagem histórica, que
+    nunca volta a zero), olha o status da **última** execução de cada tarefa
+    no log centralizado — exatamente o que o edital pede em "status de
+    execução das tarefas do pipeline" e "alertas de falha".
+
+    Args:
+        health: Bloco de saúde agregado (com ``tasks`` preenchido).
+
+    Returns:
+        Lista de alertas ``task_failure`` (vazia quando não há falha).
+    """
+    failed_tasks = health.get("tasks", {}).get("failed_tasks", [])
+    return [
+        {
+            "type": "task_failure",
+            "severity": "high",
+            "task": task,
+            "message": f"Última execução da tarefa '{task}' terminou com status failed.",
+        }
+        for task in failed_tasks
+    ]

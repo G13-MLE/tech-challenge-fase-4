@@ -13,8 +13,8 @@ stages:
       size: 2867208
     - path: src/core/dataset.py
       hash: md5
-      md5: f5ff42b7ea35dad7f7dcee9311057dbc
-      size: 8754
+      md5: 3a8b983ce7677e98c8fcd88e0f972096
+      size: 8836
     - path: src/core/params.py
       hash: md5
       md5: 8dcba6773a35f0e151a6c9af6a014488
@@ -70,20 +70,20 @@ stages:
       size: 2767
     - path: src/contracts/quality.py
       hash: md5
-      md5: 3a790b521112776f6bb9131b66264947
-      size: 6086
+      md5: 6f338634a5e741d00ad76f7ecb3989ac
+      size: 6367
     - path: src/contracts/schema.py
       hash: md5
-      md5: 1b58c3b8db9a98362d5a61ce038c4cfd
-      size: 4379
+      md5: 0c960678f06abac589dd37cbb04d4c58
+      size: 5007
     - path: src/contracts/validate.py
       hash: md5
       md5: 9b7593d87677e06128f6b0e6144950d7
       size: 4569
     - path: src/core/dataset.py
       hash: md5
-      md5: f5ff42b7ea35dad7f7dcee9311057dbc
-      size: 8754
+      md5: 3a8b983ce7677e98c8fcd88e0f972096
+      size: 8836
     - path: src/data/missingness.py
       hash: md5
       md5: 16ebcd5940baf6731fcdf7b6f4fc8efe
@@ -95,7 +95,7 @@ stages:
     outs:
     - path: reports/validation/profile.html
       hash: md5
-      md5: b04b735892b9dce0ccfa3be24ea13a40
+      md5: c4cc251a38853486dc62fbf61689925b
       size: 3743743
     - path: reports/validation/result.json
       hash: md5
@@ -112,10 +112,18 @@ stages:
       hash: md5
       md5: 55a2dc62e6881a77b3918c3b909cb5e8
       size: 344150
+    - path: reports/validation/result.json
+      hash: md5
+      md5: dacc3473378f903be4f2df34b1076ce7
+      size: 5399
+    - path: src/contracts/schema.py
+      hash: md5
+      md5: 0c960678f06abac589dd37cbb04d4c58
+      size: 5007
     - path: src/core/dataset.py
       hash: md5
-      md5: f5ff42b7ea35dad7f7dcee9311057dbc
-      size: 8754
+      md5: 3a8b983ce7677e98c8fcd88e0f972096
+      size: 8836
     - path: src/core/params.py
       hash: md5
       md5: 8dcba6773a35f0e151a6c9af6a014488
@@ -158,16 +166,16 @@ stages:
       size: 1678
     - path: src/core/dataset.py
       hash: md5
-      md5: f5ff42b7ea35dad7f7dcee9311057dbc
-      size: 8754
+      md5: 3a8b983ce7677e98c8fcd88e0f972096
+      size: 8836
     - path: src/core/params.py
       hash: md5
       md5: 8dcba6773a35f0e151a6c9af6a014488
       size: 10323
     - path: src/drift/concept.py
       hash: md5
-      md5: a585cd90ece794b8248f8c2ccffa2585
-      size: 7934
+      md5: 3ee0b4ba39288da56b03bb3e38c96039
+      size: 9277
     - path: src/drift/detect.py
       hash: md5
       md5: a6597f94b1ac7fb062e31c9ce2e44e9f
@@ -178,12 +186,12 @@ stages:
       size: 9886
     - path: src/drift/report.py
       hash: md5
-      md5: 77f1ac1379f05d47bc06de5a7eb57d3f
-      size: 7799
+      md5: 3e34a5a9f45152c2dedfbfe190f699d3
+      size: 8084
     - path: src/drift/run.py
       hash: md5
-      md5: d0c16a46473c165052da37fd67f2af76
-      size: 4606
+      md5: 23ac46e02014712d8408c9999bbdd015
+      size: 5384
     - path: src/drift/simulate.py
       hash: md5
       md5: 8c7a64130345dd6f1dbb56dae8398abc
@@ -200,6 +208,10 @@ stages:
       hash: md5
       md5: ca5045bea2a852cbd647f68bc89d0a43
       size: 1748
+    - path: src/observability/logging.py
+      hash: md5
+      md5: 6f0fe9052a16300c0300e1fd2845f51a
+      size: 5136
     outs:
     - path: data/production
       hash: md5
@@ -208,7 +220,7 @@ stages:
       nfiles: 6
     - path: reports/drift/drift_report.html
       hash: md5
-      md5: 6d83221653679872f4af95f3687989c4
+      md5: ad3be1cc03c7f2dca7102d21e26e3984
       size: 4082144
     - path: reports/drift/drift_test_result.json
       hash: md5
@@ -216,16 +228,16 @@ stages:
       size: 2467
     - path: reports/drift/performance.json
       hash: md5
-      md5: e7ab695092520e7fc84eda7630cfe86e
-      size: 11944
+      md5: 302d6f6909db5819fda721549c963164
+      size: 12486
     - path: reports/drift/statistical_report.json
       hash: md5
       md5: c6bc5a4ab9d86e8c3394c84195dd099c
       size: 8803
     - path: reports/drift/statistical_summary.md
       hash: md5
-      md5: 985bee2b28f2f42400aba1e1ee26ec73
-      size: 3050
+      md5: ef3e35ae8182f247abbcbf1f112b9046
+      size: 3135
   monitoramento:
     cmd: uv run python -m src.observability.run
     deps:
@@ -248,8 +260,8 @@ stages:
       size: 501405
     - path: reports/drift/performance.json
       hash: md5
-      md5: e7ab695092520e7fc84eda7630cfe86e
-      size: 11944
+      md5: 302d6f6909db5819fda721549c963164
+      size: 12486
     - path: reports/drift/statistical_report.json
       hash: md5
       md5: c6bc5a4ab9d86e8c3394c84195dd099c
@@ -264,31 +276,35 @@ stages:
       size: 5399
     - path: src/core/dataset.py
       hash: md5
-      md5: f5ff42b7ea35dad7f7dcee9311057dbc
-      size: 8754
+      md5: 3a8b983ce7677e98c8fcd88e0f972096
+      size: 8836
     - path: src/model/predict.py
       hash: md5
       md5: ca5045bea2a852cbd647f68bc89d0a43
       size: 1748
     - path: src/observability
       hash: md5
-      md5: 18976a8a180d860b9aa1b1027373ac8e.dir
-      size: 55355
-      nfiles: 10
+      md5: 6c06f96e0bbbad5e31e1270b8243bb68.dir
+      size: 73380
+      nfiles: 11
     outs:
     - path: reports/fairness
       hash: md5
-      md5: df6ebec638ce8d3aacaf29ce121e84e1.dir
-      size: 10694
-      nfiles: 2
+      md5: b92058392c761179618e287e9b082216.dir
+      size: 17113
+      nfiles: 3
+    - path: reports/monitoring/health.html
+      hash: md5
+      md5: ba1807e038b06d2f51b9550d45b98865
+      size: 7239
     - path: reports/monitoring/retrain_decision.json
       hash: md5
       md5: 2ec8b1251403749c56116da52c8917e5
       size: 614
     - path: reports/monitoring/run_summary.json
       hash: md5
-      md5: 2bd5ec40da6c81ec074d802abad63d61
-      size: 5015
+      md5: cd08272d5eaaa368e7b22aaf7da0b449
+      size: 5472
     - path: reports/monitoring/slo_report.json
       hash: md5
       md5: 15387a3f38472b86cce5e17fd5df4321

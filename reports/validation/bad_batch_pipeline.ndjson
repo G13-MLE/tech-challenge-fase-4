@@ -1,0 +1,2 @@
+{"task": "validacao", "status": "started", "timestamp": 1793734721.7680361, "run_id": "f3a3e6705fb7", "trace_id": "f0a9402b6862", "latency_ms": 0.0, "n_rows": 0}
+{"task": "validacao", "status": "failed", "timestamp": 1793734722.024086, "run_id": "f3a3e6705fb7", "trace_id": "f0a9402b6862", "latency_ms": 256.05, "n_rows": 201}

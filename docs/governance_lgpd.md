@@ -23,39 +23,69 @@ comitadas; `.env` é ignorado pelo Git.
 
 ## 2. Base legal (LGPD)
 
-- **Decisão de crédito / análise de risco**: LGPD **art. 7º, X** (legítimo interesse) e **art. 11,
-  II, d** para dados sensíveis, quando aplicável — tratamento necessário para a análise de risco de
-  crédito e proteção ao crédito (cf. art. 5º, II e a regulamentação do Bacen/CMN sobre risco).
+- **Decisão de crédito / análise de risco**: LGPD **art. 7º, X** — tratamento necessário *para a
+  proteção do crédito*, inclusive quanto ao disposto na legislação pertinente (Bacen/CMN). Como base
+  secundária, quando o titular já é cliente e há expectativa legítima, admite-se o **art. 7º, IX**
+  (legítimo interesse), sempre precedido de teste de balanceamento.
+- **Não há tratamento de dado pessoal sensível** (art. 5º, II): o dataset contém dados financeiros e
+  demográficos, mas não origem racial/étnica, convicção religiosa, opinião política, dado de saúde,
+  biometria ou vida sexual. O art. 11 **não** é invocado; se um dado sensível fosse incorporado, o
+  tratamento exigiria hipótese autônoma do art. 11.
 - **Finalidade**: avaliação de risco de inadimplência e concessão de crédito. Os dados **não** são
-  reutilizados para finalidade incompatível.
-- **Transparência**: o titular tem direito a revisão de decisões automatizadas (LGPD **art. 20**); o
-  pipeline preserva versão do modelo (MLflow Registry, aliases `champion`/`challenger`) para viabilizar
-  explicação e contestação.
+  reutilizados para finalidade incompatível (art. 6º, I).
+- **Transparência e revisão**: o titular tem direito a **revisão de decisões automatizadas**
+  (LGPD **art. 20**) e à explicação dos critérios; o pipeline preserva a versão do modelo no MLflow
+  Registry (aliases `champion`/`challenger`) para viabilizar explicação e contestação.
 
 ## 3. Retenção e ciclo de vida
 
-| Artefato | Retenção | Justificativa |
-| -------- | -------- | ------------- |
-| Dados brutos (`data/raw/`) | versão do pipeline (DVC) | reprodutibilidade |
-| Dataset de referência / snapshots | versão do pipeline | auditoria do modelo |
-| Relatórios (`reports/**`) | histórico do repositório | evidência de governança |
-| Logs (`logs/`) | rotação local (não versionados) | operação |
-| Modelos (`models/`) | registry MLflow + alias | rastreabilidade de decisões |
+| Artefato | Retenção | Descarte | Justificativa |
+| -------- | -------- | -------- | ------------- |
+| Dados brutos (`data/raw/`) | 24 meses após a última execução que os utilizou | exclusão do cache DVC + `dvc gc` | reprodutibilidade limitada ao ciclo de auditoria |
+| Dataset de referência e snapshots (`data/reference/`, `data/production/`) | 24 meses | idem | auditoria do modelo e dos incidentes de drift |
+| Relatórios (`reports/**`) | 5 anos | remoção versionada com registro em changelog | evidência de governança e prestação de contas (Bacen/CMN) |
+| Logs (`logs/`) | 90 dias, com rotação diária | rotação automática + expurgo | operação e investigação de incidentes |
+| Modelos (`models/`, MLflow Registry) | 2 gerações (`champion` + `challenger`) | arquivamento no Registry | rastreabilidade de decisões e rollback |
+| Segredos (`.env`) | enquanto válidos | revogação imediata | segurança |
 
-Recomenda-se **anonimização irreversível ou descarte** ao final do ciclo de vida e a não retenção além
-do necessário à finalidade.
+**Direitos do titular (LGPD art. 18)**: confirmação de tratamento, acesso, correção, anonimização,
+bloqueio ou eliminação de dados desnecessários, portabilidade, informação sobre compartilhamento e
+revisão de decisão automatizada. O canal é o encarregado (DPO) da fintech; pedidos de eliminação são
+atendidos em até 15 dias, removendo a linha do dataset de referência/produção e registrando a operação.
+Como o identificador direto (`ID`) já é removido na ingestão, a eliminação por titular pressupõe o
+mapeamento no sistema de origem — o pipeline analítico não mantém esse vínculo por design.
 
 ## 4. Mitigação de vieses e fairness
 
 - **Guardrails objetivos** (`src/observability/fairness.py`, `configs/params.yaml`):
   - **Razão de impacto dispar ≥ 0.8** (regra dos 80%) por `SEX` e faixas de `AGE`.
   - **Diferença de equal opportunity (TPR) ≤ 0.10** entre subgrupos.
-- **Monitoramento contínuo**: fairness avaliada a cada snapshot e persistida em `reports/fairness/`.
 - **Promoção de challenger**: um novo modelo só é promovível se **AUC ≥ champion** **E** os guardrails
   de fairness forem satisfeitos; **nunca** há promoção automática (`src/observability/retrain.py`).
-- **Dados sensíveis como proxy de risco**: `SEX`, `MARRIAGE` e `EDUCATION` podem ser proxies espúrios;
-  o plano é revisar a inclusão dessas features com o time jurídico/negócio e, se possível, removê-las,
-  mantendo-as apenas para auditoria de viés.
+- **Monitoramento contínuo**: fairness avaliada a cada snapshot e persistida em `reports/fairness/`.
+
+### 4.1 Mitigação implementada (não apenas medida)
+
+`mitigate_fairness()` aplica **pós-processamento de limiar por subgrupo**: cada grupo recebe um limiar
+de decisão calibrado para igualar seu TPR ao TPR global do modelo. O resultado é versionado em
+`reports/fairness/fairness_mitigation.json` com o antes/depois por subgrupo e os limiares usados.
+
+| Subgrupo | ΔTPR antes | ΔTPR depois | Limiares por grupo |
+| -------- | ---------- | ----------- | ------------------ |
+| `SEX` | 0.065 | **0.005** | 1 → 0.57 · 2 → 0.47 |
+| `AGE_BIN` | 0.254 | **0.005** | `<30` → 0.18 · `30-44` → 0.38 · `45-59` → 0.62 · `60+` → 0.59 |
+
+**Trade-off declarado**: equalizar o TPR aumenta a taxa de detecção de inadimplência no grupo
+favorecido, o que **reduz a aprovação** desse grupo — ou seja, troca-se parte da paridade demográfica
+por equal opportunity. A escolha do ponto de operação é decisão de negócio/jurídico, documentada e
+revisável; o pipeline **mede** os dois lados e não promove modelo automaticamente.
+
+### 4.2 Mitigação planejada (fora do escopo desta entrega)
+
+`SEX`, `MARRIAGE` e `EDUCATION` podem ser proxies espúrios de risco. O plano é revisar a inclusão
+dessas features com jurídico/negócio e, se possível, removê-las do treino, mantendo-as apenas para
+auditoria de viés. Isso exige retreino e reavaliação de AUC — por isso está explicitamente separado da
+mitigação já implementada (limiar por subgrupo).
 
 ## 5. Salvaguarda por dados sintéticos
 

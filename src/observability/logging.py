@@ -26,7 +26,7 @@ __all__ = [
     "resolve_run_id",
 ]
 
-LOG_PATH = Path("logs/pipeline.ndjson")
+LOG_PATH = Path(os.environ.get("PIPELINE_LOG_PATH", "logs/pipeline.ndjson"))
 
 _run_id: ContextVar[str | None] = ContextVar("run_id", default=None)
 _trace_id: ContextVar[str | None] = ContextVar("trace_id", default=None)
