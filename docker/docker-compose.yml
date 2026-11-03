@@ -6,6 +6,10 @@ services:
       - train
     env_file:
       - ../.env
+    environment:
+      # Dentro da rede do compose o MLflow é alcançável pelo nome do serviço;
+      # o .env aponta para localhost (execução fora do Docker).
+      MLFLOW_TRACKING_URI: ${MLFLOW_TRACKING_URI_DOCKER:-http://mlflow:5000}
     volumes:
       - ../data:/app/data
       - ../models:/app/models

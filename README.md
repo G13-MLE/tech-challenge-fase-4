@@ -33,6 +33,7 @@ documenta governança (**LGPD**), análise **causal** e **fairness** — tudo co
 - [Model Card](#model-card)
 - [DPIA](#dpia-resumo)
 - [Análise causal](#análise-causal)
+- [Limitações e próximos passos](#limitações-e-próximos-passos)
 - [Métricas de saúde](#métricas-de-saúde)
 - [CI/CD](#cicd)
 - [Histórico de commits](#histórico-de-commits)
@@ -61,7 +62,7 @@ documenta governança (**LGPD**), análise **causal** e **fairness** — tudo co
 | Container | Docker multi-stage (`python:3.12-slim`), compose com perfis (`train`, `mlflow`, `dashboard`, `monitoring`) |
 | Build | uv + `pyproject.toml` com deps prod/dev separadas |
 | Lint | ruff + pre-commit |
-| Testes | pytest (70 testes) |
+| Testes | pytest (80 testes) |
 
 ## Arquitetura
 
@@ -97,13 +98,14 @@ Design patterns aplicados:
 | 2 | Simulação de Data + Concept Drift em snapshots mensais | ✔ Concluído | `src/drift/simulate.py`, `src/drift/concept.py`, `data/production/` |
 | 2 | Detecção PSI-first + KS/χ² (com correção) + multivariado (MMD²/Energy) | ✔ Concluído | `src/drift/stats.py`, `src/drift/multivariate.py`, `reports/drift/statistical_report.json`, [`reports/drift/statistical_summary.md`](reports/drift/statistical_summary.md) |
 | 2 | Relatório Evidently AI (veredito "drift detectado" alinhado ao PSI) | ✔ Concluído | `src/drift/detect.py`, `reports/drift/drift_report.html` |
-| 3 | Logs centralizados e correlacionados (`run_id`/`trace_id`) | ✔ Concluído | `src/observability/logging.py`, `logs/pipeline.ndjson` |
-| 3 | Métricas de saúde, SLO/Error Budget e alertas anti-fadiga | ✔ Concluído | `src/observability/slo.py`, `src/observability/alerts.py`, `reports/monitoring/` |
-| 3 | Tracking MLflow e dashboard | ✔ Concluído | `src/observability/tracking.py`, `dashboard/app.py` |
+| 3 | Logs centralizados e correlacionados (`run_id`/`trace_id`) | ✔ Concluído | `src/observability/logging.py`, `reports/monitoring/log_sample.ndjson` (amostra versionada) |
+| 3 | Métricas de saúde, SLO/Error Budget e alertas anti-fadiga + falha de tarefa | ✔ Concluído | `src/observability/slo.py`, `src/observability/alerts.py`, `reports/monitoring/` |
+| 3 | Tracking MLflow e dashboard | ✔ Concluído | `src/observability/tracking.py`, `dashboard/app.py`, `run_summary.json` (`tracked=true`) |
 | 3 | Exporter `/metrics` + dashboards (Prometheus/Grafana) | ✔ Concluído | `src/observability/exporter.py`, `docker/grafana/dashboards/credit_drift_monitor.json` |
-| 4 | Governança LGPD/PII, Privacy by Design e retenção | ✔ Concluído | `docs/governance_lgpd.md`, `docs/data_dictionary.md` |
-| 4 | Mitigação de viés / fairness por subgrupo | ✔ Concluído | `src/observability/fairness.py`, `reports/fairness/` |
-| 4 | Análise causal e re-treino com guardrails | ✔ Concluído | `docs/causal_dag.md`, `src/observability/retrain.py` |
+| 3 | Relatório HTML gerado comprovando o monitoramento | ✔ Concluído | `reports/monitoring/health.html`, `src/observability/report_html.py` |
+| 4 | Governança LGPD/PII, Privacy by Design, base legal e retenção com prazos | ✔ Concluído | `docs/governance_lgpd.md`, `docs/data_dictionary.md`, [seção LGPD](#etapa-4--governança-e-lgpd) |
+| 4 | Mitigação de viés / fairness por subgrupo (**implementada**) | ✔ Concluído | `src/observability/fairness.py` (`mitigate_fairness`), `reports/fairness/fairness_mitigation.json` |
+| 4 | Análise causal com identificação e re-treino com guardrails | ✔ Concluído | `docs/causal_dag.md`, [resumo](#análise-causal), `src/observability/retrain.py` |
 | 4 | README completo cobrindo todos os entregáveis | ✔ Concluído | este README |
 | 4 | Vídeo STAR de 5 minutos | ⏳ Link pendente | seção [Vídeo STAR](#vídeo-star), `docs/video_script.md` |
 
@@ -111,9 +113,9 @@ Design patterns aplicados:
 
 | Critério | Peso | Status | Evidência |
 |---|---|---|---|
-| Validação de Dados / Contratos | 25% | ✔ Concluído | 7 regras rígidas (sem nulos, idade, limite de renda, domínios, alvo); contrato Pandera bloqueia lote corrompido com exit 1 (25 violações); dedup 30.000 → 29.797; profile HTML; `reports/validation/` |
+| Validação de Dados / Contratos | 25% | ✔ Concluído | **10 regras rígidas** (9 de coluna + unicidade de linha); contrato Pandera bloqueia lote corrompido com exit 1 (**26 violações**); dedup 30.000 → 29.797; profile HTML; `reports/validation/` |
 | Detecção de Drift | 25% | ✔ Concluído | 6 snapshots Data + Concept Drift; PSI máx. 2.221 (`LIMIT_BAL`); MMD² 0.076 > limiar 0.0039; queda de ROC-AUC 0.761 → 0.609; Evidently |
-| Observabilidade e Logs | 20% | ✔ Concluído | Logs com `run_id`, SLO/Error Budget (`critical`), alertas anti-fadiga, MLflow Registry, dashboard e `/metrics` |
+| Observabilidade e Logs | 20% | ✔ Concluído | Logs com `run_id`, SLO/Error Budget (`critical`), 6 alertas anti-fadiga (e alerta `task_failure` implementado), MLflow (run + versão 9), dashboard, `/metrics` e **`reports/monitoring/health.html`** |
 | Governança / LGPD | 15% | ✔ Concluído | PII/Privacy by Design, DAG causal, fairness com guardrails, Model Card e DPIA |
 | Vídeo STAR | 15% | ⏳ Pendente | roteiro em `docs/video_script.md`; link público a inserir |
 
@@ -127,7 +129,7 @@ Design patterns aplicados:
 | **pandera** | ≥0.20 | Contrato de dados (schema + checks) que **bloqueia** lotes inválidos | `src/contracts/schema.py`, `src/contracts/validate.py` |
 | **scikit-learn** | ≥1.4 | Baseline (LogisticRegression), split e métricas (ROC-AUC, Brier, calibração) | `src/model/train.py`, `src/model/evaluate.py` |
 | **xgboost** | ≥2.0 | Classificador principal de risco de crédito | `src/model/factory.py`, `configs/params.yaml` |
-| **evidently** | ≥0.4 | Relatório de drift (PSI / χ²) e suíte de testes | `src/drift/detect.py`, `reports/drift/drift_report.html` |
+| **evidently** | ≥0.7.23,<0.8 | Relatório de drift (PSI / χ²) e suíte de testes | `src/drift/detect.py`, `reports/drift/drift_report.html` |
 | **scipy** | ≥1.11 | Testes estatísticos (KS, χ²) e bootstrap do limiar multivariado | `src/drift/stats.py`, `src/drift/multivariate.py` |
 | **datasketch** | ≥1.6 | Deduplicação near-duplicate (MinHash/LSH) antes do split | `src/data/dedup.py` |
 | **mlflow** | ≥2.14 | Tracking de experimentos e Registry (`champion`/`challenger`) | `src/observability/tracking.py` |
@@ -153,7 +155,7 @@ Design patterns aplicados:
 │   └── observability/   # logging (run_id/trace_id), metrics, alerts, slo, retrain,
 │                        #   fairness, tracking (MLflow), exporter (Prometheus), run
 ├── dashboard/app.py     # dashboard Streamlit (SLO, PSI heatmap, alertas, Evidently)
-├── tests/               # 70 testes pytest
+├── tests/               # 80 testes pytest
 ├── docker/              # Dockerfile, docker-compose.yml, Grafana provisioning as-code
 ├── configs/             # params.yaml, prometheus.yml
 ├── scripts/             # download_data, generate_synthetic_data, make_bad_batch, drift_gate, validate_env
@@ -273,15 +275,19 @@ com produção.
 O contrato rígido é a **fonte única de verdade** (`src/contracts/schema.py`). A validação
 **bloqueia a ingestão** (`exit 1`) quando um lote viola o contrato e grava o relatório de violações.
 
-**Regras rígidas (≥ 3 exigidas pelo edital):** sem nulos (`nullable=False` em todas as 9 colunas),
-**range de idade** (`AGE ∈ [18, 100]`), **limites de renda/crédito** (`LIMIT_BAL ∈ [10 000, 1 000 000]`,
-intervalo fechado — o UCI 350 usa `LIMIT_BAL` como limite de crédito), `PAY_AMT1 ≥ 0`, domínios de
-`SEX/EDUCATION/MARRIAGE/PAY_0` e alvo `∈ {0, 1}`. `BILL_AMT` pode ser negativo (saldo credor).
+**Regras rígidas (≥ 3 exigidas pelo edital):** 10 regras que **bloqueiam** o lote —
+sem nulos (`nullable=False` em todas as 9 colunas), **sem duplicatas** (regra de tabela
+`no_duplicate_rows`), **range de idade** (`AGE ∈ [18, 100]`), **limites de renda/crédito**
+(`LIMIT_BAL ∈ [10 000, 1 000 000]`, intervalo fechado — o UCI 350 usa `LIMIT_BAL` como limite de
+crédito), `PAY_AMT1 ≥ 0`, domínios de `SEX/EDUCATION/MARRIAGE/PAY_0` e alvo `∈ {0, 1}`. `BILL_AMT` pode
+ser negativo (saldo credor). O treino depende de `reports/validation/result.json` no `dvc.yaml`: um lote
+reprovado **aborta o pipeline** antes de chegar ao modelo.
 
 | Evidência | Resultado |
 |---|---|
 | `data/reference/reference.parquet` | 29.797 linhas × 9 colunas, 0 violações (`reports/validation/result.json`) |
-| Lote corrompido (`make_bad_batch.py`) | **25 violações** em 7 regras — bloqueado com exit 1 (`reports/validation/bad_batch_result.json`) |
+| Lote corrompido (`make bad-batch`) | **26 violações** (inclui `no_duplicate_rows`) — bloqueado com exit 1 (`reports/validation/bad_batch_result.json`) |
+| Log da demonstração | `reports/validation/bad_batch_pipeline.ndjson` (a falha intencional não contamina a saúde do pipeline) |
 | Deduplicação | 30.000 → 29.797 (120 exatos + 83 near-duplicates; MinHash/LSH, limiar 0.9) |
 | Qualidade | completeness/uniqueness/consistency/validity = 1.0; `timeliness` = N/A (lote sem coluna temporal) |
 | Profiling | `reports/validation/profile.html` |
@@ -314,9 +320,17 @@ Bandas PSI: `stable < 0.1` · `moderate ≤ 0.25` · **`severe > 0.25`** (breach
 | MMD² (`LIMIT_BAL × AGE × BILL_AMT1 × PAY_AMT1`) | 0.076 > limiar 0.0039 (p95 bootstrap, 200 reamostragens) → **drifted** |
 | Energy distance | 0.335 > limiar 0.0398 → **drifted** |
 | KS (numérico) / χ²-Cramér's V (categórico) | significativos após FDR-BH (4 features) |
-| ROC-AUC mês 1 → mês 6 | ~0.656 → **0.609** (baseline ~0.761; queda 0.153) |
-| Concept drift | ~0.105 → ~0.153 (crescente até o mês 5; estabiliza no mês 6) |
+| ROC-AUC mês 1 → mês 6 | ~0.656 → **0.609** (baseline ~0.761; queda bruta 0.153) |
+| Concept drift **ajustado** | **0.013 → 0.087** — descontado o custo do gerador de rótulos (controle `progress=0`) |
+| Concept drift bruto | 0.105 → 0.153 — inclui o custo do gerador; **não** é usado na decisão |
 | Label drift `P(Y)` | ≈ 0 (`P` preservado — só `P(y|X)` muda) |
+
+> **Por que dois números:** o simulador substitui os rótulos originais por um substituto logístico
+> ajustado na referência. Esse substituto tem custo de AUC próprio (~0.09 no UCI 350), que **não** é
+> Concept Drift. O pipeline roda um snapshot de controle com `progress=0` e reporta
+> `concept_drift_adjusted = AUC(controle) − AUC(mês)` (`src/drift/concept.py:evaluate_concept_control`),
+> tanto em `performance.json` quanto em `health.html`. Sem esse controle, a queda seria superestimada em
+> quase 2×.
 
 > Relatório interativo: [`reports/drift/drift_report.html`](reports/drift/drift_report.html) (Evidently).
 > Evidências JSON: `statistical_report.json`, `performance.json`, `drift_test_result.json`.
@@ -386,6 +400,22 @@ Alertas consolidados (8): [... features severas juntas + features críticas por 
 - **MLflow Registry** via `src/observability/tracking.py` — aliases `champion`/`challenger`.
 - **Dashboard Streamlit** (`dashboard/app.py`) e **exporter** `/metrics` (`src/observability/exporter.py`)
   em `exporter:8000`, consumido por Prometheus + Grafana as-code.
+- **Relatório HTML de saúde versionado** — `reports/monitoring/health.html`
+  (`src/observability/report_html.py`): KPIs, status por tarefa, alertas, PSI × mês, performance,
+  SLO/error budget e fairness. É o artefato que comprova o monitoramento sem subir Docker.
+- **Alerta operacional `task_failure`** (`build_task_failure_alerts`): dispara quando a **última**
+  execução de um estágio terminou em `failed` — a contagem histórica de falhas não é acionável.
+
+**Evidências do rastreamento (não apenas código):**
+
+| Evidência | Conteúdo |
+|---|---|
+| `reports/monitoring/run_summary.json` | `tracking.tracked = true`, `model_version = "9"`, 6 alertas, SLO `critical`, retrain `retrain` |
+| MLflow (Docker, `make mlflow-up`) | experimento `credit_drift_monitor`, run `monitoramento`, Registry `credit_scoring` v9 com aliases `champion`/`challenger` |
+| `reports/monitoring/mlflow_registry.json` | export reproduzível (`make mlflow-export`): 9 versões, `champion`=v1, `challenger`=v9, métricas do run |
+| `reports/monitoring/health.html` | relatório renderizado a partir dos mesmos JSONs (commitado) |
+| `reports/monitoring/log_sample.ndjson` | amostra versionada do log JSON-lines (sem PII) |
+| `reports/monitoring/slo_report.json` | 4 SLOs + error budgets, reproduzíveis a partir dos inputs |
 
 ### Data SLOs e Error Budget
 
@@ -414,27 +444,67 @@ Definições completas em [`docs/metrics.md`](docs/metrics.md).
 
 ### Dashboard Grafana (`credit_drift_monitor.json`)
 
+**12 painéis** (7 canônicos + 5 do demo), todos ligados a métricas realmente emitidas pelo exporter:
+
 1. **Status das tarefas** (1=ok) · 2. **Latência por tarefa** · 3. **ROC-AUC por snapshot** ·
 4. **Queda de ROC-AUC vs baseline** · 5. **PSI por feature (heatmap de linha)** ·
-6. **Alertas de drift por tipo** · 7. **Error budget por SLO**.
+6. **Alertas de drift por tipo** · 7. **Error budget por SLO** ·
+8. **PSI do demo por feature/mês** · 9. **ROC-AUC do demo por mês** · 10. **PSI máx. do demo** ·
+11. **Queda de ROC-AUC do demo** · 12. **Alertas do demo por tipo**.
 
 ## Etapa 4 — Governança e LGPD
 
 Tratamento de **PII** (`ID` direto → removido na ingestão; `SEX`/`AGE`/`EDUCATION`/`MARRIAGE`
 quasi-identificadores; `LIMIT_BAL`/`BILL_AMT`/`PAY_AMT` sensíveis financeiros), **base legal** (LGPD
-art. 7º, X / art. 11, II, d) para risco de crédito, **retenção** por ciclo de vida e **mitigação de
-vieses** (disparate impact ≥ 0.8 e equal opportunity ≤ 0.10). O titular tem direito à **revisão de
-decisões automatizadas** (art. 20), viabilizado pelo versionamento no MLflow. Dados sintéticos são
-usados como salvaguarda em dev/CI.
+art. 7º, X para proteção do crédito; art. 7º, IX como base secundária; **não** há dado sensível do
+art. 5º, II), **retenção com prazos concretos**, **mitigação de vieses** implementada (limiar por
+subgrupo) e **análise causal** com identificação. O titular tem direito à **revisão de decisões
+automatizadas** (art. 20), viabilizado pelo versionamento no MLflow. Dados sintéticos são usados como
+salvaguarda em dev/CI.
 
-### Fairness por subgrupo
+### Base legal e retenção
+
+| Base legal | Aplicação |
+|---|---|
+| **LGPD art. 7º, X** (proteção do crédito) | Base **primária** para análise de risco e concessão de crédito, conforme legislação do Bacen/CMN |
+| **LGPD art. 7º, IX** (legítimo interesse) | Base **secundária** para clientes com relação existente; precedida de teste de balanceamento |
+| **LGPD art. 20** (revisão) | Direito de revisão de decisão automatizada, viável pelo MLflow Registry |
+
+| Artefato | Retenção | Descarte |
+|---|---|---|
+| Dados brutos (`data/raw/`) | 24 meses | exclusão do cache DVC + `dvc gc` |
+| Referência e snapshots (`data/reference/`, `data/production/`) | 24 meses | idem |
+| Relatórios (`reports/**`) | 5 anos | remoção versionada com registro em changelog |
+| Logs (`logs/`) | 90 dias | rotação diária + expurgo |
+| Modelos (Registry MLflow) | 2 gerações (`champion` + `challenger`) | arquivamento no Registry |
+| Segredos (`.env`) | enquanto válidos | revogação imediata |
+
+**Direitos do titular (art. 18)**: confirmação, acesso, correção, anonimização/eliminação,
+portabilidade e revisão de decisão automatizada. Pedidos de eliminação são atendidos em até 15 dias; o
+pipeline analítico **não** mantém vínculo com o `ID` (removido na ingestão), então a eliminação é
+executada no sistema de origem.
+
+### Fairness por subgrupo (medido)
 
 | Grupo | Razão de impacto dispar | Equal opportunity (ΔTPR) | Guardrails |
 |---|---|---|---|
 | `SEX` | 0.955 | 0.065 | ✔ passa |
 | `AGE_BIN` | 0.749 | 0.254 | ✘ viola (≥0.8 / ≤0.10) |
 
-> A violação em `AGE_BIN` **bloqueia** a promoção automática do challenger (`reports/monitoring/retrain_decision.json`).
+### Mitigação de vieses (implementada)
+
+`mitigate_fairness()` (`src/observability/fairness.py`) aplica **pós-processamento de limiar por
+subgrupo**, calibrado para igualar o TPR ao TPR global — não é apenas medição:
+
+| Grupo | ΔTPR antes | ΔTPR depois | Limiares por grupo |
+|---|---|---|---|
+| `SEX` | 0.065 | **0.005** | `1` → 0.57 · `2` → 0.47 |
+| `AGE_BIN` | 0.254 | **0.005** | `<30` → 0.18 · `30-44` → 0.38 · `45-59` → 0.62 · `60+` → 0.59 |
+
+Evidência: `reports/fairness/fairness_mitigation.json`. **Trade-off declarado**: equalizar o TPR
+reduz aprovações no grupo que passa a detectar mais inadimplentes — a escolha entre paridade e equal
+opportunity é de negócio/jurídico. A promoção do challenger continua **nunca automática**: o gate em
+`retrain_decision.json` exige AUC ≥ champion **e** fairness, e neste cenário **ambos** falham.
 
 ### Privacy by Design (7 princípios)
 
@@ -465,7 +535,7 @@ Detalhes: [`docs/governance_lgpd.md`](docs/governance_lgpd.md) e [`docs/data_dic
 
 ## DPIA (resumo)
 
-- **Finalidade**: análise de risco de crédito (legítimo interesse, art. 7º, X).
+- **Finalidade**: análise de risco de crédito (proteção do crédito, art. 7º, X; legítimo interesse, art. 7º, IX, como base secundária).
 - **Dados**: financeiros agregados + quasi-identificadores; nenhum dado é publicado por linha.
 - **Necessidade/proporcionalidade**: apenas features com valor preditivo; `ID` removido.
 - **Riscos**: viés discriminatório, reidentificação, decisão opaca.
@@ -474,9 +544,38 @@ Detalhes: [`docs/governance_lgpd.md`](docs/governance_lgpd.md) e [`docs/data_dic
 
 ## Análise causal
 
-DAG causal (choque macro → renda/emprego → comportamento → drift → decisão errada → dano financeiro e
-de fairness), com suposições, confundidores e caminhos contrafactuais, em
-[`docs/causal_dag.md`](docs/causal_dag.md).
+O DAG causal completo está em [`docs/causal_dag.md`](docs/causal_dag.md); o resumo consolidado:
+
+**Caminho causal**: choque macroeconômico (inflação, juros, desemprego) → renda/emprego e disposição
+de crédito → comportamento financeiro (`P(X)` muda) e relação risco × comportamento (`P(y|X)` muda) →
+degradação do modelo (ROC-AUC ↓, Brier ↑) → decisão de crédito errada → dano financeiro e dano de
+fairness. A detecção (PSI/KS/χ², MMD², Evidently) fecha o laço como controle que mitiga a degradação.
+
+| Elemento | Definição |
+|---|---|
+| **Estimand** | efeito causal do choque (exposição ao mês `t`) sobre `ΔAUC_t` e sobre `ΔTPR_g` por subgrupo |
+| **Tratamento** | exposição ao choque, com dose crescente (`drift.intensity × t/n`) |
+| **Mediadores** | `P(X)` e `P(y|X)` — **não** ajustar (são o mecanismo) |
+| **Confundidores** | sazonalidade, mudança de política de crédito, rótulos atrasados, variáveis omitidas (bureau) |
+| **Ajuste (backdoor)** | `∅` sob exogeneidade do choque; `{política de crédito, safra}` na versão observacional |
+| **Suposições** | choque exógeno; features são proxies do comportamento; rótulo sem viés sistemático; sem feedback loop forte |
+| **Contrafactual** | sem o pipeline, o dano ocorreria em silêncio até materializar; com o pipeline, o drift é detectado cedo e o re-treino é acionado por regra objetiva |
+
+**Escopo honesto**: é uma análise causal **descritiva** (DAG + identificação + contrafactual), não uma
+estimativa numérica de efeito. O pipeline entrega a série temporal que permitiria estimar via
+interrupted time series ou diferenças em diferenças com carteira de controle — registrado como próximo
+passo.
+
+## Limitações e próximos passos
+
+| Limitação | Próximo passo |
+|---|---|
+| Dataset histórico de Taiwan (2005) | revalidar em safra recente antes de qualquer uso real |
+| Concept drift simulado por substituto logístico | estimar `P(y|X)` com dados reais rotulados e monitorar com atraso de rótulo |
+| Snapshots mensais são cópias deslocadas da referência | gerar coortes mensais independentes com tamanho/vintage distintos |
+| Mitigação por limiar troca paridade por equal opportunity | decidir o ponto de operação com jurídico/negócio e registrar a política |
+| Não há estimativa causal numérica | ITS/DiD com carteira não exposta ao choque |
+| Promoção de modelo é manual (por design) | implementar aprovação em duas etapas com trilha de auditoria |
 
 ## Métricas de saúde
 
@@ -491,7 +590,7 @@ Workflow GitHub Actions (`.github/workflows/ci.yml`) com 5 jobs:
 push/PR → main
     │
     ├── lint           ── ruff check + ruff format --check
-    ├── test           ── pytest (70 testes)
+    ├── test           ── pytest (80 testes)
     ├── contract-gate  ── contrato DEVE bloquear lote corrompido (exit != 0)
     ├── drift-gate     ── self-check (sem falso positivo) + expect-breach (PSI > 0.25)
     └── docker-build   ── build da imagem (após lint+test)
@@ -542,6 +641,7 @@ make docker-build            # construir imagem (python:3.12-slim, usuário não
 
 ```bash
 make mlflow-up               # MLflow tracking server (perfil mlflow)
+make mlflow-export           # exporta o Registry (versões/aliases) para reports/
 make dashboard-up            # Dashboard Streamlit (perfil dashboard)
 make monitoring-up           # exporter + Prometheus + Grafana (perfil monitoring)
 make mlflow-down             # parar MLflow
@@ -582,7 +682,7 @@ Todos os hiperparâmetros ficam em [`configs/params.yaml`](configs/params.yaml) 
 ## Testes e lint
 
 ```bash
-make test      # uv run pytest (70 testes)
+make test      # uv run pytest (80 testes)
 make lint      # uv run ruff check . + ruff format --check .
 ```
 

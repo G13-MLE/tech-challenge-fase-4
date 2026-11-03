@@ -38,7 +38,12 @@ from src.core.dataset import (
     load_parquet,
 )
 from src.core.params import DemoParams, load_params
-from src.drift.concept import evaluate_snapshots, prior_label_drift
+from src.drift.concept import (
+    evaluate_concept_control,
+    evaluate_snapshots,
+    fit_concept_model,
+    prior_label_drift,
+)
 from src.drift.detect import build_evidently_report
 from src.drift.multivariate import build_multivariate_report
 from src.drift.simulate import simulate_snapshots
@@ -429,20 +434,25 @@ def run_demo(
     last_report["multivariate"] = build_multivariate_report(reference, last_snapshot)
 
     performance = evaluate_snapshots(snapshots, baseline_auc=baseline_auc)
+    control = evaluate_concept_control(
+        snapshots, fit_concept_model(reference), strength=demo.concept_drift_strength
+    )
     label = prior_label_drift(reference, last_snapshot)
     label_by_month = {
         month: prior_label_drift(reference, snapshot)
         for month, snapshot in enumerate(snapshots, start=1)
     }
-    for entry in performance:
+    for entry, control_auc in zip(performance, control, strict=True):
         drift = label_by_month[entry["month"]]
         entry["p_positive"] = drift["production_positive_rate"]
         entry["label_drift"] = drift["label_drift"]
+        entry["control_auc"] = control_auc
+        entry["concept_drift_adjusted"] = float(control_auc - entry["roc_auc"])
 
     drift_types = {
         "data_drift": bool(last_report["n_drifted"] > 0),
         "label_drift": bool(abs(label["label_drift"]) > 0.02),
-        "concept_drift": bool(performance[-1]["concept_drift"] > 0.0),
+        "concept_drift": bool(performance[-1]["concept_drift_adjusted"] > 0.0),
         "multivariate_drift": bool(last_report["multivariate"]["drifted"]),
     }
 

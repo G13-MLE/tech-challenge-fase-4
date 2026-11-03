@@ -114,11 +114,17 @@ def _validity(frame: pd.DataFrame) -> tuple[float, int]:
         CREDIT_CONTRACT.validate(frame, lazy=True)
     except pa_errors.SchemaErrors as err:
         failure_cases = err.failure_cases
+        n_invalid = 0
         if "index" in failure_cases.columns:
             rows = failure_cases.loc[failure_cases["schema_context"] == "Column", "index"]
             rows = pd.to_numeric(rows, errors="coerce").dropna().astype(int)
             n_invalid = int(rows.nunique())
-        else:  # pragma: no cover - contrato atual só tem checks de coluna
+        # Violações no nível de tabela (ex.: ``no_duplicate_rows``) não têm
+        # ``index``: o lote inteiro é inválido, não linhas isoladas.
+        table_violation = "schema_context" in failure_cases.columns and bool(
+            (~failure_cases["schema_context"].eq("Column")).any()
+        )
+        if table_violation:
             n_invalid = len(frame)
         n_invalid = min(n_invalid, len(frame))
         return float(1.0 - n_invalid / len(frame)), n_invalid

@@ -1,0 +1,113 @@
+{
+  "strategy": "equal_opportunity_group_thresholds",
+  "target_tpr": 0.24790747222644954,
+  "baseline": {
+    "SEX": {
+      "groups": {
+        "1": {
+          "approval_rate": 0.8204781616963758,
+          "tpr": 0.29194001874414244,
+          "count": 11837
+        },
+        "2": {
+          "approval_rate": 0.8587973273942093,
+          "tpr": 0.2267297723687176,
+          "count": 17960
+        }
+      },
+      "demographic_parity_diff": 0.03831916569783356,
+      "equal_opportunity_diff": 0.06521024637542483,
+      "disparate_impact_ratio": 0.9553804320582799,
+      "passes": true
+    },
+    "AGE_BIN": {
+      "groups": {
+        "<30": {
+          "approval_rate": 0.957086522848527,
+          "tpr": 0.05454545454545454,
+          "count": 4311
+        },
+        "30-44": {
+          "approval_rate": 0.8709567198177677,
+          "tpr": 0.18137982195845698,
+          "count": 17560
+        },
+        "45-59": {
+          "approval_rate": 0.7215932914046121,
+          "tpr": 0.308562197092084,
+          "count": 7155
+        },
+        "60+": {
+          "approval_rate": 0.7172503242542153,
+          "tpr": 0.30892857142857144,
+          "count": 771
+        }
+      },
+      "demographic_parity_diff": 0.2398361985943117,
+      "equal_opportunity_diff": 0.2543831168831169,
+      "disparate_impact_ratio": 0.7494101182404077,
+      "passes": false
+    }
+  },
+  "mitigated": {
+    "SEX": {
+      "groups": {
+        "1": {
+          "approval_rate": 0.8498775027456281,
+          "tpr": 0.2492970946579194,
+          "count": 11837
+        },
+        "2": {
+          "approval_rate": 0.8483296213808463,
+          "tpr": 0.24408384043272482,
+          "count": 17960
+        }
+      },
+      "demographic_parity_diff": 0.001547881364781789,
+      "equal_opportunity_diff": 0.005213254225194586,
+      "disparate_impact_ratio": 0.9981787006247592,
+      "passes": true,
+      "thresholds": {
+        "1": 0.57,
+        "2": 0.47
+      }
+    },
+    "AGE_BIN": {
+      "groups": {
+        "<30": {
+          "approval_rate": 0.7643238227789376,
+          "tpr": 0.25,
+          "count": 4311
+        },
+        "30-44": {
+          "approval_rate": 0.8031321184510251,
+          "tpr": 0.2518545994065282,
+          "count": 17560
+        },
+        "45-59": {
+          "approval_rate": 0.7843466107617051,
+          "tpr": 0.24652665589660744,
+          "count": 7155
+        },
+        "60+": {
+          "approval_rate": 0.7730220492866408,
+          "tpr": 0.2517857142857143,
+          "count": 771
+        }
+      },
+      "demographic_parity_diff": 0.038808295672087434,
+      "equal_opportunity_diff": 0.005327943509920774,
+      "disparate_impact_ratio": 0.9516788150037683,
+      "passes": true,
+      "thresholds": {
+        "<30": 0.18,
+        "30-44": 0.38,
+        "45-59": 0.62,
+        "60+": 0.59
+      }
+    }
+  },
+  "passes_before": false,
+  "passes_after": true,
+  "tradeoff": "Equalizar o TPR reduz aprova\u00e7\u00f5es no grupo que passa a detectar mais inadimplentes; a escolha entre paridade e equal opportunity \u00e9 de neg\u00f3cio."
+}

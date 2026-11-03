@@ -45,14 +45,14 @@ Limiar calibrado por bootstrap (n=200, quantil 0.95).
 
 ## Performance do modelo por mês
 
-| Mês | ROC-AUC | Queda vs baseline (concept drift) | Label drift P(Y) |
-| --- | --- | --- | --- |
-| M1 | 0.6561 | 0.1052 | 0.0021 |
-| M2 | 0.6418 | 0.1195 | 0.0011 |
-| M3 | 0.6248 | 0.1365 | 0.0014 |
-| M4 | 0.6130 | 0.1484 | 0.0017 |
-| M5 | 0.6079 | 0.1534 | 0.0014 |
-| M6 | 0.6087 | 0.1526 | -0.0009 |
+| Mês | ROC-AUC | Queda vs baseline (concept drift) | Concept drift ajustado | Label drift P(Y) |
+| --- | --- | --- | --- | --- |
+| M1 | 0.6561 | 0.1052 | 0.0129 | 0.0021 |
+| M2 | 0.6418 | 0.1195 | 0.0262 | 0.0011 |
+| M3 | 0.6248 | 0.1365 | 0.0402 | 0.0014 |
+| M4 | 0.6130 | 0.1484 | 0.0535 | 0.0017 |
+| M5 | 0.6079 | 0.1534 | 0.0854 | 0.0014 |
+| M6 | 0.6087 | 0.1526 | 0.0873 | -0.0009 |
 
 ## Tipos de drift
 

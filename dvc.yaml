@@ -46,6 +46,10 @@ stages:
     cmd: uv run python -m src.model.train
     deps:
       - data/reference/reference.parquet
+      # Gate de contrato: o treino só roda se a validação passou (DVC aborta
+      # antes se este artefato não existir/estiver desatualizado).
+      - reports/validation/result.json
+      - src/contracts/schema.py
       - src/model/train.py
       - src/model/evaluate.py
       - src/core/dataset.py
@@ -72,6 +76,7 @@ stages:
       - src/drift/report.py
       - src/model/predict.py
       - src/model/evaluate.py
+      - src/observability/logging.py
       - src/core/dataset.py
       - src/core/params.py
       - configs/params.yaml
@@ -105,6 +110,8 @@ stages:
       - configs/params.yaml
     outs:
       - reports/monitoring/run_summary.json:
+          cache: false
+      - reports/monitoring/health.html:
           cache: false
       - reports/fairness
     metrics:

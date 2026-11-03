@@ -12,6 +12,8 @@ from src.contracts.schema import (
     AGE_MAX,
     AGE_MIN,
     EDUCATION_ALLOWED,
+    LIMIT_BAL_MAX,
+    LIMIT_BAL_MIN,
     MARRIAGE_ALLOWED,
     PAY_ALLOWED,
     SEX_ALLOWED,
@@ -24,7 +26,7 @@ class CreditScoreRequest(BaseModel):
     """Payload de entrada para pontuar um registro de crédito.
 
     Attributes:
-        LIMIT_BAL: Limite de crédito concedido (> 0).
+        LIMIT_BAL: Limite de crédito concedido ([10 000, 1 000 000]).
         SEX: Código de sexo (∈ {1, 2}).
         EDUCATION: Código de escolaridade (∈ {1, 2, 3, 4}).
         MARRIAGE: Código de estado civil (∈ {1, 2, 3}).
@@ -36,7 +38,7 @@ class CreditScoreRequest(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    LIMIT_BAL: float = Field(gt=0)
+    LIMIT_BAL: float = Field(ge=LIMIT_BAL_MIN, le=LIMIT_BAL_MAX)
     SEX: int
     EDUCATION: int
     MARRIAGE: int

@@ -20,6 +20,7 @@ e estão **fora do escopo** do contrato — o domínio ``PAY_ALLOWED`` aplica-se
 a essas colunas quando retidas.
 """
 
+import pandas as pd
 import pandera.pandas as pa
 from pandera.typing import DataFrame, Series
 
@@ -64,6 +65,14 @@ CREDIT_CONTRACT = pa.DataFrameSchema(
         "PAY_AMT1": pa.Column(float, pa.Check.ge(0), nullable=False),
         "default_next_month": pa.Column(int, pa.Check.isin([0, 1]), nullable=False),
     },
+    # Regra de tabela: o edital exige explicitamente "sem duplicatas". Sem
+    # este check o lote só seria deduplicado silenciosamente na ingestão e um
+    # lote composto apenas por duplicatas passaria pelo contrato.
+    checks=pa.Check(
+        lambda frame: not frame.duplicated().any(),
+        name="no_duplicate_rows",
+        error="Lote contém linhas duplicadas.",
+    ),
     strict=False,
     coerce=False,
 )
@@ -90,6 +99,11 @@ class CreditSchema(pa.DataFrameModel):
     BILL_AMT1: Series[float] = pa.Field(nullable=False)
     PAY_AMT1: Series[float] = pa.Field(ge=0, nullable=False)
     default_next_month: Series[int] = pa.Field(isin=[0, 1], nullable=False)
+
+    @pa.dataframe_check
+    def no_duplicate_rows(cls, data: pd.DataFrame) -> pd.Series:  # noqa: N805
+        """Regra de tabela: nenhuma linha duplicada (espelha ``CREDIT_CONTRACT``)."""
+        return ~data.duplicated()
 
     class Config:
         """Configuração do ``DataFrameModel`` (espelha o contrato runtime)."""

@@ -36,11 +36,19 @@ def aggregate_task_metrics(log_path: Path) -> dict:
         Dicionário com contagem de falhas, latência total/máxima e volume.
     """
     if not log_path.exists():
-        return {"n_events": 0, "n_failed": 0, "total_latency_ms": 0.0, "rows_processed": 0}
+        return {
+            "n_events": 0,
+            "n_failed": 0,
+            "total_latency_ms": 0.0,
+            "rows_processed": 0,
+            "last_status": {},
+            "failed_tasks": [],
+        }
     n_events = 0
     n_failed = 0
     total_latency = 0.0
     rows = 0
+    last_status: dict[str, str] = {}
     with log_path.open(encoding="utf-8") as handle:
         for line in handle:
             line = line.strip()
@@ -48,15 +56,22 @@ def aggregate_task_metrics(log_path: Path) -> dict:
                 continue
             event = json.loads(line)
             n_events += 1
-            if event.get("status") == "failed":
+            status = event.get("status")
+            if status == "failed":
                 n_failed += 1
             total_latency += float(event.get("latency_ms", 0.0) or 0.0)
             rows += int(event.get("n_rows", 0) or 0)
+            if status in ("success", "failed") and event.get("task"):
+                last_status[str(event["task"])] = str(status)
     return {
         "n_events": n_events,
         "n_failed": n_failed,
         "total_latency_ms": round(total_latency, 2),
         "rows_processed": rows,
+        # Status da última execução de cada estágio: base do alerta de falha
+        # operacional (a contagem histórica ``n_failed`` não é acionável).
+        "last_status": last_status,
+        "failed_tasks": sorted(task for task, status in last_status.items() if status == "failed"),
     }
 
 

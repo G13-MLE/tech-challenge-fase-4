@@ -27,6 +27,7 @@ __all__ = [
     "STATISTICAL_SUMMARY_PATH",
     "DRIFT_TEST_RESULT_PATH",
     "RUN_SUMMARY_PATH",
+    "HEALTH_HTML_PATH",
     "SLO_REPORT_PATH",
     "RETRAIN_DECISION_PATH",
     "PROFILE_HTML_PATH",
@@ -72,6 +73,7 @@ PERFORMANCE_PATH = Path("reports/drift/performance.json")
 SLO_REPORT_PATH = Path("reports/monitoring/slo_report.json")
 RETRAIN_DECISION_PATH = Path("reports/monitoring/retrain_decision.json")
 RUN_SUMMARY_PATH = Path("reports/monitoring/run_summary.json")
+HEALTH_HTML_PATH = Path("reports/monitoring/health.html")
 FAIRNESS_DIR = Path("reports/fairness")
 
 # US7 — demo executável (`make demo-drift`): namespace isolado, nunca

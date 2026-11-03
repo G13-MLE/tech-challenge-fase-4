@@ -168,6 +168,42 @@ def test_evidently_html_flags_dataset_drift(tmp_path):
     assert "LIMIT_BAL" in content
 
 
+def test_simulate_snapshots_shifts_features_and_preserves_prior(tmp_path):
+    """A simulação desloca as features configuradas e preserva P(Y)."""
+    from src.drift.simulate import simulate_snapshots
+
+    reference = make_credit_frame(n_rows=800, seed=11)
+    paths = simulate_snapshots(destination_dir=tmp_path, n_snapshots=3, reference=reference)
+
+    assert len(paths) == 3
+    frames = [pd.read_parquet(path) for path in paths]
+    for column in ("LIMIT_BAL", "AGE", "PAY_0"):
+        means = [frame[column].mean() for frame in frames]
+        assert means[0] < means[-1], column
+
+    base_rate = float(reference["default_next_month"].mean())
+    rates = [float(frame["default_next_month"].mean()) for frame in frames]
+    assert max(abs(rate - base_rate) for rate in rates) < 0.05
+
+    # Features não configuradas mantêm a distribuição de referência.
+    for column in ("SEX", "MARRIAGE"):
+        assert abs(float(frames[-1][column].mean()) - float(reference[column].mean())) < 0.2
+
+
+def test_simulate_snapshots_flags_only_shifted_features(tmp_path):
+    """O detector marca como severas apenas features efetivamente deslocadas."""
+    from src.drift.simulate import simulate_snapshots
+
+    reference = make_credit_frame(n_rows=1200, seed=5)
+    paths = simulate_snapshots(destination_dir=tmp_path, n_snapshots=3, reference=reference)
+    production = pd.read_parquet(paths[-1])
+    report = build_statistical_report(reference, production, write=False)
+
+    severe = {name for name, entry in report["features"].items() if entry["severity"] == "severe"}
+    assert "LIMIT_BAL" in severe
+    assert severe <= {"LIMIT_BAL", "AGE", "PAY_0", "EDUCATION"}
+
+
 def test_render_statistical_summary_is_readable():
     """O resumo estatístico em Markdown evidencia a mudança por PSI/KS."""
     from src.drift.report import render_statistical_summary

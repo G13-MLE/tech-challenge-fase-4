@@ -2,8 +2,16 @@
   "status": "failed",
   "file": "data/corrupted/bad_batch.parquet",
   "n_rows": 201,
-  "n_violations": 25,
+  "n_violations": 26,
   "violations": [
+    {
+      "schema_context": "DataFrameSchema",
+      "column": null,
+      "check": "Lote cont\u00e9m linhas duplicadas.",
+      "check_number": 0,
+      "failure_case": 0.0,
+      "index": null
+    },
     {
       "schema_context": "Column",
       "column": "LIMIT_BAL",
@@ -213,11 +221,11 @@
       "reason": "lote sem coluna temporal; frescor garantido por DVC/snapshots mensais"
     },
     "consistency": 0.88115,
-    "validity": 0.880597,
+    "validity": 0.0,
     "n_rows": 201,
     "n_columns": 9,
     "n_duplicate_rows": 1,
-    "n_invalid_rows": 24,
+    "n_invalid_rows": 201,
     "missingness": {
       "n_rows": 201,
       "target_column": "default_next_month",

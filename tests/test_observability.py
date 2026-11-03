@@ -15,9 +15,10 @@ import src.observability.logging as logging_module
 import src.observability.retrain as retrain_module
 from src.observability.alerts import build_alerts, consolidate_history_alerts
 from src.observability.exporter import collect_metrics
-from src.observability.fairness import evaluate_fairness
+from src.observability.fairness import evaluate_fairness, mitigate_fairness
 from src.observability.logging import TaskTimer
-from src.observability.metrics import aggregate_health
+from src.observability.metrics import aggregate_health, aggregate_task_metrics
+from src.observability.report_html import render_health_html
 from src.observability.retrain import decide_retrain, max_consecutive_critical
 from src.observability.slo import MonitoringPipeline, evaluate_check
 from src.observability.tracking import tracking_run
@@ -315,3 +316,98 @@ def test_exporter_process_serves_metrics():
     finally:
         process.terminate()
         process.wait(timeout=10)
+
+
+def test_task_failure_alert_follows_last_status():
+    """Um estágio cuja última execução falhou gera alerta operacional."""
+    health = {
+        "model_auc_drop": 0.0,
+        "tasks": {"last_status": {"validacao": "failed"}, "failed_tasks": ["validacao"]},
+    }
+    alerts = build_alerts({"features": {}}, health)
+    assert any(alert["type"] == "task_failure" and alert["task"] == "validacao" for alert in alerts)
+
+
+def test_task_failure_alert_clears_after_success(tmp_path):
+    """Depois de uma execução bem-sucedida o mesmo estágio não alerta mais."""
+    log_path = tmp_path / "pipeline.ndjson"
+    events = [
+        {"task": "validacao", "status": "failed", "latency_ms": 1.0, "n_rows": 10},
+        {"task": "validacao", "status": "success", "latency_ms": 1.0, "n_rows": 10},
+    ]
+    log_path.write_text("\n".join(json.dumps(event) for event in events) + "\n")
+    metrics = aggregate_task_metrics(log_path)
+    assert metrics["last_status"] == {"validacao": "success"}
+    assert metrics["failed_tasks"] == []
+    assert build_alerts({"features": {}}, {"tasks": metrics}) == []
+
+
+def test_fairness_mitigation_reduces_equal_opportunity_gap():
+    """O pós-processamento de limiar aproxima o TPR entre subgrupos."""
+    rng = np.random.default_rng(7)
+    n = 800
+    frame = pd.DataFrame({"SEX": rng.integers(1, 3, n), "AGE": rng.integers(18, 80, n)})
+    labels = rng.integers(0, 2, n)
+    probabilities = np.clip(0.5 * labels + rng.normal(0.25, 0.15, n), 0.01, 0.99)
+    probabilities[frame["SEX"].to_numpy() == 1] -= 0.15
+    frame[TARGET] = labels
+
+    report = mitigate_fairness(frame, probabilities, TARGET)
+
+    before = report["baseline"]["SEX"]["equal_opportunity_diff"]
+    after = report["mitigated"]["SEX"]["equal_opportunity_diff"]
+    assert after <= before + 1e-9
+    assert len(set(report["mitigated"]["SEX"]["thresholds"].values())) > 1
+
+
+def test_health_html_renders_monitoring_evidence():
+    """O relatório HTML renderiza tarefas, PSI, performance e SLO."""
+    summary = {
+        "health": {
+            "tasks": {"last_status": {"ingestao": "success", "validacao": "success"}},
+            "drift_features_drifted": 4,
+            "model_auc_baseline": 0.761,
+            "model_auc_last": 0.609,
+            "model_auc_drop": 0.152,
+        },
+        "alerts": [
+            {
+                "type": "data_drift",
+                "severity": "high",
+                "month": 6,
+                "features": ["LIMIT_BAL"],
+                "message": "4 features com drift severo.",
+            }
+        ],
+        "slo": {"status_geral": "critical"},
+        "retrain_decision": "retrain",
+        "fairness_passed": False,
+    }
+    statistical = {
+        "max_psi": 2.2,
+        "history": [
+            {"month": 1, "features": {"LIMIT_BAL": {"psi": 0.05, "severity": "stable"}}},
+            {"month": 2, "features": {"LIMIT_BAL": {"psi": 0.6, "severity": "severe"}}},
+        ],
+    }
+    performance = [{"month": 1, "roc_auc": 0.66, "brier": 0.19, "concept_drift": 0.1}]
+    slo = {
+        "checks": [
+            {
+                "slo": "psi_max",
+                "value": 2.2,
+                "threshold": 0.25,
+                "error_budget": -1.95,
+                "status": "breach",
+            }
+        ]
+    }
+
+    document = render_health_html(summary, statistical, performance, slo, {})
+
+    assert document.startswith("<!DOCTYPE html>")
+    assert "Tarefas do pipeline" in document
+    assert "PSI por feature" in document
+    assert "Performance por snapshot" in document
+    assert "Data SLOs" in document
+    assert "critical" in document

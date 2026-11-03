@@ -11,14 +11,15 @@ idênticos aos expostos pelo exporter Prometheus (`src/observability/exporter.py
 - Logs em JSON-lines: todo evento traz `{task, status, timestamp, latency_ms, n_rows, run_id, trace_id}`.
   Nos eventos `started` os campos `latency_ms`/`n_rows` vêm zerados (ainda não medidos) e são
   preenchidos nos eventos de término (`success`/`failed`). Eventos de inferência acrescentam
-  `model_name`/`model_version` (FR-018).
+  `model_name`/`model_version` (FR-018). Todos os cinco estágios registram volume (`n_rows`).
+  Amostra versionada (sem PII): [`../reports/monitoring/log_sample.ndjson`](../reports/monitoring/log_sample.ndjson).
 - Relatórios em `reports/**/*.json` são a fonte do exporter (padrão *proxy*: lidos no momento do scrape).
 
 ## Métricas operacionais (exporter / dashboard)
 
 | Métrica | Tipo (Prometheus) | Labels | Fonte | Descrição | Limiar/alerta |
 | ------- | ----------------- | ------ | ----- | --------- | ------------- |
-| `pipeline_task_status` | Gauge | `task` | `logs/pipeline.ndjson` | 1 = sucesso, 0 = falha na última execução | 0 → alerta de falha |
+| `pipeline_task_status` | Gauge | `task` | `logs/pipeline.ndjson` | 1 = **última** execução do estágio com sucesso, 0 = falha | 0 → alerta `task_failure` |
 | `pipeline_task_latency_ms` | Gauge | `task` | `logs/pipeline.ndjson` | Latência do estágio (ms) | monitoramento |
 | `pipeline_rows_processed` | Gauge | `task` | `logs/pipeline.ndjson` | Linhas processadas pelo estágio | volume |
 | `drift_features_total` | Gauge | — | `statistical_report.json` | Nº de features avaliadas | — |
@@ -30,6 +31,15 @@ idênticos aos expostos pelo exporter Prometheus (`src/observability/exporter.py
 | `drift_alerts_total` | Gauge | `type` | `run_summary.json` | Nº de alertas por tipo | anti-fadiga |
 | `slo_error_budget` | Gauge | `slo` | `slo_report.json` | `valor − piso` (positivo = folga) | < 0 = breach |
 | `slo_status` | Gauge | `slo` | `slo_report.json` | 1 = pass, 0 = breach | 0 → ação |
+
+## Relatório HTML de saúde (evidência versionada)
+
+O estágio `monitoramento` gera, além dos JSONs, um **relatório HTML autocontido** em
+[`reports/monitoring/health.html`](../reports/monitoring/health.html) (`src/observability/report_html.py`):
+cartões de KPI (SLO, alertas, PSI, AUC, re-treino, fairness), status da última execução de cada tarefa,
+alertas consolidados, PSI por feature × mês, performance por snapshot (incluindo o concept drift
+ajustado), SLO/error budget e fairness. É o artefato que comprova o monitoramento sem exigir subir
+Docker — o dashboard Streamlit e o Grafana continuam disponíveis para exploração interativa.
 
 ## Métricas do demo (`make demo-drift`)
 
@@ -78,6 +88,11 @@ Consolidação (`src/observability/alerts.py`): alerta quando `breach_features` 
 drift **juntas** no mesmo mês, OU uma **feature crítica** (PSI > 0.25) permanece severa por
 `consolidation_windows` (≥3) meses consecutivos. O **re-treino** só dispara em `consecutive_critical_windows`
 (N=2) meses críticos — regra distinta e posterior à consolidação de alertas.
+
+Além dos alertas de drift, o pipeline emite **`task_failure`** quando a **última** execução de um
+estágio (`ingestao`, `validacao`, `treino`, `drift`, `monitoramento`) terminou com `status=failed` no
+log centralizado. É a métrica "status de execução das tarefas" do edital transformada em alerta
+acionável — uma contagem histórica de falhas não serviria (nunca voltaria a zero).
 
 ## Guardrails de promoção (re-treino)
 
