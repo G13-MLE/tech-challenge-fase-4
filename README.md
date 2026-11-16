@@ -107,7 +107,7 @@ Design patterns aplicados:
 | 4 | Mitigação de viés / fairness por subgrupo (**implementada**) | ✔ Concluído | `src/observability/fairness.py` (`mitigate_fairness`), `reports/fairness/fairness_mitigation.json` |
 | 4 | Análise causal com identificação e re-treino com guardrails | ✔ Concluído | `docs/causal_dag.md`, [resumo](#análise-causal), `src/observability/retrain.py` |
 | 4 | README completo cobrindo todos os entregáveis | ✔ Concluído | este README |
-| 4 | Vídeo STAR de 5 minutos | ⏳ Link pendente | seção [Vídeo STAR](#vídeo-star), `docs/video_script.md` |
+| 4 | Vídeo STAR de 5 minutos | ✔ Concluído | seção [Vídeo STAR](#vídeo-star), `docs/video_script.md`, [link público](https://drive.google.com/file/d/1HOeQgDW37jiqwuCBBzlwzpKgJG_wWFGz/view?usp=sharing) |
 
 ## Critérios de avaliação
 
@@ -117,7 +117,7 @@ Design patterns aplicados:
 | Detecção de Drift | 25% | ✔ Concluído | 6 snapshots Data + Concept Drift; PSI máx. 2.221 (`LIMIT_BAL`); MMD² 0.076 > limiar 0.0039; queda de ROC-AUC 0.761 → 0.609; Evidently |
 | Observabilidade e Logs | 20% | ✔ Concluído | Logs com `run_id`, SLO/Error Budget (`critical`), 6 alertas anti-fadiga (e alerta `task_failure` implementado), MLflow (run + versão 9), dashboard, `/metrics` e **`reports/monitoring/health.html`** |
 | Governança / LGPD | 15% | ✔ Concluído | PII/Privacy by Design, DAG causal, fairness com guardrails, Model Card e DPIA |
-| Vídeo STAR | 15% | ⏳ Pendente | roteiro em `docs/video_script.md`; link público a inserir |
+| Vídeo STAR | 15% | ✔ Concluído | roteiro em `docs/video_script.md`; [link público (Google Drive)](https://drive.google.com/file/d/1HOeQgDW37jiqwuCBBzlwzpKgJG_wWFGz/view?usp=sharing) |
 
 > Reproducibilidade (transversal): DVC pipeline com estágios em português, `dvc repro` idempotente, CI
 > com gates de contrato e drift e evidências versionadas em `reports/`.
@@ -711,7 +711,7 @@ Use `uv run dvc push` para sincronizar com o remote OneDrive (opcional).
 
 ## Vídeo STAR
 
-> **Link:** ⏳ pendente — inserir link público (YouTube unlisted / Loom / Drive).
+> **Link:** [Camada Sustentação Credit Score — vídeo STAR (Google Drive)](https://drive.google.com/file/d/1HOeQgDW37jiqwuCBBzlwzpKgJG_wWFGz/view?usp=sharing)
 >
 > **Demonstração rápida (sem DVC):** `make demo-drift` simula um choque econômico realista e imprime o
 > resumo do drift no terminal (PSI por feature/mês, queda de ROC-AUC, alertas), deixando a evidência em
