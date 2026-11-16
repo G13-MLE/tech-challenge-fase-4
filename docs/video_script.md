@@ -17,7 +17,9 @@
 
 ## Checklist de gravação
 
-- [ ] Resolução 1080p, áudio limpo, sem dados pessoais na tela.
-- [ ] Duração ≤ 5 min (usar 1.5x se necessário).
-- [ ] Cobrir explicitamente: contratos bloqueando, PSI-first, fairness, LGPD.
-- [ ] Publicar (YouTube unlisted / Loom / Drive) e colar o link no `README.md`.
+- [x] Resolução 1080p, áudio limpo, sem dados pessoais na tela.
+- [x] Duração ≤ 5 min (usar 1.5x se necessário).
+- [x] Cobrir explicitamente: contratos bloqueando, PSI-first, fairness, LGPD.
+- [x] Publicar (YouTube unlisted / Loom / Drive) e colar o link no `README.md`.
+
+> **Link público:** https://drive.google.com/file/d/1HOeQgDW37jiqwuCBBzlwzpKgJG_wWFGz/view?usp=sharing
